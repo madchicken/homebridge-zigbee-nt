@@ -191,7 +191,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     const ieeeAddr = message.data;
     // Stop permit join
     await this.permitJoinAccessory.setPermitJoin(false);
-    this.log.info(`Device announced leaving and is removed, id: ${ieeeAddr}`);
+    this.log.info(`Device announced leaving and will be removed, id: ${ieeeAddr}`);
     const uuid = this.api.hap.uuid.generate(ieeeAddr);
     const accessory = this.getAccessory(uuid);
     // Sometimes we can unpair device which doesn't exist in HomeKit

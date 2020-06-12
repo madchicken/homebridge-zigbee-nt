@@ -5218,19 +5218,19 @@ zcl-id@^0.5.0:
   resolved "https://registry.yarnpkg.com/zcl-id/-/zcl-id-0.5.0.tgz#59d8d5c67d76f8415eb1204231aa39d1cb8d6158"
   integrity sha512-a9U/wXhtzwNKgpr33NsYMc0CxpJMZusozNkMBlqjpSOHwzahP7iCRZOVRcsnPmagosyTFphOSfL7re6eZR0AhQ==
 
-zigbee-herdsman-converters@^12.0.100:
-  version "12.0.100"
-  resolved "https://registry.yarnpkg.com/zigbee-herdsman-converters/-/zigbee-herdsman-converters-12.0.100.tgz#5c8a9fddd5e241ff40a02df50912ca98cd8b6ae3"
-  integrity sha512-wAMkKvgQR5S875BqQIBtrVwI6AF7qk2FI7Id8XiZPMEk0l8fX+voFkq0o8WjUDjRwrFr3m/d9xJjFKIUXipUGw==
+zigbee-herdsman-converters@^12.0.111:
+  version "12.0.111"
+  resolved "https://registry.yarnpkg.com/zigbee-herdsman-converters/-/zigbee-herdsman-converters-12.0.111.tgz#59687e176360aa4ec486d8d3a8d3f60551f8c877"
+  integrity sha512-i/cybNFpyIqvT3B0Ad26jgk60qsjHBJh14QYPzInlHmoIXr77iH7XMyfq5M+bOJAGNpMSesEokgxX0AK3i5Rqw==
   dependencies:
     axios "*"
     https-proxy-agent "*"
     tar-stream "*"
 
-zigbee-herdsman@^0.12.90:
-  version "0.12.90"
-  resolved "https://registry.yarnpkg.com/zigbee-herdsman/-/zigbee-herdsman-0.12.90.tgz#b24af58616b5e0396285f16282f228e43a622ffd"
-  integrity sha512-Zt9GzegVbnHl/9rJgsQdrkkyUhd/2lFWXS7bOsYhzwt5aXotmAFE3CN1UiFRzWWLuGt2gqUZ6zYXi+8EqoreFQ==
+zigbee-herdsman@^0.12.94:
+  version "0.12.94"
+  resolved "https://registry.yarnpkg.com/zigbee-herdsman/-/zigbee-herdsman-0.12.94.tgz#8dbe245ddf18a12d2d62be9d2705f66fe76e3d69"
+  integrity sha512-DguO0kvLZdUUpmOC3qcL/ohGrKliZ7vHWApOZ7TH9+GF49YG0n0DMC8no+Ut1ZhBL14CO1ba9hQdLhtOD+wY/g==
   dependencies:
     debug "^4.1.1"
     fast-deep-equal "^2.0.1"
