@@ -1,8 +1,8 @@
 import { Controller } from 'zigbee-herdsman';
-import { EventEmitter } from 'events';
 import { findByDevice } from 'zigbee-herdsman-converters';
-import Endpoint from 'zigbee-herdsman/dist/controller/model/endpoint';
 import { Logger } from 'homebridge';
+import Device from 'zigbee-herdsman/dist/controller/model/device';
+import Endpoint from 'zigbee-herdsman/dist/controller/model/endpoint';
 
 export const endpointNames = [
   'left',
@@ -59,33 +59,35 @@ export const endpointNames = [
 ];
 const keyEndpointByNumber = new RegExp(`.*/([0-9]*)$`);
 
-export interface ZigBeeDevice {
-  type: string,
-  ieeeAddr: string,
-  networkAddress: number,
-  manufacturerID: number,
-  endpoints: Endpoint[],
-  manufacturerName: string,
-  powerSource: string,
-  modelID: string,
-  applicationVersion: number,
-  stackVersion: number,
-  zclVersion: number,
-  hardwareVersion: number,
-  dateCode: string,
-  softwareBuildID: string,
-  interviewCompleted: boolean,
-  interviewing: boolean,
-  lastSeen: number
+export interface HerdsmanDefinition {
+  zigbeeModel: string[];
+  model: string;
+  vendor: string;
+  description: string;
+  supports?: 'on/off',
+  meta?: any;
+  fromZigbee: any[],
+  toZigbee: any[],
+  [key: string]: any;
+}
+
+export type ZigBeeDevice = Device;
+
+export interface ZigBeeEntity {
+  type: 'device' | 'group',
+  group?: any;
+  device?: ZigBeeDevice;
+  endpoint?: Endpoint;
+  definition?: HerdsmanDefinition
+  name: string;
 }
 
 /* eslint-disable no-underscore-dangle */
-export class ZigBee extends EventEmitter {
+export class ZigBee {
   private herdsman: Controller;
   private readonly log: Logger;
 
   constructor(log: Logger = console) {
-    super();
     this.herdsman = null;
     this.log = log;
   }
@@ -137,15 +139,19 @@ export class ZigBee extends EventEmitter {
 
   async start() {
     await this.herdsman.start();
-    this.herdsman.on('adapterDisconnected', () => this.emit('adapterDisconnected'));
-    this.herdsman.on('deviceAnnounce', data => this.emit('event', 'deviceAnnounce', data));
-    this.herdsman.on('deviceInterview', data => this.emit('event', 'deviceInterview', data));
-    this.herdsman.on('deviceJoined', data => this.emit('event', 'deviceJoined', data));
-    this.herdsman.on('deviceLeave', data => this.emit('event', 'deviceLeave', data));
-    this.herdsman.on('message', data => this.emit('event', 'message', data));
+  }
+
+  on(message: string, listener: (...args: any[]) => void) {
+    this.herdsman.on(message, listener);
+  }
+
+  off(message: string, listener: (...args: any[]) => void) {
+    this.herdsman.off(message, listener);
   }
 
   async stop() {
+    await this.toggleLed(false);
+    await this.permitJoin(false);
     await this.herdsman.stop();
   }
 
@@ -206,9 +212,11 @@ export class ZigBee extends EventEmitter {
   }
 
   async toggleLed(on: boolean) {
-    const supported = await this.herdsman.supportsLED();
-    if (supported) {
-      return this.herdsman.setLED(on);
+    if (this.herdsman) {
+      const supported = await this.herdsman.supportsLED();
+      if (supported) {
+        return this.herdsman.setLED(on);
+      }
     }
     return Promise.resolve();
   }
@@ -224,7 +232,7 @@ export class ZigBee extends EventEmitter {
    *      definition: zigbee-herdsman-converters definition (only if type === device)
    * }
    */
-  resolveEntity(key: any) {
+  resolveEntity(key: any): ZigBeeEntity {
     if (typeof key === 'string') {
       if (key.toLowerCase() === 'coordinator') {
         const coordinator = this.coordinator();
@@ -232,7 +240,6 @@ export class ZigBee extends EventEmitter {
           type: 'device',
           device: coordinator,
           endpoint: coordinator.getEndpoint(1),
-          settings: { friendlyName: 'Coordinator' },
           name: 'Coordinator',
         };
       }
@@ -248,13 +255,13 @@ export class ZigBee extends EventEmitter {
 
       // FIXME
       return null;
-    } /* istanbul ignore else newApi */ else if (key.constructor.name === 'Device') {
+    } else if (key.constructor.name === 'Device') {
       return {
         type: 'device',
         device: key,
         endpoint: key.endpoints[0],
         name: key.type === 'Coordinator' ? 'Coordinator' : key.ieeeAddr,
-        definition: findByDevice(key),
+        definition: findByDevice(key) as HerdsmanDefinition,
       };
     } else {
       // Group
@@ -276,5 +283,9 @@ export class ZigBee extends EventEmitter {
 
   createGroup(groupID) {
     return this.herdsman.createGroup(groupID);
+  }
+
+  async touchlinkFactoryReset() {
+    return this.herdsman.touchlinkFactoryReset();
   }
 }

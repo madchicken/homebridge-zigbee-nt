@@ -65,7 +65,6 @@ export class ZigBeeClient {
   }
 
   async sendMessage(entityKey: any, action: string, json: JsonPayload): Promise<Endpoint> {
-    // const entityKey = `${topic.ID}` + (topic.endpointName ? `/${topic.endpointName}` : '');
     const resolvedEntity = this.zigBee.resolveEntity(entityKey);
 
     if (!resolvedEntity) {
@@ -83,7 +82,7 @@ export class ZigBeeClient {
     if (resolvedEntity.type === 'device') {
       if (!resolvedEntity.definition) {
         this.log.warn(`Device with modelID '${resolvedEntity.device.modelID}' is not supported.`);
-        this.log.warn(`Please see: https://www.zigbee2mqtt.io/how_tos/how_to_support_new_devices.html`);
+        this.log.warn(`Please see: https://github.com/madchicken/homebridge-zigbee-nt/wiki/How-to-support-new-devices`);
         return;
       }
 
@@ -103,7 +102,7 @@ export class ZigBeeClient {
      * Order state & brightness based on current bulb state
      *
      * Not all bulbs support setting the color/color_temp while it is off
-     * this results in inconsistant behavior between different vendors.
+     * this results in inconsistent behavior between different vendors.
      *
      * bulb on => move state & brightness to the back
      * bulb off => move state & brightness to the front

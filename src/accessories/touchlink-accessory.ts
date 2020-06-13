@@ -1,11 +1,11 @@
 import { ZigbeeNTHomebridgePlatform } from '../platform';
-import { CharacteristicEventTypes, Logger, PlatformAccessory, Service } from 'homebridge';
+import { Logger, PlatformAccessory, Service } from 'homebridge';
 
 import {ZigBee} from "../zigbee";
 
 const pkg = require('../../package.json');
 
-export class PermitJoinAccessory {
+export class TouchlinkAccessory {
   private inProgress: boolean;
   private readonly timeout: number;
   private readonly log: Logger;
@@ -36,7 +36,7 @@ export class PermitJoinAccessory {
       .setCharacteristic(Characteristic.Model, pkg.name)
       .setCharacteristic(Characteristic.SerialNumber, serialNumber)
       .setCharacteristic(Characteristic.FirmwareRevision, pkg.version)
-      .setCharacteristic(platform.Characteristic.Name, "ZigBee Permit Join");
+      .setCharacteristic(Characteristic.Name, "ZigBee Touchlink");
 
     this.switchService =
       this.accessory.getService(platform.Service.Switch) ||
@@ -44,27 +44,30 @@ export class PermitJoinAccessory {
 
     this.accessory.on('identify', this.handleAccessoryIdentify);
     const characteristic = this.switchService.getCharacteristic(this.platform.Characteristic.On);
-    characteristic.on(CharacteristicEventTypes.GET, callback => this.handleGetSwitchOn(callback));
-    characteristic.on(CharacteristicEventTypes.SET, (value, callback) => this.handleSetSwitchOn(value, callback));
-    // Disable permit join on start
-    this.setPermitJoin(false);
+    characteristic.on('get', callback => this.handleGetSwitchOn(callback));
+    characteristic.on('set', (value, callback) => this.handleSetSwitchOn(value, callback));
   }
 
   handleAccessoryIdentify() {}
 
-  async setPermitJoin(value: boolean) {
-    await this.zigBee.permitJoin(value ? this.timeout : 0);
-    this.switchService.getCharacteristic(this.platform.Characteristic.On).updateValue(value);
-    this.inProgress = value;
-  }
-
-  private handleGetSwitchOn(callback) {
+  handleGetSwitchOn(callback) {
     callback(null, this.inProgress);
   }
 
-  private async handleSetSwitchOn(value, callback) {
-    this.log.debug(value ? 'started' : 'stopped');
-    await this.setPermitJoin(value);
+  handleSetSwitchOn(value: boolean, callback) {
+    this.log.info('Starting touchlink factory reset...');
+    if (!this.inProgress) {
+      this.switchService.getCharacteristic(this.platform.Characteristic.On).updateValue(true);
+      this.zigBee.touchlinkFactoryReset().then((result) => {
+        this.inProgress = false;
+        this.switchService.getCharacteristic(this.platform.Characteristic.On).updateValue(false);
+        if (result) {
+          this.log.info('Successfully factory reset device through Touchlink');
+        } else {
+          this.log.warn('Failed to factory reset device through Touchlink');
+        }
+      });
+    }
     callback();
   }
 }
