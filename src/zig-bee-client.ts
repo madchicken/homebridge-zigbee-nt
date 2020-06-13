@@ -149,7 +149,7 @@ export class ZigBeeClient {
       if (action === 'set' && converter.convertSet) {
         this.log.debug(`Publishing '${action}' '${key}' to '${resolvedEntity.name}'`);
         const result = await converter.convertSet(actualTarget, key, value, meta);
-        this.log.info('Result from zigbee (SET)', result);
+        this.log.debug('Result from zigbee (SET)', result);
 
         // It's possible for devices to get out of sync when writing an attribute that's not reportable.
         // So here we re-read the value after a specified timeout, this timeout could for example be the
@@ -165,7 +165,7 @@ export class ZigBeeClient {
           converter
         );
         await converter.convertGet(actualTarget, key, meta);
-        this.log.info('Result from zigbee (GET)', actualTarget.clusters);
+        this.log.debug('Result from zigbee (GET)', actualTarget.clusters);
         return actualTarget;
       } else {
         throw new Error(`No converter available for '${action}' '${key}' (${json[key]})`);
