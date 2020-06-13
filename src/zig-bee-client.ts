@@ -16,20 +16,19 @@ const groupConverters = [
   toZigbeeConverters.light_brightness_move,
 ];
 
-
 export interface JsonPayload {
   state?: 'ON' | 'OFF' | 'TOGGLE';
-  brightness?: number, // Value between 0 and 255
+  brightness?: number; // Value between 0 and 255
   brightness_percent?: number; // 0-100
   // Color temperature in Reciprocal MegaKelvin, a.k.a. Mirek scale.
   // Mirek = 1,000,000 / Color Temperature in Kelvin
   // Values typically between 50 and 400. The higher the value, the warmer the color.
-  color_temp?: number,
+  color_temp?: number;
   color?: {
     // RGB color
     hue?: number;
     s?: number;
-  },
+  };
   // Blinks the bulbs, possible values:
   // - "select": single blink
   // - "lselect": blinking for a longer time
@@ -43,10 +42,10 @@ interface Meta {
   endpoint_name: string;
   options: any;
   message: JsonPayload;
-  logger: Logger,
-  device: ZigBeeDevice,
-  mapped: any,
-  state: any,
+  logger: Logger;
+  device: ZigBeeDevice;
+  mapped: any;
+  state: any;
 }
 
 interface Converter {
@@ -82,7 +81,9 @@ export class ZigBeeClient {
     if (resolvedEntity.type === 'device') {
       if (!resolvedEntity.definition) {
         this.log.warn(`Device with modelID '${resolvedEntity.device.modelID}' is not supported.`);
-        this.log.warn(`Please see: https://github.com/madchicken/homebridge-zigbee-nt/wiki/How-to-support-new-devices`);
+        this.log.warn(
+          `Please see: https://github.com/madchicken/homebridge-zigbee-nt/wiki/How-to-support-new-devices`
+        );
         return;
       }
 
@@ -90,12 +91,10 @@ export class ZigBeeClient {
       definition = resolvedEntity.definition;
       target = resolvedEntity.endpoint;
       converters = resolvedEntity.definition.toZigbee;
-      options = resolvedEntity.settings;
     } else {
       converters = groupConverters;
       target = resolvedEntity.group;
-      options = resolvedEntity.settings;
-      definition = resolvedEntity.group.members.map((e) => findByDevice(e.getDevice()));
+      definition = resolvedEntity.group.members.map(e => findByDevice(e.getDevice()));
     }
 
     /**
@@ -109,7 +108,9 @@ export class ZigBeeClient {
      */
     const entries: [string, keyof JsonPayload][] = Object.entries(json);
     const sorter = json.state === 'OFF' ? 1 : -1;
-    entries.sort((a, b) => (['state', 'brightness', 'brightness_percent'].includes(a[0]) ? sorter : sorter * -1));
+    entries.sort((a, b) =>
+      ['state', 'brightness', 'brightness_percent'].includes(a[0]) ? sorter : sorter * -1
+    );
 
     let [key, value] = entries[0]; // exec just the first operation
     let endpointName: string = action;
@@ -127,7 +128,7 @@ export class ZigBeeClient {
       }
     }
 
-    const converter = converters.find((c) => c.key.includes(key));
+    const converter = converters.find(c => c.key.includes(key));
 
     if (!converter) {
       throw new Error(`No converter available for '${key}' (${json[key]})`);
@@ -141,7 +142,7 @@ export class ZigBeeClient {
       logger: this.log,
       device,
       mapped: definition,
-      state: {}
+      state: {},
     };
 
     try {
@@ -159,7 +160,10 @@ export class ZigBeeClient {
         // Only do this when the retrieve_state option is enabled for this device.
         return actualTarget;
       } else if (action === 'get' && converter.convertGet) {
-        this.log.debug(`Publishing get '${action}' '${key}' to '${resolvedEntity.name}'`, converter);
+        this.log.debug(
+          `Publishing get '${action}' '${key}' to '${resolvedEntity.name}'`,
+          converter
+        );
         await converter.convertGet(actualTarget, key, meta);
         this.log.info('Result from zigbee (GET)', actualTarget.clusters);
         return actualTarget;
@@ -167,8 +171,7 @@ export class ZigBeeClient {
         throw new Error(`No converter available for '${action}' '${key}' (${json[key]})`);
       }
     } catch (error) {
-      const message =
-        `Publish '${action}' '${key}' to '${resolvedEntity.name}' failed: '${error}'`;
+      const message = `Publish '${action}' '${key}' to '${resolvedEntity.name}' failed: '${error}'`;
       this.log.error(message);
       this.log.debug(error.stack);
       throw error;

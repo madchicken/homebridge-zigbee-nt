@@ -35,11 +35,13 @@ export abstract class ZigBeeAccessory {
     this.timeouts = {};
     this.accessory = accessory;
     this.accessory.context = device;
+    let Characteristic = platform.Characteristic;
     this.accessory
       .getService(this.platform.Service.AccessoryInformation)
-      .setCharacteristic(this.platform.Characteristic.Manufacturer, device.manufacturerName)
-      .setCharacteristic(this.platform.Characteristic.Model, device.modelID)
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, device.ieeeAddr);
+      .setCharacteristic(Characteristic.Manufacturer, device.manufacturerName)
+      .setCharacteristic(Characteristic.Model, device.modelID)
+      .setCharacteristic(Characteristic.SerialNumber, device.ieeeAddr)
+      .setCharacteristic(Characteristic.Name, this.getHerdsmanDefinition().description);
     this.getAvailableServices();
     this.accessory.on('identify', this.handleAccessoryIdentify);
   }
@@ -54,7 +56,9 @@ export abstract class ZigBeeAccessory {
     return findByDevice(this.getZigBeeDeviceDescriptor()) as HerdsmanDefinition;
   }
 
-  public get name() { return this.getHerdsmanDefinition()?.description };
+  public get name() {
+    return this.getHerdsmanDefinition()?.description;
+  }
 
   public abstract getAvailableServices();
 }

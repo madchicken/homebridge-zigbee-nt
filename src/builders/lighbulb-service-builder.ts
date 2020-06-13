@@ -2,17 +2,26 @@ import { Callback, CharacteristicEventTypes, PlatformAccessory, Service } from '
 import { ZigBeeClient } from '../zig-bee-client';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 
+function normalizeBrightness(value: number) {
+  return Math.round((value / 254) * 100);
+}
+
 export class LighbulbServiceBuilder {
   private readonly client: ZigBeeClient;
   private readonly accessory: PlatformAccessory;
   private readonly platform: ZigbeeNTHomebridgePlatform;
   private readonly service: Service;
 
-  constructor(platform: ZigbeeNTHomebridgePlatform, accessory: PlatformAccessory, client: ZigBeeClient) {
+  constructor(
+    platform: ZigbeeNTHomebridgePlatform,
+    accessory: PlatformAccessory,
+    client: ZigBeeClient
+  ) {
     this.platform = platform;
     this.accessory = accessory;
     this.client = client;
-    this.service = this.accessory.getService(platform.Service.Lightbulb) ||
+    this.service =
+      this.accessory.getService(platform.Service.Lightbulb) ||
       this.accessory.addService(platform.Service.Lightbulb);
   }
 
@@ -23,7 +32,9 @@ export class LighbulbServiceBuilder {
       .getCharacteristic(Characteristic.On)
       .on(CharacteristicEventTypes.SET, async (yes: boolean, callback: Callback) => {
         try {
-          await this.client.sendMessage(this.accessory.context, 'set', { state: yes ? 'ON' : 'OFF' })
+          await this.client.sendMessage(this.accessory.context, 'set', {
+            state: yes ? 'ON' : 'OFF',
+          });
           callback();
         } catch (e) {
           callback(e);
@@ -32,7 +43,9 @@ export class LighbulbServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.On)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        const response = await this.client.sendMessage(this.accessory.context, 'get', { state: 'ON' });
+        const response = await this.client.sendMessage(this.accessory.context, 'get', {
+          state: 'ON',
+        });
         callback(null, response && response.getClusterAttributeValue('genOnOff', 'onOff'));
       });
 
@@ -46,7 +59,7 @@ export class LighbulbServiceBuilder {
       .getCharacteristic(Characteristic.Brightness)
       .on(CharacteristicEventTypes.SET, async (brightness_percent: number, callback: Callback) => {
         try {
-          await this.client.sendMessage(this.accessory.context, 'set', { brightness_percent })
+          await this.client.sendMessage(this.accessory.context, 'set', { brightness_percent });
           callback();
         } catch (e) {
           callback(e);
@@ -55,9 +68,11 @@ export class LighbulbServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.Brightness)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        const response = await this.client.sendMessage(this.accessory.context, 'get', { brightness_percent: 0 });
+        const response = await this.client.sendMessage(this.accessory.context, 'get', {
+          brightness: 0,
+        });
         const value = response && response.getClusterAttributeValue('genLevelCtrl', 'currentLevel');
-        callback(null, value);
+        callback(null, normalizeBrightness(Number(value)));
       });
     return this;
   }
@@ -78,8 +93,11 @@ export class LighbulbServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.ColorTemperature)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        const response = await this.client.sendMessage(this.accessory.context, 'get', { color_temp: 0 });
-        const color_temp = response && response.getClusterAttributeValue('lightingColorCtrl', 'colorTemperature');
+        const response = await this.client.sendMessage(this.accessory.context, 'get', {
+          color_temp: 0,
+        });
+        const color_temp =
+          response && response.getClusterAttributeValue('lightingColorCtrl', 'colorTemperature');
         callback(null, color_temp);
       });
 
@@ -102,8 +120,11 @@ export class LighbulbServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.Hue)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        const response = await this.client.sendMessage(this.accessory.context, 'get', { color: { hue: 0 } });
-        const hue = response && response.getClusterAttributeValue('lightingColorCtrl', 'currentHue');
+        const response = await this.client.sendMessage(this.accessory.context, 'get', {
+          color: { hue: 0 },
+        });
+        const hue =
+          response && response.getClusterAttributeValue('lightingColorCtrl', 'currentHue');
         callback(null, hue);
       });
 
@@ -117,7 +138,9 @@ export class LighbulbServiceBuilder {
       .getCharacteristic(Characteristic.Saturation)
       .on(CharacteristicEventTypes.SET, async (saturation: number, callback: Callback) => {
         try {
-          await this.client.sendMessage(this.accessory.context, 'set', { color: { s: saturation } });
+          await this.client.sendMessage(this.accessory.context, 'set', {
+            color: { s: saturation },
+          });
           callback();
         } catch (e) {
           callback(e);
@@ -126,8 +149,11 @@ export class LighbulbServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.Saturation)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        const response = await this.client.sendMessage(this.accessory.context, 'get', { color: { s: 0 } });
-        const hue = response && response.getClusterAttributeValue('lightingColorCtrl', 'currentSaturation');
+        const response = await this.client.sendMessage(this.accessory.context, 'get', {
+          color: { s: 0 },
+        });
+        const hue =
+          response && response.getClusterAttributeValue('lightingColorCtrl', 'currentSaturation');
         callback(null, hue);
       });
 

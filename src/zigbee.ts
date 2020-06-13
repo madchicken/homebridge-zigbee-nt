@@ -64,21 +64,21 @@ export interface HerdsmanDefinition {
   model: string;
   vendor: string;
   description: string;
-  supports?: 'on/off',
+  supports?: 'on/off';
   meta?: any;
-  fromZigbee: any[],
-  toZigbee: any[],
+  fromZigbee: any[];
+  toZigbee: any[];
   [key: string]: any;
 }
 
 export type ZigBeeDevice = Device;
 
 export interface ZigBeeEntity {
-  type: 'device' | 'group',
+  type: 'device' | 'group';
   group?: any;
   device?: ZigBeeDevice;
   endpoint?: Endpoint;
-  definition?: HerdsmanDefinition
+  definition?: HerdsmanDefinition;
   name: string;
 }
 
@@ -124,7 +124,7 @@ export class ZigBee {
         ],
         panID: 0x1a62,
         extendedPanID: [0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd],
-        channelList: [11],
+        channelList: [config.channel],
       },
       databaseBackupPath: null,
       backupPath: null,
@@ -183,8 +183,8 @@ export class ZigBee {
     return this.herdsman.getDevices().filter(device => device.type !== 'Coordinator');
   }
 
-  device(addr) {
-    return this.herdsman.getDeviceByIeeeAddr(addr);
+  device(ieeeAddr: string) {
+    return this.herdsman.getDeviceByIeeeAddr(ieeeAddr);
   }
 
   endpoints(addr) {
@@ -202,13 +202,20 @@ export class ZigBee {
     }
   }
 
-  remove(addr) {
-    return this.herdsman.getDeviceByIeeeAddr(addr).removeFromDatabase();
+  remove(ieeeAddr: string) {
+    let device = this.herdsman.getDeviceByIeeeAddr(ieeeAddr);
+    if (device) {
+      return device.removeFromDatabase();
+    }
+    return Promise.reject(`Device ${ieeeAddr} not found`);
   }
 
-  unregister(addr) {
-    const device = this.herdsman.getDeviceByIeeeAddr(addr);
-    return device.removeFromDatabase();
+  unregister(ieeeAddr: string) {
+    const device = this.herdsman.getDeviceByIeeeAddr(ieeeAddr);
+    if (device) {
+      return device.removeFromDatabase();
+    }
+    return Promise.reject(`Device ${ieeeAddr} not found`);
   }
 
   async toggleLed(on: boolean) {

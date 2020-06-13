@@ -1,7 +1,7 @@
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { CharacteristicEventTypes, Logger, PlatformAccessory, Service } from 'homebridge';
 
-import {ZigBee} from "../zigbee";
+import { ZigBee } from '../zigbee';
 
 const pkg = require('../../package.json');
 
@@ -36,7 +36,7 @@ export class PermitJoinAccessory {
       .setCharacteristic(Characteristic.Model, pkg.name)
       .setCharacteristic(Characteristic.SerialNumber, serialNumber)
       .setCharacteristic(Characteristic.FirmwareRevision, pkg.version)
-      .setCharacteristic(platform.Characteristic.Name, "ZigBee Permit Join");
+      .setCharacteristic(platform.Characteristic.Name, 'ZigBee Permit Join');
 
     this.switchService =
       this.accessory.getService(platform.Service.Switch) ||
@@ -45,7 +45,9 @@ export class PermitJoinAccessory {
     this.accessory.on('identify', this.handleAccessoryIdentify);
     const characteristic = this.switchService.getCharacteristic(this.platform.Characteristic.On);
     characteristic.on(CharacteristicEventTypes.GET, callback => this.handleGetSwitchOn(callback));
-    characteristic.on(CharacteristicEventTypes.SET, (value, callback) => this.handleSetSwitchOn(value, callback));
+    characteristic.on(CharacteristicEventTypes.SET, (value, callback) =>
+      this.handleSetSwitchOn(value, callback)
+    );
     // Disable permit join on start
     this.setPermitJoin(false);
   }
@@ -53,7 +55,7 @@ export class PermitJoinAccessory {
   handleAccessoryIdentify() {}
 
   async setPermitJoin(value: boolean) {
-    await this.zigBee.permitJoin(value ? this.timeout : 0);
+    await this.zigBee.permitJoin(value);
     this.switchService.getCharacteristic(this.platform.Characteristic.On).updateValue(value);
     this.inProgress = value;
   }
@@ -63,7 +65,6 @@ export class PermitJoinAccessory {
   }
 
   private async handleSetSwitchOn(value, callback) {
-    this.log.debug(value ? 'started' : 'stopped');
     await this.setPermitJoin(value);
     callback();
   }
