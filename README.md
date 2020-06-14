@@ -12,9 +12,23 @@ To enable a new device you must implement a new HomeKit Device class and regirst
 
 This project has been heavily inspired by [homebridge-zigbee](https://github.com/itsmepetrov/homebridge-zigbee) plugin by Anton Petrov.
 
-##Supported devices
+## Supported devices
 
 [See wiki page](https://github.com/madchicken/homebridge-zigbee-nt/wiki/Supported-devices) 
+
+## Build from sources
+
+To build and run the plugin from sources, you need to install [yarn](https://yarnpkg.com) first.
+
+Clone the repo:
+
+    git clone git@github.com:madchicken/homebridge-zigbee-nt.git
+
+Once you get it, run yarn command:
+
+    yarn && yarn build
+
+You should end up with a new `dist/` folder containing the compiled version of the plugin. 
 
 ## License
 

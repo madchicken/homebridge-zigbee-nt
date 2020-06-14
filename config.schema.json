@@ -52,17 +52,9 @@
         "type": "string",
         "required": false
       },
-      "permitJoinTimeout": {
-        "title": "Permit Join Timeout",
-        "description": "Timeout of permit join command (seconds).",
-        "type": "number",
-        "default": 120,
-        "minimum": 0,
-        "required": false
-      },
       "routerPollingInterval": {
         "title": "Router Polling Interval",
-        "description": "Router polling intervall, some routers need polling to prevent them from sleeping (seconds).",
+        "description": "Router polling interval, some routers need polling to prevent them from sleeping (seconds).",
         "type": "number",
         "default": 60,
         "minimum": 30,
@@ -72,14 +64,14 @@
         "title": "Disable Led",
         "description": "Turn off the stick led indicator.",
         "type": "boolean",
-        "default": false,
+        "default": true,
         "required": false
       },
       "disablePingLog": {
         "title": "Disable Ping Log",
         "description": "Disable ping records in log.",
         "type": "boolean",
-        "default": false,
+        "default": true,
         "required": false
       }
     }
