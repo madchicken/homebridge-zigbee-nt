@@ -1,7 +1,6 @@
 import { endpointNames, ZigBee, ZigBeeDevice } from './zigbee';
 import { Logger } from 'homebridge';
 import { findByDevice, toZigbeeConverters } from 'zigbee-herdsman-converters';
-import { sleep } from './utils/sleep';
 import Endpoint from 'zigbee-herdsman/dist/controller/model/endpoint';
 
 const groupConverters = [
@@ -108,7 +107,7 @@ export class ZigBeeClient {
      */
     const entries: [string, keyof JsonPayload][] = Object.entries(json);
     const sorter = json.state === 'OFF' ? 1 : -1;
-    entries.sort((a, b) =>
+    entries.sort(a =>
       ['state', 'brightness', 'brightness_percent'].includes(a[0]) ? sorter : sorter * -1
     );
 
