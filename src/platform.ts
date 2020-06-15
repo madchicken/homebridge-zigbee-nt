@@ -116,16 +116,32 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     this.accessories.set(accessory.UUID, accessory);
   }
 
-  handleZigBeeDevInterview(message: DeviceInterviewPayload) {
-    this.log.info(
-      `Join progress: interview device ${message.device.ieeeAddr} (${message.device.manufacturerName} - ${message.device.modelID})`
-    );
+  async handleZigBeeDevInterview(message: DeviceInterviewPayload) {
+    const ieeeAddr = message.device.ieeeAddr;
+    const status = message.status;
+    switch (status) {
+      case 'failed':
+        this.log.error(`Interview progress ${status} for device ${ieeeAddr}`);
+        break;
+      case 'started':
+        this.log.info(`Interview progress ${status} for device ${ieeeAddr}`);
+        break;
+      case 'successful':
+        this.log.info(
+          `Successfully interviewed device: ${message.device.manufacturerName} - ${message.device.modelID}`
+        );
+        if (!this.getAccessoryByIeeeAddr(ieeeAddr)) {
+          // Wait a little bit for a database sync
+          await sleep(1500);
+          this.initDevice(message.device);
+        } else {
+          this.log.warn(`Not initializing device ${ieeeAddr}: already mapped in Homebridge`);
+        }
+    }
   }
 
   async handleZigBeeDevJoined(message: DeviceJoinedPayload) {
     const ieeeAddr = message.device.ieeeAddr;
-    // Stop permit join
-    await this.permitJoinAccessory.setPermitJoin(false);
     this.log.info(
       `Device joined, Adding ${message.device.ieeeAddr} (${message.device.manufacturerName} - ${message.device.modelID})`
     );
@@ -134,6 +150,8 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       // Wait a little bit for a database sync
       await sleep(1500);
       this.initDevice(message.device);
+    } else {
+      this.log.warn(`Not initializing device ${ieeeAddr}: already mapped in Homebridge`);
     }
   }
 
@@ -269,9 +287,17 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     }
   }
 
-  private handleDeviceAnnounce(message: DeviceAnnouncePayload) {
+  private async handleDeviceAnnounce(message: DeviceAnnouncePayload) {
+    const ieeeAddr = message.device.ieeeAddr;
     this.log.info(
-      `Device announce: ${message.device.ieeeAddr} (${message.device.manufacturerName} - ${message.device.modelID})`
+      `Device announce: ${ieeeAddr} (${message.device.manufacturerName} - ${message.device.modelID})`
     );
+    if (!this.getAccessoryByIeeeAddr(ieeeAddr)) {
+      // Wait a little bit for a database sync
+      await sleep(1500);
+      this.initDevice(message.device);
+    } else {
+      this.log.warn(`Not initializing device ${ieeeAddr}: already mapped in Homebridge`);
+    }
   }
 }
