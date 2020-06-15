@@ -1,4 +1,4 @@
-import { endpointNames, ZigBee, ZigBeeDevice } from './zigbee';
+import { endpointNames, ZigBee, ZigBeeDevice, ZigBeeEntity } from './zigbee';
 import { Logger } from 'homebridge';
 import { findByDevice, toZigbeeConverters } from 'zigbee-herdsman-converters';
 import Endpoint from 'zigbee-herdsman/dist/controller/model/endpoint';
@@ -27,6 +27,8 @@ export interface JsonPayload {
     // RGB color
     hue?: number;
     s?: number;
+    x?: number;
+    y?: number;
   };
   // Blinks the bulbs, possible values:
   // - "select": single blink
@@ -69,42 +71,6 @@ export class ZigBeeClient {
       this.log.error(`Entity '${entityKey}' is unknown`);
       return;
     }
-
-    // Get entity details
-    let converters: Converter[] = null;
-    let target = null;
-    let options = {};
-    let device = null;
-    let definition = null;
-
-    if (resolvedEntity.type === 'device') {
-      if (!resolvedEntity.definition) {
-        this.log.warn(`Device with modelID '${resolvedEntity.device.modelID}' is not supported.`);
-        this.log.warn(
-          `Please see: https://github.com/madchicken/homebridge-zigbee-nt/wiki/How-to-support-new-devices`
-        );
-        return;
-      }
-
-      device = resolvedEntity.device;
-      definition = resolvedEntity.definition;
-      target = resolvedEntity.endpoint;
-      converters = resolvedEntity.definition.toZigbee;
-    } else {
-      converters = groupConverters;
-      target = resolvedEntity.group;
-      definition = resolvedEntity.group.members.map(e => findByDevice(e.getDevice()));
-    }
-
-    /**
-     * Order state & brightness based on current bulb state
-     *
-     * Not all bulbs support setting the color/color_temp while it is off
-     * this results in inconsistent behavior between different vendors.
-     *
-     * bulb on => move state & brightness to the back
-     * bulb off => move state & brightness to the front
-     */
     const entries: [string, keyof JsonPayload][] = Object.entries(json);
     const sorter = json.state === 'OFF' ? 1 : -1;
     entries.sort(a =>
@@ -112,31 +78,24 @@ export class ZigBeeClient {
     );
 
     let [key, value] = entries[0]; // exec just the first operation
-    let endpointName: string = action;
-    let actualTarget = target;
 
-    // When the key has a endpointName included (e.g. state_right), this will override the target.
-    if (resolvedEntity.type === 'device' && key.includes('_')) {
-      const underscoreIndex = key.lastIndexOf('_');
-      const possibleEndpointName = key.substring(underscoreIndex + 1, key.length);
-      if (endpointNames.includes(possibleEndpointName)) {
-        endpointName = possibleEndpointName;
-        key = key.substring(0, underscoreIndex);
-        const device = target.getDevice();
-        actualTarget = device.getEndpoint(definition.endpoint(device)[endpointName]);
-      }
-    }
-
+    const device = resolvedEntity.device;
+    const definition = resolvedEntity.definition;
+    const target = resolvedEntity.endpoint;
+    const converters = resolvedEntity.definition.toZigbee;
     const converter = converters.find(c => c.key.includes(key));
 
     if (!converter) {
       throw new Error(`No converter available for '${key}' (${json[key]})`);
     }
 
+    let endpointName: string = action;
+    let actualTarget = target;
+
     // Converter didn't return a result, skip
     const meta: Meta = {
       endpoint_name: endpointName,
-      options: options || {},
+      options: {}, // FIXME: handle options
       message: json,
       logger: this.log,
       device,
@@ -175,5 +134,22 @@ export class ZigBeeClient {
       this.log.debug(error.stack);
       throw error;
     }
+  }
+
+  async getColorCapabilities(entityKey: any) {
+    const resolvedEntity = this.zigBee.resolveEntity(entityKey);
+    const endpoint = resolvedEntity.endpoint;
+
+    if (endpoint.getClusterAttributeValue('lightingColorCtrl', 'colorCapabilities') === undefined) {
+      await endpoint.read('lightingColorCtrl', ['colorCapabilities']);
+    }
+
+    const value = Number(
+      endpoint.getClusterAttributeValue('lightingColorCtrl', 'colorCapabilities')
+    );
+    return {
+      colorTemperature: (value & (1 << 4)) > 0,
+      colorXY: (value & (1 << 3)) > 0,
+    };
   }
 }

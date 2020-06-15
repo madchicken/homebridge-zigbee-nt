@@ -61,4 +61,6 @@ export abstract class ZigBeeAccessory {
   }
 
   public abstract getAvailableServices();
+
+  public onDeviceMount() {}
 }
