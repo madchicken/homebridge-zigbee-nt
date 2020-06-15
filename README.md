@@ -2,7 +2,7 @@
 
 # homebridge-zigbee-nt
 
-ZigBee Platform plugin for [HomeBridge](https://github.com/nfarina/homebridge)
+ZigBee Platform plugin for [HomeBridge](https://github.com/homebridge/homebridge)
 
 ## Description
 
