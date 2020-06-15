@@ -6,6 +6,7 @@ export class IkeaTadfriDimColor extends ZigBeeAccessory {
     const lightbulbService = new LighbulbServiceBuilder(this.platform, this.accessory, this.client)
       .withOnOff()
       .withBrightness()
+      .withHue()
       .build();
     return [lightbulbService];
   }
