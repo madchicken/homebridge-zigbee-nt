@@ -53,8 +53,8 @@
     "require-dir": "^1.2.0",
     "serialport": "^8.0.8",
     "zcl-id": "^0.5.0",
-    "zigbee-herdsman": "^0.12.94",
-    "zigbee-herdsman-converters": "^12.0.111",
+    "zigbee-herdsman": "^0.12.95",
+    "zigbee-herdsman-converters": "^12.0.117",
     "typescript": "^3.7.4",
     "yargs": "^15.3.1",
     "chalk": "^4.0.0"
