@@ -8,6 +8,7 @@ import { PhilipsHueWhiteAndColor } from './accessories/philips/philips-hue-white
 import { IkeaTadfriDimColortemp } from './accessories/ikea/ikea-tadfri-dim-colortemp';
 import { IkeaTadfriDim } from './accessories/ikea/ikea-tadfri-dim';
 import { IkeaTadfriOutlet } from './accessories/ikea/ikea-tadfri-outlet';
+import { IkeaTadfriDimColor } from './accessories/ikea/ikea-tadfri-dim-color';
 
 /**
  * This method registers the platform with Homebridge
@@ -16,7 +17,26 @@ export = (api: API) => {
   registerAccessoryClass('Philips', ['LWA001', 'LWA002', 'LWB006', 'LWB014'], PhilipsHueWhite);
   registerAccessoryClass(
     'Philips',
-    ['LCT001', 'LCT007', 'LCT010', 'LCT012', 'LCT014', 'LCT015', 'LCT016', 'LCT021'],
+    [
+      'LCT001',
+      'LCT007',
+      'LCT010',
+      'LCT012',
+      'LCT014',
+      'LCT015',
+      'LCT016',
+      'LCT021',
+      'LCT002',
+      'LCT011',
+      'LCT003',
+      'LCT024',
+      'LCA001',
+      'LCA002',
+      'LCA003',
+      'LST003',
+      'LST004',
+      'LST002',
+    ],
     PhilipsHueWhiteAndColor
   );
   registerAccessoryClass(
@@ -49,6 +69,7 @@ export = (api: API) => {
     IkeaTadfriDim
   );
   registerAccessoryClass('IKEA', ['E1603/E1702'], IkeaTadfriOutlet);
+  registerAccessoryClass('IKEA', ['LED1624G9'], IkeaTadfriDimColor);
 
   api.registerPlatform(PLATFORM_NAME, ZigbeeNTHomebridgePlatform);
 };

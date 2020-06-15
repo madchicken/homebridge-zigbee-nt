@@ -152,9 +152,9 @@ export class LighbulbServiceBuilder {
         const response = await this.client.sendMessage(this.accessory.context, 'get', {
           color: { s: 0 },
         });
-        const hue =
+        const saturation =
           response && response.getClusterAttributeValue('lightingColorCtrl', 'currentSaturation');
-        callback(null, hue);
+        callback(null, saturation);
       });
 
     return this;
