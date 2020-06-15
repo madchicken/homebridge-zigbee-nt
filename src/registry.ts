@@ -20,7 +20,7 @@ export function getAccessoryClass(manufacturer: string, model: string): ZigBeeAc
   if (!registry.has(key)) {
     const zm = findByZigbeeModel(model);
     if (zm) {
-      key = zm.model;
+      key = getKey(manufacturer, zm.model);
     }
   }
   return registry.get(key);

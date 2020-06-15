@@ -40,7 +40,7 @@ export = (api: API) => {
     PhilipsHueWhiteAndColor
   );
   registerAccessoryClass(
-    'IKEA',
+    'IKEA of Sweden',
     [
       'LED1545G12',
       'LED1546G12',
@@ -54,7 +54,7 @@ export = (api: API) => {
     IkeaTadfriDimColortemp
   );
   registerAccessoryClass(
-    'IKEA',
+    'IKEA of Sweden',
     [
       'LED1623G12',
       'LED1650R5',
@@ -68,8 +68,8 @@ export = (api: API) => {
     ],
     IkeaTadfriDim
   );
-  registerAccessoryClass('IKEA', ['E1603/E1702'], IkeaTadfriOutlet);
-  registerAccessoryClass('IKEA', ['LED1624G9'], IkeaTadfriDimColor);
+  registerAccessoryClass('IKEA of Sweden', ['E1603/E1702'], IkeaTadfriOutlet);
+  registerAccessoryClass('IKEA of Sweden', ['LED1624G9'], IkeaTadfriDimColor);
 
   api.registerPlatform(PLATFORM_NAME, ZigbeeNTHomebridgePlatform);
 };
