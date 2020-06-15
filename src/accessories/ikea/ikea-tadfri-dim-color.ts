@@ -13,6 +13,6 @@ export class IkeaTadfriDimColor extends ZigBeeAccessory {
 
   onDeviceMount() {
     const color = this.client.getColorCapabilities(this.accessory.context);
-    this.log(`Re-read color capabilities for ${this.accessory.displayName}`, color);
+    this.log.info(`Re-read color capabilities for ${this.accessory.displayName}`, color);
   }
 }
