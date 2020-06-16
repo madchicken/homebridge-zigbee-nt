@@ -1,19 +1,6 @@
-import { endpointNames, ZigBee, ZigBeeDevice, ZigBeeEntity } from './zigbee';
+import { ZigBee, ZigBeeDevice } from './zigbee';
 import { Logger } from 'homebridge';
-import { findByDevice, toZigbeeConverters } from 'zigbee-herdsman-converters';
 import Endpoint from 'zigbee-herdsman/dist/controller/model/endpoint';
-
-const groupConverters = [
-  toZigbeeConverters.light_onoff_brightness,
-  toZigbeeConverters.light_colortemp,
-  toZigbeeConverters.light_color,
-  toZigbeeConverters.light_alert,
-  toZigbeeConverters.ignore_transition,
-  toZigbeeConverters.cover_position_tilt,
-  toZigbeeConverters.thermostat_occupied_heating_setpoint,
-  toZigbeeConverters.tint_scene,
-  toZigbeeConverters.light_brightness_move,
-];
 
 export interface JsonPayload {
   state?: 'ON' | 'OFF' | 'TOGGLE';
@@ -55,6 +42,8 @@ interface Converter {
   convertGet?: (entity, key: string, meta: Meta) => Promise<any>;
 }
 
+export type ActionType = 'set' | 'get';
+
 export class ZigBeeClient {
   private readonly zigBee: ZigBee;
   private readonly log: Logger;
@@ -64,7 +53,12 @@ export class ZigBeeClient {
     this.log = log;
   }
 
-  async sendMessage(entityKey: any, action: string, json: JsonPayload): Promise<Endpoint> {
+  async sendMessage(
+    entityKey: any,
+    action: ActionType,
+    json: JsonPayload,
+    deviceState: JsonPayload = {}
+  ): Promise<Endpoint> {
     const resolvedEntity = this.zigBee.resolveEntity(entityKey);
 
     if (!resolvedEntity) {
@@ -77,62 +71,65 @@ export class ZigBeeClient {
       ['state', 'brightness', 'brightness_percent'].includes(a[0]) ? sorter : sorter * -1
     );
 
-    let [key, value] = entries[0]; // exec just the first operation
+    const usedConverters = [];
+    for (let [key, value] of entries) {
+      const device = resolvedEntity.device;
+      const definition = resolvedEntity.definition;
+      const target = resolvedEntity.endpoint;
+      const converters: Converter[] = resolvedEntity.definition.toZigbee;
+      const converter = converters.find(c => c.key.includes(key));
 
-    const device = resolvedEntity.device;
-    const definition = resolvedEntity.definition;
-    const target = resolvedEntity.endpoint;
-    const converters = resolvedEntity.definition.toZigbee;
-    const converter = converters.find(c => c.key.includes(key));
-
-    if (!converter) {
-      throw new Error(`No converter available for '${key}' (${json[key]})`);
-    }
-
-    let endpointName: string = action;
-    let actualTarget = target;
-
-    // Converter didn't return a result, skip
-    const meta: Meta = {
-      endpoint_name: endpointName,
-      options: {}, // FIXME: handle options
-      message: json,
-      logger: this.log,
-      device,
-      mapped: definition,
-      state: {},
-    };
-
-    try {
-      if (action === 'set' && converter.convertSet) {
-        this.log.debug(`Publishing '${action}' '${key}' to '${resolvedEntity.name}'`);
-        const result = await converter.convertSet(actualTarget, key, value, meta);
-        this.log.debug('Result from zigbee (SET)', result);
-
-        // It's possible for devices to get out of sync when writing an attribute that's not reportable.
-        // So here we re-read the value after a specified timeout, this timeout could for example be the
-        // transition time of a color change or for forcing a state read for devices that don't
-        // automatically report a new state when set.
-        // When reporting is requested for a device (report: true in device-specific settings) we won't
-        // ever issue a read here, as we assume the device will properly report changes.
-        // Only do this when the retrieve_state option is enabled for this device.
-        return actualTarget;
-      } else if (action === 'get' && converter.convertGet) {
-        this.log.debug(
-          `Publishing get '${action}' '${key}' to '${resolvedEntity.name}'`,
-          converter
-        );
-        await converter.convertGet(actualTarget, key, meta);
-        this.log.debug('Result from zigbee (GET)', actualTarget.clusters);
-        return actualTarget;
-      } else {
-        throw new Error(`No converter available for '${action}' '${key}' (${json[key]})`);
+      if (!converter) {
+        throw new Error(`No converter available for '${key}' (${json[key]})`);
       }
-    } catch (error) {
-      const message = `Publish '${action}' '${key}' to '${resolvedEntity.name}' failed: '${error}'`;
-      this.log.error(message);
-      this.log.debug(error.stack);
-      throw error;
+
+      if (usedConverters.includes(converter)) {
+        // Use a converter only once (e.g. light_onoff_brightness converters can convert state and brightness)
+        continue;
+      }
+
+      let actualTarget = target;
+
+      // Converter didn't return a result, skip
+      const meta: Meta = {
+        endpoint_name: action,
+        options: {}, // FIXME: handle options
+        message: json,
+        logger: this.log,
+        device,
+        mapped: definition,
+        state: deviceState,
+      };
+
+      try {
+        if (action === 'set' && converter.convertSet) {
+          this.log.debug(`Publishing '${action}' '${key}' to '${resolvedEntity.name}'`);
+          const result = await converter.convertSet(actualTarget, key, value, meta);
+          this.log.debug('Result from zigbee (SET)', result);
+
+          // It's possible for devices to get out of sync when writing an attribute that's not reportable.
+          // So here we re-read the value after a specified timeout, this timeout could for example be the
+          // transition time of a color change or for forcing a state read for devices that don't
+          // automatically report a new state when set.
+          // When reporting is requested for a device (report: true in device-specific settings) we won't
+          // ever issue a read here, as we assume the device will properly report changes.
+          // Only do this when the retrieve_state option is enabled for this device.
+          return actualTarget;
+        } else if (action === 'get' && converter.convertGet) {
+          this.log.debug(
+            `Publishing get '${action}' '${key}' to '${resolvedEntity.name}'`,
+            converter
+          );
+          await converter.convertGet(actualTarget, key, meta);
+          this.log.debug('Result from zigbee (GET)', actualTarget.clusters);
+          return actualTarget;
+        }
+      } catch (error) {
+        const message = `Publish '${action}' '${key}' to '${resolvedEntity.name}' failed: '${error}'`;
+        this.log.error(message);
+        this.log.debug(error.stack);
+      }
+      usedConverters.push(converter);
     }
   }
 
