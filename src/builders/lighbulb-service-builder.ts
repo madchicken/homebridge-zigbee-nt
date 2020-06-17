@@ -131,6 +131,36 @@ export class LighbulbServiceBuilder {
     return this;
   }
 
+  public withColorXY(): LighbulbServiceBuilder {
+    const Characteristic = this.platform.Characteristic;
+
+    this.service
+      .getCharacteristic(Characteristic.Hue)
+      .on(CharacteristicEventTypes.SET, async (hue: number, callback: Callback) => {
+        try {
+          await this.client.sendMessage(this.accessory.context, 'set', { color: { hue } });
+          callback();
+        } catch (e) {
+          callback(e);
+        }
+      });
+    this.service
+      .getCharacteristic(Characteristic.Hue)
+      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
+        const response = await this.client.sendMessage(this.accessory.context, 'get', {
+          color: { x: 0, y: 0 },
+        });
+        if (response) {
+          const hue = response.getClusterAttributeValue('lightingColorCtrl', 'currentHue');
+          callback(hue);
+        } else {
+          callback(null, 0);
+        }
+      });
+
+    return this;
+  }
+
   public withSaturation(): LighbulbServiceBuilder {
     const Characteristic = this.platform.Characteristic;
 
