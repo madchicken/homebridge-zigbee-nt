@@ -138,7 +138,9 @@ export class LighbulbServiceBuilder {
       .getCharacteristic(Characteristic.Hue)
       .on(CharacteristicEventTypes.SET, async (hue: number, callback: Callback) => {
         try {
-          await this.client.sendMessage(this.accessory.context, 'set', { color: { hue } });
+          await this.client.sendMessage(this.accessory.context, 'set', {
+            color: { r: Math.round((hue / 254) * hue), g: 0, b: 0 },
+          });
           callback();
         } catch (e) {
           callback(e);

@@ -16,6 +16,10 @@ export interface JsonPayload {
     s?: number;
     x?: number;
     y?: number;
+
+    r?: number;
+    g?: number;
+    b?: number;
   };
   // Blinks the bulbs, possible values:
   // - "select": single blink
