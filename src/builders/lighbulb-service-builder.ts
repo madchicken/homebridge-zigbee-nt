@@ -151,8 +151,9 @@ export class LighbulbServiceBuilder {
           color: { x: 0, y: 0 },
         });
         if (response) {
+          this.platform.log.info(`Got response for colorXY `, response.clusters);
           const hue = response.getClusterAttributeValue('lightingColorCtrl', 'currentHue');
-          callback(hue);
+          callback(null, hue);
         } else {
           callback(null, 0);
         }
@@ -182,6 +183,7 @@ export class LighbulbServiceBuilder {
         const response = await this.client.sendMessage(this.accessory.context, 'get', {
           color: { s: 0 },
         });
+        this.platform.log.info(`Got response for saturation `, response.clusters);
         const saturation =
           response && response.getClusterAttributeValue('lightingColorCtrl', 'currentSaturation');
         callback(null, saturation);
