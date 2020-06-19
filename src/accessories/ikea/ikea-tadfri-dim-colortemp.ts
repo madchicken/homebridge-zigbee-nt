@@ -3,7 +3,12 @@ import { LighbulbServiceBuilder } from '../../builders/lighbulb-service-builder'
 
 export class IkeaTadfriDimColortemp extends ZigBeeAccessory {
   getAvailableServices() {
-    const lightbulbService = new LighbulbServiceBuilder(this.platform, this.accessory, this.client)
+    const lightbulbService = new LighbulbServiceBuilder(
+      this.platform,
+      this.accessory,
+      this.client,
+      this.state
+    )
       .withOnOff()
       .withBrightness()
       .withColorTemperature()

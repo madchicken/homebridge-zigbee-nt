@@ -1,18 +1,18 @@
-import { ZigBeeClient } from '../zig-bee-client';
+import { JsonPayload, ZigBeeClient } from '../zig-bee-client';
 import { Callback, CharacteristicEventTypes, PlatformAccessory, Service } from 'homebridge';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
+import { ServiceBuilder } from './service-builder';
 
-export class OutletServiceBuilder {
-  private readonly client: ZigBeeClient;
-  private readonly accessory: PlatformAccessory;
-  private readonly platform: ZigbeeNTHomebridgePlatform;
-  private readonly service: Service;
-
-  constructor(platform: ZigbeeNTHomebridgePlatform, accessory: PlatformAccessory, client: ZigBeeClient) {
-    this.platform = platform;
-    this.accessory = accessory;
-    this.client = client;
-    this.service = this.accessory.getService(platform.Service.Outlet) ||
+export class OutletServiceBuilder extends ServiceBuilder {
+  constructor(
+    platform: ZigbeeNTHomebridgePlatform,
+    accessory: PlatformAccessory,
+    client: ZigBeeClient,
+    state: JsonPayload
+  ) {
+    super(platform, accessory, client, state);
+    this.service =
+      this.accessory.getService(platform.Service.Outlet) ||
       this.accessory.addService(platform.Service.Outlet);
   }
 
@@ -21,9 +21,10 @@ export class OutletServiceBuilder {
 
     this.service
       .getCharacteristic(Characteristic.On)
-      .on(CharacteristicEventTypes.SET, async (yes: boolean, callback: Callback) => {
+      .on(CharacteristicEventTypes.SET, async (on: boolean, callback: Callback) => {
         try {
-          await this.client.sendMessage(this.accessory.context, 'set', { state: yes ? 'ON' : 'OFF' })
+          const status = await this.client.setState(this.device, on, this.state);
+          Object.assign(this.state, status);
           callback();
         } catch (e) {
           callback(e);
@@ -32,8 +33,14 @@ export class OutletServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.On)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        const response = await this.client.sendMessage(this.accessory.context, 'get', { state: 'ON' });
-        callback(null, response && response.getClusterAttributeValue('genOnOff', 'onOff'));
+        const state = await this.client.getState(this.device);
+        callback(null, state.state === 'ON');
+      });
+
+    this.service
+      .getCharacteristic(Characteristic.InUse)
+      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
+        callback(null, this.state.state === 'ON');
       });
 
     return this;

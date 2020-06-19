@@ -1,12 +1,17 @@
 import { ZigBeeAccessory } from '../../zig-bee-accessory';
 import { LighbulbServiceBuilder } from '../../builders/lighbulb-service-builder';
 import { Service } from 'homebridge';
-import { sleep } from '../../utils/sleep';
+import { ActionType } from '../../zig-bee-client';
 
 export class PhilipsHueWhite extends ZigBeeAccessory {
   private lightbulbService: Service;
   getAvailableServices() {
-    this.lightbulbService = new LighbulbServiceBuilder(this.platform, this.accessory, this.client)
+    this.lightbulbService = new LighbulbServiceBuilder(
+      this.platform,
+      this.accessory,
+      this.client,
+      this.state
+    )
       .withOnOff()
       .withBrightness()
       .build();
@@ -14,10 +19,13 @@ export class PhilipsHueWhite extends ZigBeeAccessory {
   }
 
   async handleAccessoryIdentify() {
-    this.lightbulbService.setCharacteristic(this.platform.Characteristic.On, false);
-    await sleep(500);
-    this.lightbulbService.setCharacteristic(this.platform.Characteristic.On, true);
-    await sleep(500);
-    this.lightbulbService.setCharacteristic(this.platform.Characteristic.On, false);
+    await this.client.sendMessage(
+      this.zigBeeDeviceDescriptor,
+      ActionType.set,
+      {
+        alert: 'select',
+      },
+      this.state
+    );
   }
 }

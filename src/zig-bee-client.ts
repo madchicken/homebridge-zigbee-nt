@@ -1,9 +1,12 @@
 import { ZigBee, ZigBeeDevice } from './zigbee';
 import { Logger } from 'homebridge';
 import Endpoint from 'zigbee-herdsman/dist/controller/model/endpoint';
+import { createStore, Store } from './utils/state-manager';
+
+type State = 'ON' | 'OFF' | 'TOGGLE';
 
 export interface JsonPayload {
-  state?: 'ON' | 'OFF' | 'TOGGLE';
+  state?: State;
   brightness?: number; // Value between 0 and 255
   brightness_percent?: number; // 0-100
   // Color temperature in Reciprocal MegaKelvin, a.k.a. Mirek scale.
@@ -46,19 +49,29 @@ interface Converter {
   convertGet?: (entity, key: string, meta: Meta) => Promise<any>;
 }
 
-export type ActionType = 'set' | 'get';
+export interface ColorCapabilities {
+  colorTemperature: boolean;
+  colorXY: boolean;
+}
+
+export enum ActionType {
+  set = 'set',
+  get = 'get',
+}
 
 export class ZigBeeClient {
   private readonly zigBee: ZigBee;
   private readonly log: Logger;
+  private readonly store: Store<string, JsonPayload>;
 
   constructor(zigBee: ZigBee, log: Logger) {
     this.zigBee = zigBee;
     this.log = log;
+    this.store = createStore<string, JsonPayload>();
   }
 
   async sendMessage(
-    entityKey: any,
+    entityKey: ZigBeeDevice,
     action: ActionType,
     json: JsonPayload,
     deviceState: JsonPayload = {}
@@ -137,7 +150,39 @@ export class ZigBeeClient {
     }
   }
 
-  async getColorCapabilities(entityKey: any) {
+  async setState(
+    device: ZigBeeDevice,
+    on: boolean,
+    deviceState: JsonPayload
+  ): Promise<JsonPayload> {
+    const endpoint = await this.sendMessage(
+      device,
+      ActionType.set,
+      { state: on ? 'ON' : 'OFF' },
+      deviceState
+    );
+    const state: State = endpoint.getClusterAttributeValue('genOnOff', 'onOff') as State;
+    return { state };
+  }
+
+  async getState(device: ZigBeeDevice): Promise<JsonPayload> {
+    const endpoint = await this.sendMessage(device, ActionType.get, { state: 'ON' });
+    const state: State = endpoint.getClusterAttributeValue('genOnOff', 'onOff') as State;
+    return { state };
+  }
+
+  async getColorXY(device: ZigBeeDevice): Promise<JsonPayload> {
+    const resolvedEntity = this.zigBee.resolveEntity(device);
+    const target = resolvedEntity.endpoint;
+    const keyValue = await target.read('lightingColorCtrl', [
+      'currentX',
+      'currentY',
+      'currentSaturation',
+    ]);
+    return keyValue as JsonPayload;
+  }
+
+  async getColorCapabilities(entityKey: any): Promise<ColorCapabilities> {
     const resolvedEntity = this.zigBee.resolveEntity(entityKey);
     const endpoint = resolvedEntity.endpoint;
 

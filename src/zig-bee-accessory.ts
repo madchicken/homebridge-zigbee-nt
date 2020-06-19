@@ -1,8 +1,7 @@
 import { Logger, PlatformAccessory } from 'homebridge';
 import { ZigbeeNTHomebridgePlatform } from './platform';
-import Timeout = NodeJS.Timeout;
 import { HerdsmanDefinition, ZigBeeDevice } from './zigbee';
-import { ZigBeeClient } from './zig-bee-client';
+import { JsonPayload, ZigBeeClient } from './zig-bee-client';
 import { findByDevice } from 'zigbee-herdsman-converters';
 
 export interface ZigBeeAccessoryCtor {
@@ -19,8 +18,8 @@ export abstract class ZigBeeAccessory {
   protected platform: ZigbeeNTHomebridgePlatform;
   protected log: Logger;
   protected accessory: PlatformAccessory;
-  private readonly timeouts: { [key: string]: Timeout };
   protected readonly client: ZigBeeClient;
+  protected state: JsonPayload;
 
   constructor(
     platform: ZigbeeNTHomebridgePlatform,
@@ -32,7 +31,7 @@ export abstract class ZigBeeAccessory {
     this.ieeeAddr = device.ieeeAddr;
     this.platform = platform;
     this.log = this.platform.log;
-    this.timeouts = {};
+    this.state = { state: 'OFF' };
     this.accessory = accessory;
     this.accessory.context = device;
     let Characteristic = platform.Characteristic;
@@ -41,26 +40,29 @@ export abstract class ZigBeeAccessory {
       .setCharacteristic(Characteristic.Manufacturer, device.manufacturerName)
       .setCharacteristic(Characteristic.Model, device.modelID)
       .setCharacteristic(Characteristic.SerialNumber, device.ieeeAddr)
-      .setCharacteristic(Characteristic.Name, this.getHerdsmanDefinition().description);
+      .setCharacteristic(Characteristic.Name, this.herdsmanDefinition.description);
     this.getAvailableServices();
     this.accessory.on('identify', this.handleAccessoryIdentify);
   }
 
   handleAccessoryIdentify() {}
 
-  public getZigBeeDeviceDescriptor(): ZigBeeDevice {
+  public get zigBeeDeviceDescriptor(): ZigBeeDevice {
     return this.accessory.context as ZigBeeDevice;
   }
 
-  public getHerdsmanDefinition(): HerdsmanDefinition {
-    return findByDevice(this.getZigBeeDeviceDescriptor()) as HerdsmanDefinition;
+  public get herdsmanDefinition(): HerdsmanDefinition {
+    return findByDevice(this.zigBeeDeviceDescriptor) as HerdsmanDefinition;
   }
 
   public get name() {
-    return this.getHerdsmanDefinition()?.description;
+    return this.herdsmanDefinition?.description;
   }
 
   public abstract getAvailableServices();
 
-  public onDeviceMount() {}
+  public onDeviceMount() {
+    this.zigBeeDeviceDescriptor.updateLastSeen();
+    this.zigBeeDeviceDescriptor.save();
+  }
 }
