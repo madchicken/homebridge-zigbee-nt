@@ -1,8 +1,9 @@
 import { ZigBeeAccessory } from '../../zig-bee-accessory';
 import { LighbulbServiceBuilder } from '../../builders/lighbulb-service-builder';
 import { ActionType } from '../../zig-bee-client';
+import { PhilipsHueWhite } from './philips-hue-white';
 
-export class PhilipsHueWhiteAndColor extends ZigBeeAccessory {
+export class PhilipsHueWhiteAndColor extends PhilipsHueWhite {
   getAvailableServices() {
     const lightbulbService = new LighbulbServiceBuilder(
       this.platform,
@@ -19,14 +20,8 @@ export class PhilipsHueWhiteAndColor extends ZigBeeAccessory {
     return [lightbulbService];
   }
 
-  async handleAccessoryIdentify() {
-    await this.client.sendMessage(
-      this.zigBeeDeviceDescriptor,
-      ActionType.set,
-      {
-        alert: 'select',
-      },
-      this.state
-    );
+  protected async updateDevice(): Promise<void> {
+    await super.updateDevice();
+    const saturation = await this.client.getSaturation(this.zigBeeDeviceDescriptor);
   }
 }

@@ -1,9 +1,22 @@
-import { ZigBeeAccessory } from '../../zig-bee-accessory';
 import { LighbulbServiceBuilder } from '../../builders/lighbulb-service-builder';
+import { IkeaTadfriDim } from './ikea-tadfri-dim';
+import { ZigbeeNTHomebridgePlatform } from '../../platform';
+import { PlatformAccessory } from 'homebridge';
+import { ZigBeeClient } from '../../zig-bee-client';
+import { ZigBeeDevice } from '../../zigbee';
 
-export class IkeaTadfriDimColortemp extends ZigBeeAccessory {
+export class IkeaTadfriDimColortemp extends IkeaTadfriDim {
+  constructor(
+    platform: ZigbeeNTHomebridgePlatform,
+    accessory: PlatformAccessory,
+    client: ZigBeeClient,
+    device: ZigBeeDevice
+  ) {
+    super(platform, accessory, client, device);
+  }
+
   getAvailableServices() {
-    const lightbulbService = new LighbulbServiceBuilder(
+    this.lightbulbService = new LighbulbServiceBuilder(
       this.platform,
       this.accessory,
       this.client,
@@ -13,11 +26,6 @@ export class IkeaTadfriDimColortemp extends ZigBeeAccessory {
       .withBrightness()
       .withColorTemperature()
       .build();
-    return [lightbulbService];
-  }
-
-  async onDeviceMount() {
-    const color = await this.client.getColorCapabilities(this.accessory.context);
-    this.log.info(`Re-read color capabilities for ${this.accessory.displayName}`, color);
+    return [this.lightbulbService];
   }
 }

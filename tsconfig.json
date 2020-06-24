@@ -1,24 +1,19 @@
 {
   "compilerOptions": {
-    // Target latest version of ECMAScript.
     "target": "es6",
-    // Allow features like dynamic import().
     "module": "commonjs",
-    // Search under node_modules for non-relative imports.
     "moduleResolution": "node",
-    // Process & infer types from .js files.
-    "allowJs": true,
-    // Enable strictest settings like strictNullChecks & noImplicitAny.
+    "allowJs": false,
     "strict": false,
-    // Allow importing non-TS files as "any".
     "noImplicitAny": false,
-    // Import non-ES modules as default imports.
     "esModuleInterop": true,
-    // Allow fancy language features.
     "downlevelIteration": true,
     "outDir": "dist",
-    "sourceMap": true
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true
   },
   "lib": ["esnext"],
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["**/__tests__/*"]
 }

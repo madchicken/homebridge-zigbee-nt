@@ -42,7 +42,7 @@ export abstract class ZigBeeAccessory {
       .setCharacteristic(Characteristic.SerialNumber, device.ieeeAddr)
       .setCharacteristic(Characteristic.Name, this.herdsmanDefinition.description);
     this.getAvailableServices();
-    this.accessory.on('identify', this.handleAccessoryIdentify);
+    this.accessory.on('identify', () => this.handleAccessoryIdentify());
   }
 
   handleAccessoryIdentify() {}
@@ -65,4 +65,13 @@ export abstract class ZigBeeAccessory {
     this.zigBeeDeviceDescriptor.updateLastSeen();
     this.zigBeeDeviceDescriptor.save();
   }
+
+  update(device: ZigBeeDevice) {
+    Object.apply(this.accessory.context, { ...device });
+    this.zigBeeDeviceDescriptor.updateLastSeen();
+    this.zigBeeDeviceDescriptor.save();
+    this.updateDevice();
+  }
+
+  protected abstract updateDevice();
 }

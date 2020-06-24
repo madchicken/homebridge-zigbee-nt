@@ -21,10 +21,10 @@ export class RouterPolling {
   private readonly interval: number;
   private readonly zigBee: ZigBee;
 
-  constructor(zigBee: ZigBee, log: Logger, interval: number = DEFAULT_POLL_INTERVAL) {
+  constructor(zigBee: ZigBee, log: Logger, interval: number) {
     this.zigBee = zigBee;
     this.log = log;
-    this.interval = interval;
+    this.interval = interval || DEFAULT_POLL_INTERVAL;
   }
 
   start() {

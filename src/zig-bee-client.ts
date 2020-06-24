@@ -2,6 +2,7 @@ import { ZigBee, ZigBeeDevice } from './zigbee';
 import { Logger } from 'homebridge';
 import Endpoint from 'zigbee-herdsman/dist/controller/model/endpoint';
 import { createStore, Store } from './utils/state-manager';
+import { normalizeBrightness } from './utils/color-fn';
 
 type State = 'ON' | 'OFF' | 'TOGGLE';
 
@@ -150,52 +151,101 @@ export class ZigBeeClient {
     }
   }
 
-  async setState(
-    device: ZigBeeDevice,
-    on: boolean,
-    deviceState: JsonPayload
-  ): Promise<JsonPayload> {
-    const endpoint = await this.sendMessage(
+  async setOn(device: ZigBeeDevice, on: boolean): Promise<JsonPayload> {
+    await this.sendMessage(device, ActionType.set, { state: on ? 'ON' : 'OFF' });
+    return { state: on ? 'ON' : 'OFF' };
+  }
+
+  async getOnOffState(device: ZigBeeDevice, force: boolean = false): Promise<JsonPayload> {
+    const on = await this.getClusterAttribute(device, 'genOnOff', 'onOff', force);
+    return { state: on === 1 ? 'ON' : 'OFF' };
+  }
+
+  async getColorXY(device: ZigBeeDevice, force: boolean = false): Promise<JsonPayload> {
+    const x =
+      ((await this.getClusterAttribute(device, 'lightingColorCtrl', 'currentX', force)) as number) /
+      10000;
+    const y =
+      ((await this.getClusterAttribute(device, 'lightingColorCtrl', 'currentY', force)) as number) /
+      10000;
+
+    return { color: { x, y } };
+  }
+
+  async getBrightnessPercent(device: ZigBeeDevice, force: boolean = false): Promise<JsonPayload> {
+    const z = (await this.getClusterAttribute(
       device,
-      ActionType.set,
-      { state: on ? 'ON' : 'OFF' },
-      deviceState
-    );
-    const state: State = endpoint.getClusterAttributeValue('genOnOff', 'onOff') as State;
-    return { state };
+      'genLevelCtrl',
+      'currentLevel',
+      force
+    )) as number;
+    const brightness_percent = normalizeBrightness(z);
+    return { brightness_percent };
   }
 
-  async getState(device: ZigBeeDevice): Promise<JsonPayload> {
-    const endpoint = await this.sendMessage(device, ActionType.get, { state: 'ON' });
-    const state: State = endpoint.getClusterAttributeValue('genOnOff', 'onOff') as State;
-    return { state };
-  }
+  async getColorCapabilities(
+    device: ZigBeeDevice,
+    force: boolean = false
+  ): Promise<ColorCapabilities> {
+    const colorCapabilities = (await this.getClusterAttribute(
+      device,
+      'lightingColorCtrl',
+      'colorCapabilities',
+      force
+    )) as number;
 
-  async getColorXY(device: ZigBeeDevice): Promise<JsonPayload> {
-    const resolvedEntity = this.zigBee.resolveEntity(device);
-    const target = resolvedEntity.endpoint;
-    const keyValue = await target.read('lightingColorCtrl', [
-      'currentX',
-      'currentY',
-      'currentSaturation',
-    ]);
-    return keyValue as JsonPayload;
-  }
-
-  async getColorCapabilities(entityKey: any): Promise<ColorCapabilities> {
-    const resolvedEntity = this.zigBee.resolveEntity(entityKey);
-    const endpoint = resolvedEntity.endpoint;
-
-    if (endpoint.getClusterAttributeValue('lightingColorCtrl', 'colorCapabilities') === undefined) {
-      await endpoint.read('lightingColorCtrl', ['colorCapabilities']);
-    }
-
-    const value = Number(
-      endpoint.getClusterAttributeValue('lightingColorCtrl', 'colorCapabilities')
-    );
     return {
-      colorTemperature: (value & (1 << 4)) > 0,
-      colorXY: (value & (1 << 3)) > 0,
+      colorTemperature: (colorCapabilities & (1 << 4)) > 0,
+      colorXY: (colorCapabilities & (1 << 3)) > 0,
     };
+  }
+
+  async getClusterAttribute(
+    device: ZigBeeDevice,
+    cluster: string,
+    attribute: string,
+    force: boolean = false
+  ): Promise<string | number> {
+    const resolvedEntity = this.zigBee.resolveEntity(device);
+    const endpoint = resolvedEntity.endpoint;
+    if (endpoint.getClusterAttributeValue(cluster, attribute) === undefined || force) {
+      await endpoint.read(cluster, [attribute]);
+    }
+    return endpoint.getClusterAttributeValue(cluster, attribute);
+  }
+
+  async getSaturation(device: ZigBeeDevice, force: boolean = false): Promise<JsonPayload> {
+    const s = (await this.getClusterAttribute(
+      device,
+      'lightingColorCtrl',
+      'currentSaturation',
+      force
+    )) as number;
+    return { color: { s } };
+  }
+
+  async getHue(device: ZigBeeDevice, force: boolean = false): Promise<JsonPayload> {
+    const hue = (await this.getClusterAttribute(
+      device,
+      'lightingColorCtrl',
+      'currentHue',
+      force
+    )) as number;
+    return { color: { hue } };
+  }
+
+  async setHue(device: ZigBeeDevice, hue: number) {
+    await this.sendMessage(device, ActionType.set, { color: { hue } });
+    return this.getHue(device);
+  }
+
+  async setColorXY(device: ZigBeeDevice, x: number, y: number) {
+    await this.sendMessage(device, ActionType.set, { color: { x, y } });
+    return this.getColorXY(device);
+  }
+
+  async setColorRGB(device: ZigBeeDevice, r: number, g: number, b: number) {
+    await this.sendMessage(device, ActionType.set, { color: { r, g, b } });
+    return this.getColorXY(device);
   }
 }

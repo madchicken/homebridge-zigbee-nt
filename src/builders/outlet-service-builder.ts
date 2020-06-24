@@ -23,7 +23,7 @@ export class OutletServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.On)
       .on(CharacteristicEventTypes.SET, async (on: boolean, callback: Callback) => {
         try {
-          const status = await this.client.setState(this.device, on, this.state);
+          const status = await this.client.setOn(this.device, on);
           Object.assign(this.state, status);
           callback();
         } catch (e) {
@@ -33,14 +33,8 @@ export class OutletServiceBuilder extends ServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.On)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        const state = await this.client.getState(this.device);
+        const state = await this.client.getOnOffState(this.device);
         callback(null, state.state === 'ON');
-      });
-
-    this.service
-      .getCharacteristic(Characteristic.InUse)
-      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        callback(null, this.state.state === 'ON');
       });
 
     return this;

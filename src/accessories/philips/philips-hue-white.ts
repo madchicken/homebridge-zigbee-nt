@@ -28,4 +28,18 @@ export class PhilipsHueWhite extends ZigBeeAccessory {
       this.state
     );
   }
+
+  protected async updateDevice() {
+    const state = await this.client.getOnOffState(this.zigBeeDeviceDescriptor);
+    this.lightbulbService.updateCharacteristic(
+      this.platform.Characteristic.On,
+      state.state === 'ON'
+    );
+
+    const brightness = await this.client.getBrightnessPercent(this.zigBeeDeviceDescriptor);
+    this.lightbulbService.updateCharacteristic(
+      this.platform.Characteristic.Brightness,
+      brightness.brightness_percent
+    );
+  }
 }

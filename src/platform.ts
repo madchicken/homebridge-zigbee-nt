@@ -18,7 +18,7 @@ import { PermitJoinAccessory } from './accessories/permit-join-accessory';
 import retry from 'async-retry';
 import { sleep } from './utils/sleep';
 import { parseModel } from './utils/parseModel';
-import { ZigBeeAccessoryCtor } from './zig-bee-accessory';
+import { ZigBeeAccessory, ZigBeeAccessoryCtor } from './zig-bee-accessory';
 import { getAccessoryClass } from './registry';
 import { ZigBeeClient } from './zig-bee-client';
 import { TouchlinkAccessory } from './accessories/touchlink-accessory';
@@ -27,6 +27,7 @@ import {
   DeviceInterviewPayload,
   DeviceJoinedPayload,
   DeviceLeavePayload,
+  MessagePayload,
 } from 'zigbee-herdsman/dist/controller/events';
 
 const PERMIT_JOIN_ACCESSORY_NAME = 'zigbee:permit-join';
@@ -37,6 +38,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
 
   private readonly accessories: Map<string, PlatformAccessory>;
+  private readonly homekitAccessories: Map<string, ZigBeeAccessory>;
   private permitJoinAccessory: PermitJoinAccessory;
   private touchlinkAccessory: TouchlinkAccessory;
   public readonly PlatformAccessory: typeof PlatformAccessory;
@@ -49,7 +51,8 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     public readonly api: API
   ) {
     this.zigBee = new ZigBee(log);
-    this.accessories = new Map();
+    this.accessories = new Map<string, PlatformAccessory>();
+    this.homekitAccessories = new Map<string, ZigBeeAccessory>();
     this.permitJoinAccessory = null;
     this.PlatformAccessory = this.api.platformAccessory;
     this.log.info(`Initializing platform: ${this.config.name}`);
@@ -77,6 +80,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     this.zigBee.on('deviceLeave', (message: DeviceLeavePayload) =>
       this.handleZigBeeDevLeaving(message)
     );
+    this.zigBee.on('message', (message: MessagePayload) => this.handleZigBeeMessage(message));
 
     const retrier = async () => {
       try {
@@ -130,29 +134,30 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
         this.log.info(
           `Successfully interviewed device: ${message.device.manufacturerName} - ${message.device.modelID}`
         );
-        if (!this.getAccessoryByIeeeAddr(ieeeAddr)) {
-          // Wait a little bit for a database sync
-          await sleep(1500);
-          this.initDevice(message.device);
-        } else {
-          this.log.warn(`Not initializing device ${ieeeAddr}: already mapped in Homebridge`);
-        }
+        await this.handleDeviceUpdate(message.device);
     }
   }
 
   async handleZigBeeDevJoined(message: DeviceJoinedPayload) {
-    const ieeeAddr = message.device.ieeeAddr;
     this.log.info(
       `Device joined, Adding ${message.device.ieeeAddr} (${message.device.manufacturerName} - ${message.device.modelID})`
     );
+    await this.handleDeviceUpdate(message.device);
+  }
+
+  private async handleDeviceUpdate(device: ZigBeeDevice): Promise<boolean> {
     // Ignore if the device exists
-    if (!this.getAccessoryByIeeeAddr(ieeeAddr)) {
+    const accessory = this.getHomekitAccessoryByIeeeAddr(device.ieeeAddr);
+    if (!accessory) {
       // Wait a little bit for a database sync
       await sleep(1500);
-      this.initDevice(message.device);
+      this.initDevice(device);
+      return true;
     } else {
-      this.log.warn(`Not initializing device ${ieeeAddr}: already mapped in Homebridge`);
+      this.log.debug(`Not initializing device ${device.ieeeAddr}: already mapped in Homebridge`);
+      accessory.update(device);
     }
+    return false;
   }
 
   generateUUID(ieeeAddr: string): string {
@@ -189,7 +194,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       const routerPolling = new RouterPolling(
         this.zigBee,
         this.log,
-        this.config.routerPollingInterval
+        this.config.routerPollingInterval || null
       );
       // Some routers need polling to prevent them from sleeping.
       routerPolling.start();
@@ -202,6 +207,10 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
 
   private getAccessoryByUUID(uuid: string) {
     return this.accessories.get(uuid);
+  }
+
+  private getHomekitAccessoryByIeeeAddr(ieeeAddr: string): ZigBeeAccessory {
+    return this.homekitAccessories.get(this.generateUUID(ieeeAddr));
   }
 
   private initDevice(device: ZigBeeDevice) {
@@ -219,6 +228,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       const accessory = this.createHapAccessory(ieeeAddr);
       const homekitAccessory = new ZigBeeAccessory(this, accessory, this.client, device);
       this.log.info('Registered device:', ieeeAddr, manufacturer, model);
+      this.homekitAccessories.set(accessory.UUID, homekitAccessory);
       homekitAccessory.onDeviceMount();
     } catch (error) {
       this.log.info(
@@ -268,6 +278,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     const accessory = this.accessories.get(uuid);
     if (accessory) {
       this.accessories.delete(uuid);
+      this.homekitAccessories.delete(uuid);
     }
   }
 
@@ -300,5 +311,13 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     } else {
       this.log.warn(`Not initializing device ${ieeeAddr}: already mapped in Homebridge`);
     }
+  }
+
+  private async handleZigBeeMessage(message: MessagePayload) {
+    this.log.debug(
+      `Message from ${message.device.modelID}: ${message.type}`,
+      message.device.getEndpoint(1).clusters
+    );
+    await this.handleDeviceUpdate(message.device);
   }
 }

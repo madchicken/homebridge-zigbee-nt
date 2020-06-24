@@ -2,12 +2,8 @@ import { Callback, CharacteristicEventTypes, PlatformAccessory } from 'homebridg
 import { ActionType, JsonPayload, ZigBeeClient } from '../zig-bee-client';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { ServiceBuilder } from './service-builder';
-
-function normalizeBrightness(value: number): number {
-  return Math.round((value / 254) * 100);
-}
-
-function xyToHSL(x: number, y: number) {}
+import { normalizeBrightness } from '../utils/color-fn';
+import { HSBType } from '../utils/hsb-type';
 
 export class LighbulbServiceBuilder extends ServiceBuilder {
   constructor(
@@ -29,8 +25,8 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.On)
       .on(CharacteristicEventTypes.SET, async (yes: boolean, callback: Callback) => {
         try {
-          await this.client.setState(this.device, yes, this.state);
-          this.log.info(`New state for ${this.accessory.displayName}`, this.state);
+          await this.client.setOn(this.device, yes);
+          this.log.info(`New state for ${this.accessory.displayName}`, yes);
           callback();
         } catch (e) {
           callback(e);
@@ -40,18 +36,11 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.On)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
         if (this.state.state) {
-          const state = await this.client.getState(this.device);
+          const state = await this.client.getOnOffState(this.device, true);
           callback(null, state.state === 'ON');
         } else {
-          const response = await this.client.sendMessage(
-            this.device,
-            ActionType.get,
-            {
-              state: 'ON',
-            },
-            this.state
-          );
-          callback(null, response && response.getClusterAttributeValue('genOnOff', 'onOff'));
+          const state = await this.client.getOnOffState(this.device);
+          callback(null, state.state === 'ON');
         }
       });
 
@@ -79,16 +68,8 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.Brightness)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        const response = await this.client.sendMessage(
-          this.device,
-          ActionType.get,
-          {
-            brightness: 0,
-          },
-          this.state
-        );
-        const value = response && response.getClusterAttributeValue('genLevelCtrl', 'currentLevel');
-        callback(null, normalizeBrightness(Number(value)));
+        const value = await this.client.getBrightnessPercent(this.device, true);
+        callback(null, value);
       });
     return this;
   }
@@ -136,17 +117,17 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.Hue)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        const response = await this.client.sendMessage(this.device, ActionType.get, {
-          color: { hue: 0 },
-        });
-        const hue =
-          response && response.getClusterAttributeValue('lightingColorCtrl', 'currentHue');
+        const hue = await this.client.getHue(this.device, true);
         callback(null, hue);
       });
 
     return this;
   }
 
+  /**
+   * Special treatment for bulbs supporting only XY colors (IKEA Tådfri for example)
+   * HomeKit only knows about HSB, so we need to manually convert values
+   */
   public withColorXY(): LighbulbServiceBuilder {
     const Characteristic = this.platform.Characteristic;
 
@@ -154,9 +135,11 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.Hue)
       .on(CharacteristicEventTypes.SET, async (hue: number, callback: Callback) => {
         try {
-          await this.client.sendMessage(this.device, ActionType.set, {
-            color: { r: Math.round((hue / 254) * hue), g: 0, b: 0 },
-          });
+          const v = await this.client.getBrightnessPercent(this.device, true);
+          const s = this.service.getCharacteristic(Characteristic.Saturation).value as number;
+          const hsbType = new HSBType(hue, s, v.brightness_percent);
+          const [x, y] = hsbType.toXY();
+          await this.client.setColorXY(this.device, x, y);
           callback();
         } catch (e) {
           callback(e);
@@ -165,15 +148,29 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.Hue)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        const payload = await this.client.getColorXY(this.device);
-        if (payload) {
-          this.platform.log.info(`Got response for RGB `, payload);
-          const z = 1 - payload.color.x - payload.color.y;
-          const Y = payload.brightness;
-          callback(null, 100);
-        } else {
-          callback(null, 0);
-        }
+        const xy = await this.client.getColorXY(this.device, true);
+        const brightness = await this.client.getBrightnessPercent(this.device, true);
+        const hsbType = HSBType.fromXY(xy.color.x, xy.color.y, brightness.brightness_percent / 100);
+        callback(null, hsbType.hue);
+      });
+
+    this.service
+      .getCharacteristic(Characteristic.Saturation)
+      .on(CharacteristicEventTypes.SET, async (saturation: number, callback: Callback) => {
+        const v = await this.client.getBrightnessPercent(this.device, true);
+        const hue = this.service.getCharacteristic(Characteristic.Hue).value as number;
+        const hsbType = new HSBType(hue, saturation, v.brightness_percent);
+        const [r, g, b] = hsbType.toRGBBytes();
+        await this.client.setColorRGB(this.device, r, g, b);
+        callback();
+      });
+    this.service
+      .getCharacteristic(Characteristic.Saturation)
+      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
+        const xy = await this.client.getColorXY(this.device, true);
+        const brightness = await this.client.getBrightnessPercent(this.device, true);
+        const hsbType = HSBType.fromXY(xy.color.x, xy.color.y, brightness.brightness_percent / 100);
+        callback(null, hsbType.saturation);
       });
 
     return this;
@@ -202,18 +199,8 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.Saturation)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        const response = await this.client.sendMessage(
-          this.device,
-          ActionType.get,
-          {
-            color: { s: 0 },
-          },
-          this.state
-        );
-        this.platform.log.info(`Got response for saturation `, response.clusters);
-        const saturation =
-          response && response.getClusterAttributeValue('lightingColorCtrl', 'currentSaturation');
-        callback(null, saturation);
+        const response = await this.client.getSaturation(this.device);
+        callback(null, response.color.s);
       });
 
     return this;
