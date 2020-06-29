@@ -1,9 +1,9 @@
-import { ZigBeeAccessory } from '../../zig-bee-accessory';
+import { ZigBeeAccessory } from '../zig-bee-accessory';
 import { LighbulbServiceBuilder } from '../../builders/lighbulb-service-builder';
-import { ActionType, ZigBeeClient } from '../../zig-bee-client';
+import { ZigBeeClient } from '../../zigbee/zig-bee-client';
 import { PlatformAccessory, Service } from 'homebridge';
 import { ZigbeeNTHomebridgePlatform } from '../../platform';
-import { ZigBeeDevice } from '../../zigbee';
+import { Device } from 'zigbee-herdsman/dist/controller/model';
 
 export class IkeaTadfriDim extends ZigBeeAccessory {
   protected lightbulbService: Service;
@@ -12,7 +12,7 @@ export class IkeaTadfriDim extends ZigBeeAccessory {
     platform: ZigbeeNTHomebridgePlatform,
     accessory: PlatformAccessory,
     client: ZigBeeClient,
-    device: ZigBeeDevice
+    device: Device
   ) {
     super(platform, accessory, client, device);
   }
@@ -31,14 +31,7 @@ export class IkeaTadfriDim extends ZigBeeAccessory {
   }
 
   async handleAccessoryIdentify() {
-    await this.client.sendMessage(
-      this.zigBeeDeviceDescriptor,
-      ActionType.set,
-      {
-        alert: 'select',
-      },
-      this.state
-    );
+    await this.client.identify(this.zigBeeDeviceDescriptor);
   }
 
   protected async updateDevice() {

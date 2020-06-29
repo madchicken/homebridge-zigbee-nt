@@ -1,20 +1,21 @@
-import { JsonPayload, ZigBeeClient } from '../zig-bee-client';
+import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import { Logger, PlatformAccessory, Service } from 'homebridge';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
-import { ZigBeeDevice } from '../zigbee';
+import { DeviceState } from '../zigbee/types';
+import { Device } from 'zigbee-herdsman/dist/controller/model';
 
 export abstract class ServiceBuilder {
   protected readonly client: ZigBeeClient;
   protected readonly accessory: PlatformAccessory;
   protected readonly platform: ZigbeeNTHomebridgePlatform;
-  protected readonly state: JsonPayload;
+  protected readonly state: DeviceState;
   protected service: Service;
 
   protected constructor(
     platform: ZigbeeNTHomebridgePlatform,
     accessory: PlatformAccessory,
     client: ZigBeeClient,
-    state: JsonPayload
+    state: DeviceState
   ) {
     this.platform = platform;
     this.accessory = accessory;
@@ -22,8 +23,8 @@ export abstract class ServiceBuilder {
     this.state = state;
   }
 
-  get device(): ZigBeeDevice {
-    return this.accessory.context as ZigBeeDevice;
+  get device(): Device {
+    return this.accessory.context as Device;
   }
 
   get log(): Logger {

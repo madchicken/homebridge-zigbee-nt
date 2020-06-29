@@ -1,7 +1,7 @@
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { CharacteristicEventTypes, Logger, PlatformAccessory, Service } from 'homebridge';
 
-import { ZigBee } from '../zigbee';
+import { ZigBee } from '../zigbee/zigbee';
 
 const pkg = require('../../package.json');
 

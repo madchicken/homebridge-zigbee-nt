@@ -1,7 +1,7 @@
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { Logger, PlatformAccessory, Service } from 'homebridge';
 
-import {ZigBee} from "../zigbee";
+import { ZigBee } from '../zigbee/zigbee';
 
 const pkg = require('../../package.json');
 
@@ -36,7 +36,7 @@ export class TouchlinkAccessory {
       .setCharacteristic(Characteristic.Model, pkg.name)
       .setCharacteristic(Characteristic.SerialNumber, serialNumber)
       .setCharacteristic(Characteristic.FirmwareRevision, pkg.version)
-      .setCharacteristic(Characteristic.Name, "ZigBee Touchlink");
+      .setCharacteristic(Characteristic.Name, 'ZigBee Touchlink');
 
     this.switchService =
       this.accessory.getService(platform.Service.Switch) ||
@@ -58,7 +58,7 @@ export class TouchlinkAccessory {
     this.log.info('Starting touchlink factory reset...');
     if (!this.inProgress) {
       this.switchService.getCharacteristic(this.platform.Characteristic.On).updateValue(true);
-      this.zigBee.touchlinkFactoryReset().then((result) => {
+      this.zigBee.touchlinkFactoryReset().then(result => {
         this.inProgress = false;
         this.switchService.getCharacteristic(this.platform.Characteristic.On).updateValue(false);
         if (result) {

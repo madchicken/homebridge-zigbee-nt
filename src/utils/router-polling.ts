@@ -1,5 +1,5 @@
 import { sleep } from './sleep';
-import { ZigBee } from '../zigbee';
+import { ZigBee } from '../zigbee/zigbee';
 import Timeout = NodeJS.Timeout;
 import { Logger } from 'homebridge';
 
@@ -17,7 +17,7 @@ function isDeviceRouter(device) {
 
 export class RouterPolling {
   private readonly log: Logger;
-  private pollingInterval: Timeout;
+  private pollingTimeout: Timeout;
   private readonly interval: number;
   private readonly zigBee: ZigBee;
 
@@ -29,24 +29,30 @@ export class RouterPolling {
 
   start() {
     this.stop();
-    this.pollingInterval = setInterval(() => {
+    this.pollingTimeout = setTimeout(() => {
       const devices = this.zigBee.list().filter(isDeviceRouter);
-      devices.reduce(
-        (promise, device) =>
-          promise.then(() => {
-            if (this.log) {
-              this.log.debug(`[RouterPolling] ping device: ${device.ieeeAddr}`);
-            }
-            this.zigBee.ping(device.ieeeAddr);
-            return sleep(1000);
-          }),
-        Promise.resolve()
-      );
+      devices.forEach(async device => {
+        try {
+          if (this.log) {
+            this.log.debug(
+              `[RouterPolling] ping device: ${device.ieeeAddr} ${device.manufacturerName}: ${device.modelID}`
+            );
+          }
+          await this.zigBee.ping(device.ieeeAddr);
+          return sleep(1000);
+        } catch (e) {
+          this.log.error(
+            `[RouterPolling] ping device error: ${device.ieeeAddr} ${device.manufacturerName}: ${device.modelID}`,
+            e
+          );
+        }
+      });
+      this.pollingTimeout.refresh();
     }, this.interval);
   }
 
   stop() {
-    clearInterval(this.pollingInterval);
-    this.pollingInterval = null;
+    clearTimeout(this.pollingTimeout);
+    this.pollingTimeout = null;
   }
 }

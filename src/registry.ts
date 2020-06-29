@@ -1,4 +1,4 @@
-import { ZigBeeAccessoryCtor } from './zig-bee-accessory';
+import { ZigBeeAccessoryCtor } from './accessories/zig-bee-accessory';
 import { findByZigbeeModel } from 'zigbee-herdsman-converters';
 
 const registry: Map<string, ZigBeeAccessoryCtor> = new Map();

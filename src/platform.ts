@@ -10,7 +10,7 @@ import {
 } from 'homebridge';
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
-import { ZigBee, ZigBeeDevice } from './zigbee';
+import { ZigBee } from './zigbee/zigbee';
 import { RouterPolling } from './utils/router-polling';
 import * as path from 'path';
 import { findSerialPort } from './utils/findSerialPort';
@@ -18,9 +18,9 @@ import { PermitJoinAccessory } from './accessories/permit-join-accessory';
 import retry from 'async-retry';
 import { sleep } from './utils/sleep';
 import { parseModel } from './utils/parseModel';
-import { ZigBeeAccessory, ZigBeeAccessoryCtor } from './zig-bee-accessory';
+import { ZigBeeAccessory, ZigBeeAccessoryCtor } from './accessories/zig-bee-accessory';
 import { getAccessoryClass } from './registry';
-import { ZigBeeClient } from './zig-bee-client';
+import { ZigBeeClient } from './zigbee/zig-bee-client';
 import { TouchlinkAccessory } from './accessories/touchlink-accessory';
 import {
   DeviceAnnouncePayload,
@@ -29,6 +29,7 @@ import {
   DeviceLeavePayload,
   MessagePayload,
 } from 'zigbee-herdsman/dist/controller/events';
+import { Device } from 'zigbee-herdsman/dist/controller/model';
 
 const PERMIT_JOIN_ACCESSORY_NAME = 'zigbee:permit-join';
 const TOUCHLINK_ACCESSORY_NAME = 'zigbee:touchlink';
@@ -145,7 +146,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     await this.handleDeviceUpdate(message.device);
   }
 
-  private async handleDeviceUpdate(device: ZigBeeDevice): Promise<boolean> {
+  private async handleDeviceUpdate(device: Device): Promise<boolean> {
     // Ignore if the device exists
     const accessory = this.getHomekitAccessoryByIeeeAddr(device.ieeeAddr);
     if (!accessory) {
@@ -172,12 +173,12 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     const accessory = this.getAccessoryByIeeeAddr(message.ieeeAddr);
     // Sometimes we can unpair device which doesn't exist in HomeKit
     if (accessory) {
-      await this.unpairDevice(accessory.context as ZigBeeDevice);
+      await this.unpairDevice(accessory.context as Device);
     }
   }
 
   async handleZigBeeReady() {
-    const info: ZigBeeDevice = this.zigBee.coordinator();
+    const info: Device = this.zigBee.coordinator();
     this.log.info(`ZigBee platform initialized @ ${info.ieeeAddr}`);
     // Set led indicator
     await this.zigBee.toggleLed(!this.config.disableLed);
@@ -213,7 +214,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     return this.homekitAccessories.get(this.generateUUID(ieeeAddr));
   }
 
-  private initDevice(device: ZigBeeDevice) {
+  private initDevice(device: Device) {
     try {
       this.log.info(`Found ZigBee device: `, device);
       const model = parseModel(device.modelID);
@@ -282,7 +283,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     }
   }
 
-  private async unpairDevice(device: ZigBeeDevice) {
+  private async unpairDevice(device: Device) {
     try {
       this.log.info('Unpairing device:', device.ieeeAddr);
       await this.zigBee.remove(device.ieeeAddr);
@@ -314,10 +315,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   }
 
   private async handleZigBeeMessage(message: MessagePayload) {
-    this.log.debug(
-      `Message from ${message.device.modelID}: ${message.type}`,
-      message.device.getEndpoint(1).clusters
-    );
-    await this.handleDeviceUpdate(message.device);
+    this.log.info('Zigbee message ', message);
+    this.client.processQueue(message);
   }
 }

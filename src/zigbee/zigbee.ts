@@ -2,7 +2,7 @@ import { Controller } from 'zigbee-herdsman';
 import { findByDevice } from 'zigbee-herdsman-converters';
 import { Logger } from 'homebridge';
 import Device from 'zigbee-herdsman/dist/controller/model/device';
-import Endpoint from 'zigbee-herdsman/dist/controller/model/endpoint';
+import { ZigBeeDefinition, ZigBeeEntity } from './types';
 
 export const endpointNames = [
   'left',
@@ -58,29 +58,6 @@ export const endpointNames = [
   'button_20',
 ];
 const keyEndpointByNumber = new RegExp(`.*/([0-9]*)$`);
-
-export interface HerdsmanDefinition {
-  zigbeeModel: string[];
-  model: string;
-  vendor: string;
-  description: string;
-  supports?: 'on/off';
-  meta?: any;
-  fromZigbee: any[];
-  toZigbee: any[];
-  [key: string]: any;
-}
-
-export type ZigBeeDevice = Device;
-
-export interface ZigBeeEntity {
-  type: 'device' | 'group';
-  group?: any;
-  device?: ZigBeeDevice;
-  endpoint?: Endpoint;
-  definition?: HerdsmanDefinition;
-  name: string;
-}
 
 /* eslint-disable no-underscore-dangle */
 export class ZigBee {
@@ -179,7 +156,7 @@ export class ZigBee {
     return this.herdsman.getDevicesByType('Coordinator')[0];
   }
 
-  list(): ZigBeeDevice[] {
+  list(): Device[] {
     return this.herdsman.getDevices().filter(device => device.type !== 'Coordinator');
   }
 
@@ -260,7 +237,7 @@ export class ZigBee {
         key = key.replace(`/${endpointKey}`, '');
       }
 
-      // FIXME
+      // FIXME: handle groups
       return null;
     } else if (key.constructor.name === 'Device') {
       return {
@@ -268,7 +245,7 @@ export class ZigBee {
         device: key,
         endpoint: key.endpoints[0],
         name: key.type === 'Coordinator' ? 'Coordinator' : key.ieeeAddr,
-        definition: findByDevice(key) as HerdsmanDefinition,
+        definition: findByDevice(key) as ZigBeeDefinition,
       };
     } else {
       // Group

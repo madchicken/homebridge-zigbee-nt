@@ -1,7 +1,6 @@
-import { ZigBeeAccessory } from '../../zig-bee-accessory';
+import { ZigBeeAccessory } from '../zig-bee-accessory';
 import { LighbulbServiceBuilder } from '../../builders/lighbulb-service-builder';
 import { Service } from 'homebridge';
-import { ActionType } from '../../zig-bee-client';
 
 export class PhilipsHueWhite extends ZigBeeAccessory {
   private lightbulbService: Service;
@@ -19,27 +18,6 @@ export class PhilipsHueWhite extends ZigBeeAccessory {
   }
 
   async handleAccessoryIdentify() {
-    await this.client.sendMessage(
-      this.zigBeeDeviceDescriptor,
-      ActionType.set,
-      {
-        alert: 'select',
-      },
-      this.state
-    );
-  }
-
-  protected async updateDevice() {
-    const state = await this.client.getOnOffState(this.zigBeeDeviceDescriptor);
-    this.lightbulbService.updateCharacteristic(
-      this.platform.Characteristic.On,
-      state.state === 'ON'
-    );
-
-    const brightness = await this.client.getBrightnessPercent(this.zigBeeDeviceDescriptor);
-    this.lightbulbService.updateCharacteristic(
-      this.platform.Characteristic.Brightness,
-      brightness.brightness_percent
-    );
+    await this.client.identify(this.zigBeeDeviceDescriptor);
   }
 }
