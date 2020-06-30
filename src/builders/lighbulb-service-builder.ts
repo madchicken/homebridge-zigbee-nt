@@ -45,6 +45,7 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
           Object.assign(this.state, await this.client.getOnOffState(this.device));
+          this.log.debug(`Reporting On for ${this.accessory.displayName}`, this.state);
           callback(null, this.state.state === 'ON');
         } catch (e) {
           callback(e);
@@ -77,6 +78,7 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.Brightness)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         Object.assign(this.state, await this.client.getBrightnessPercent(this.device));
+        this.log.debug(`Reporting Brightness for ${this.accessory.displayName}`, this.state);
         callback(null, this.state.brightness_percent);
       });
     return this;
@@ -178,6 +180,7 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
           const Y = this.state.brightness_percent / 100;
           const hsbType = HSBType.fromXY(this.state.color.x, this.state.color.y, Y);
           this.state.color.hue = hsbType.hue;
+          this.service.updateCharacteristic(Characteristic.Saturation, hsbType.saturation);
           callback(null, this.state.color.hue);
         } catch (e) {
           callback(e);
@@ -205,13 +208,10 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.Saturation)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
-          const xy = await this.client.getColorXY(this.device);
-          const brightness = await this.client.getBrightnessPercent(this.device);
-          const hsbType = HSBType.fromXY(
-            xy.color.x,
-            xy.color.y,
-            brightness.brightness_percent / 100
-          );
+          Object.assign(this.state, await this.client.getColorXY(this.device));
+          Object.assign(this.state, await this.client.getBrightnessPercent(this.device));
+          const Y = this.state.brightness_percent / 100;
+          const hsbType = HSBType.fromXY(this.state.color.x, this.state.color.y, Y);
           callback(null, hsbType.saturation);
         } catch (e) {
           callback(e);

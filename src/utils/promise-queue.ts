@@ -57,8 +57,13 @@ export abstract class PromiseBasedQueue<M, R> implements Queue<M, R> {
     this.timeout.refresh();
   }
 
-  findMessage(message: M): DeferredMessage<M, R> {
-    return this.queuedMessages.find(qm => qm.message === message);
+  consumeMessage(message: M): DeferredMessage<M, R> {
+    const index = this.queuedMessages.findIndex(qm => qm.message === message);
+    if (index >= 0) {
+      return this.queuedMessages.splice(index, 1)[0];
+    }
+
+    return null;
   }
 
   flush(shutdown?: boolean): void {

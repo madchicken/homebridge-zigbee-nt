@@ -6,31 +6,35 @@ import { MessagePayload } from 'zigbee-herdsman/dist/controller/events';
 import { DeferredMessage, PromiseBasedQueue } from '../utils/promise-queue';
 import Device from 'zigbee-herdsman/dist/controller/model/device';
 import { ColorCapabilities, DeviceState, Meta, Options, ToConverter, ZigBeeEntity } from './types';
+import Timeout = NodeJS.Timeout;
 
 export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   private readonly zigBee: ZigBee;
   private readonly log: Logger;
   private readonly store: Store<string, DeviceState>;
+  private readonly cleanTimeout: Timeout;
 
   constructor(zigBee: ZigBee, log: Logger) {
     super();
     this.zigBee = zigBee;
     this.log = log;
     this.store = createStore<string, DeviceState>();
+    this.setTimeout(2000);
   }
 
   processResponse(
     messages: DeferredMessage<string, MessagePayload>[],
     response: MessagePayload
   ): boolean {
-    const deferredMessage = messages.find(
-      m => m.message === `${response.device.ieeeAddr}|${response.endpoint.ID}`
-    );
+    const key = `${response.device.ieeeAddr}|${response.endpoint.ID}`;
+    const deferredMessage = this.consumeMessage(key);
     if (deferredMessage) {
-      messages.splice(messages.indexOf(deferredMessage, 1));
+      this.log.debug(`Found message in queue for key ${key}, resolving`, response);
+      this.log.debug(`resolving promise`, deferredMessage.promise);
       deferredMessage.promise.resolve(response);
       return true;
     }
+    this.log.warn(`Can't find message in queue for key ${key}`, messages);
     return false;
   }
 
@@ -84,29 +88,28 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
         continue;
       }
       const messageKey = `${device.ieeeAddr}|${target.ID}`;
-      try {
-        this.log.debug(
-          `Reading '${key}' from '${resolvedEntity.name}, message in queue ${messageKey}'`
-        );
-        const promise = this.enqueue(messageKey);
-        promises.push(promise);
+      this.log.debug(
+        `Reading '${key}' from '${resolvedEntity.name}, message in queue ${messageKey}'`
+      );
+      promises.push(this.enqueue(messageKey));
 
-        await converter.convertGet(target, key, { device, message: state });
-      } catch (error) {
-        const message = `Reading '${key}' to '${resolvedEntity.name}' failed: '${error}'`;
-        this.log.error(message);
+      converter.convertGet(target, key, { device, message: state }).catch(error => {
+        this.log.error(`Reading '${key}' to '${resolvedEntity.name}' failed: '${error}'`);
         this.log.debug(error.stack);
-        const deferredMessage = this.findMessage(messageKey);
+        const deferredMessage = this.consumeMessage(messageKey);
         if (deferredMessage) {
+          // TODO: consume the message
           deferredMessage.promise.reject(error);
         }
-      }
+      });
       if (!usedConverters.has(target.ID)) {
         usedConverters.set(target.ID, []);
       }
       usedConverters.get(target.ID).push(converter);
     }
+    this.log.debug(`Sent ${promises.length} messages for device ${device.modelID}`);
     const responses = await Promise.all<MessagePayload>(promises);
+    this.log.debug(`Got ${responses.length} messages for device ${device.modelID}`);
     responses.forEach(response => {
       const s = this.decodeMessage(response);
       this.log.debug(`Decoded message for ${response.device.modelID}`, s);
@@ -194,16 +197,15 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     return keys;
   }
 
-  async setOn(device: Device, on: boolean): Promise<DeviceState> {
-    await this.writeDeviceState(device, { state: on ? 'ON' : 'OFF' });
-    return { state: on ? 'ON' : 'OFF' };
+  setOn(device: Device, on: boolean): Promise<DeviceState> {
+    return this.writeDeviceState(device, { state: on ? 'ON' : 'OFF' });
   }
 
-  async getOnOffState(device: Device): Promise<DeviceState> {
-    return await this.readDeviceState(device, { state: 'ON' });
+  getOnOffState(device: Device): Promise<DeviceState> {
+    return this.readDeviceState(device, { state: 'ON' });
   }
 
-  async getColorXY(device: Device): Promise<DeviceState> {
+  getColorXY(device: Device): Promise<DeviceState> {
     return this.readDeviceState(device, { color: { x: 0, y: 0 } });
   }
 
@@ -241,32 +243,32 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     return endpoint.getClusterAttributeValue(cluster, attribute);
   }
 
-  async getSaturation(device: Device): Promise<DeviceState> {
-    return await this.readDeviceState(device, { color: { s: 0 } });
+  getSaturation(device: Device): Promise<DeviceState> {
+    return this.readDeviceState(device, { color: { s: 0 } });
   }
 
-  async getHue(device: Device): Promise<DeviceState> {
-    return await this.readDeviceState(device, { color: { hue: 0 } });
+  getHue(device: Device): Promise<DeviceState> {
+    return this.readDeviceState(device, { color: { hue: 0 } });
   }
 
-  async setHue(device: Device, hue: number) {
-    return await this.writeDeviceState(device, { color: { hue } });
+  setHue(device: Device, hue: number): Promise<DeviceState> {
+    return this.writeDeviceState(device, { color: { hue } });
   }
 
-  async setColorXY(device: Device, x: number, y: number) {
-    return await this.writeDeviceState(device, { color: { x, y } });
+  setColorXY(device: Device, x: number, y: number): Promise<DeviceState> {
+    return this.writeDeviceState(device, { color: { x, y } });
   }
 
-  async setColorRGB(device: Device, r: number, g: number, b: number) {
-    return await this.writeDeviceState(device, { color: { rgb: `${r},${g},${b}` } });
+  setColorRGB(device: Device, r: number, g: number, b: number): Promise<DeviceState> {
+    return this.writeDeviceState(device, { color: { rgb: `${r},${g},${b}` } });
   }
 
-  async getTemperature(device: Device): Promise<DeviceState> {
-    return await this.readDeviceState(device, { temperature: 0 });
+  getTemperature(device: Device): Promise<DeviceState> {
+    return this.readDeviceState(device, { temperature: 0 });
   }
 
-  async getHumidity(device: Device): Promise<Partial<DeviceState>> {
-    return await this.readDeviceState(device, { humidity: 0 });
+  getHumidity(device: Device): Promise<Partial<DeviceState>> {
+    return this.readDeviceState(device, { humidity: 0 });
   }
 
   getCoodinator(): Device {
