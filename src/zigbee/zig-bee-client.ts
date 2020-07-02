@@ -48,7 +48,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     return resolvedEntity;
   }
 
-  private decodeMessage(message: MessagePayload, options: Options = {}): DeviceState {
+  public decodeMessage(message: MessagePayload, options: Options = {}): DeviceState {
     const payload = {} as DeviceState;
     const resolvedEntity = this.resolveEntity(message.device);
     if (resolvedEntity) {
@@ -215,6 +215,11 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     return deviceState;
   }
 
+  async setBrightnessPercent(device: Device, brightness_percent: number) {
+    const brightness = Math.round(Number(brightness_percent) * 2.55);
+    return this.writeDeviceState(device, { brightness });
+  }
+
   async getColorCapabilities(device: Device, force: boolean = false): Promise<ColorCapabilities> {
     const colorCapabilities = (await this.getClusterAttribute(
       device,
@@ -293,8 +298,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     return this.writeDeviceState(device, { color_temp: colorTemperature });
   }
 
-  async setBrightnessPercent(device: Device, brightness_percent: number) {
-    const brightness = Math.round(Number(brightness_percent) * 2.55);
+  async sendSinglePressButton(device: Device) {
     return this.writeDeviceState(device, { brightness });
   }
 }

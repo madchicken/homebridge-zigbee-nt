@@ -156,7 +156,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       return true;
     } else {
       this.log.debug(`Not initializing device ${device.ieeeAddr}: already mapped in Homebridge`);
-      accessory.update(device);
+      accessory.update(device, {});
     }
     return false;
   }
@@ -214,7 +214,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     return this.homekitAccessories.get(this.generateUUID(ieeeAddr));
   }
 
-  private initDevice(device: Device) {
+  private async initDevice(device: Device) {
     try {
       this.log.info(`Found ZigBee device: `, device);
       const model = parseModel(device.modelID);
@@ -227,10 +227,10 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       }
 
       const accessory = this.createHapAccessory(ieeeAddr);
-      const homekitAccessory = new ZigBeeAccessory(this, accessory, this.client, device);
+      const homeKitAccessory = new ZigBeeAccessory(this, accessory, this.client, device);
       this.log.info('Registered device:', ieeeAddr, manufacturer, model);
-      this.homekitAccessories.set(accessory.UUID, homekitAccessory);
-      homekitAccessory.onDeviceMount();
+      this.homekitAccessories.set(accessory.UUID, homeKitAccessory);
+      await homeKitAccessory.onDeviceMount();
     } catch (error) {
       this.log.info(
         `Unable to initialize device ${device && device.ieeeAddr}, ` +
@@ -315,7 +315,13 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   }
 
   private async handleZigBeeMessage(message: MessagePayload) {
-    this.log.info('Zigbee message ', message);
-    this.client.processQueue(message);
+    this.log.debug('Zigbee message ', message);
+    if (!this.client.processQueue(message)) {
+      const zigBeeAccessory = this.getHomekitAccessoryByIeeeAddr(message.device.ieeeAddr);
+      if (zigBeeAccessory) {
+        const state = this.client.decodeMessage(message);
+        zigBeeAccessory.update(message.device, state);
+      }
+    }
   }
 }

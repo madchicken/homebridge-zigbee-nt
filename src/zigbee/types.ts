@@ -30,6 +30,7 @@ export interface DeviceState {
   alert?: 'select' | 'lselect' | 'none';
   temperature?: number;
   humidity?: number;
+  click?: 'on' | 'off' | 'brightness_down' | 'brightness_up' | 'brightness_stop' | 'play_pause';
 }
 
 export interface ColorCapabilities {

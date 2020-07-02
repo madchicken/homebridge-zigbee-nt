@@ -1,21 +1,9 @@
 import { ZigBeeAccessory } from '../zig-bee-accessory';
 import { LighbulbServiceBuilder } from '../../builders/lighbulb-service-builder';
-import { ZigBeeClient } from '../../zigbee/zig-bee-client';
-import { PlatformAccessory, Service } from 'homebridge';
-import { ZigbeeNTHomebridgePlatform } from '../../platform';
-import { Device } from 'zigbee-herdsman/dist/controller/model';
+import { Service } from 'homebridge';
 
 export class IkeaTadfriDim extends ZigBeeAccessory {
   protected lightbulbService: Service;
-
-  constructor(
-    platform: ZigbeeNTHomebridgePlatform,
-    accessory: PlatformAccessory,
-    client: ZigBeeClient,
-    device: Device
-  ) {
-    super(platform, accessory, client, device);
-  }
 
   getAvailableServices() {
     this.lightbulbService = new LighbulbServiceBuilder(

@@ -1,4 +1,4 @@
-import { Logger, PlatformAccessory } from 'homebridge';
+import { Logger, PlatformAccessory, Service } from 'homebridge';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import { findByDevice } from 'zigbee-herdsman-converters';
@@ -64,7 +64,7 @@ export abstract class ZigBeeAccessory {
     return this.zigBeeDefinition?.description;
   }
 
-  public abstract getAvailableServices();
+  public abstract getAvailableServices(): Service[];
 
   public async onDeviceMount() {
     this.zigBeeDeviceDescriptor.updateLastSeen();
@@ -73,8 +73,9 @@ export abstract class ZigBeeAccessory {
     }
   }
 
-  update(device: Device) {
+  update(device: Device, state: DeviceState) {
     Object.assign(this.accessory.context, { ...device });
+    Object.assign(this.state, state);
     this.zigBeeDeviceDescriptor.updateLastSeen();
   }
 }

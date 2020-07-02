@@ -265,7 +265,7 @@ export class ZigBee {
     return this.herdsman.getGroups();
   }
 
-  createGroup(groupID) {
+  createGroup(groupID: number) {
     return this.herdsman.createGroup(groupID);
   }
 
