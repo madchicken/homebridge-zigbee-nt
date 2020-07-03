@@ -69,7 +69,14 @@ export abstract class ZigBeeAccessory {
   public async onDeviceMount() {
     this.zigBeeDeviceDescriptor.updateLastSeen();
     if (this.entity.definition.configure) {
-      await this.entity.definition.configure(this.zigBeeDeviceDescriptor, this.coordinatorEndpoint);
+      try {
+        await this.entity.definition.configure(
+          this.zigBeeDeviceDescriptor,
+          this.coordinatorEndpoint
+        );
+      } catch (e) {
+        this.log.error(`Cannot configure device ${this.name}: ${e.message}`);
+      }
     }
   }
 

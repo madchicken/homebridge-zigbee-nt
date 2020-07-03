@@ -9,12 +9,18 @@ export class IkeaOnoffSwitch extends ZigBeeAccessory {
 
   getAvailableServices(): Service[] {
     this.switchServiceOn =
-      this.accessory.getService(this.platform.Service.StatelessProgrammableSwitch) ||
-      this.accessory.addService(this.platform.Service.StatelessProgrammableSwitch);
+      this.accessory.getServiceById(this.platform.Service.StatelessProgrammableSwitch, 'on') ||
+      this.accessory.addService(this.platform.Service.StatelessProgrammableSwitch, 'ON', 'on');
 
-    this.switchServiceOn.getCharacteristic(this.platform.Characteristic.Name).setValue('On');
+    this.switchServiceOff =
+      this.accessory.getServiceById(this.platform.Service.StatelessProgrammableSwitch, 'off') ||
+      this.accessory.addService(this.platform.Service.StatelessProgrammableSwitch, 'OFF', 'off');
 
-    this.switchServiceOff.getCharacteristic(this.platform.Characteristic.Name).setValue('Off');
+    this.switchServiceOn.setCharacteristic(this.platform.Characteristic.Name, 'On button');
+    this.switchServiceOn.setCharacteristic(this.platform.Characteristic.ServiceLabelIndex, 1);
+
+    this.switchServiceOff.setCharacteristic(this.platform.Characteristic.Name, 'Off button');
+    this.switchServiceOff.setCharacteristic(this.platform.Characteristic.ServiceLabelIndex, 2);
 
     return [this.switchServiceOn, this.switchServiceOff];
   }
@@ -22,14 +28,27 @@ export class IkeaOnoffSwitch extends ZigBeeAccessory {
   update(device: Device, state: DeviceState) {
     const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
     super.update(device, state);
-    if (state.click === 'on') {
-      this.switchServiceOn
-        .getCharacteristic(ProgrammableSwitchEvent)
-        .setValue(ProgrammableSwitchEvent.SINGLE_PRESS);
-    } else if (state.click === 'off') {
-      this.switchServiceOff
-        .getCharacteristic(ProgrammableSwitchEvent)
-        .setValue(ProgrammableSwitchEvent.SINGLE_PRESS);
+    switch (state.click) {
+      case 'brightness_up':
+        this.switchServiceOn
+          .getCharacteristic(ProgrammableSwitchEvent)
+          .setValue(ProgrammableSwitchEvent.LONG_PRESS);
+        break;
+      case 'brightness_down':
+        this.switchServiceOff
+          .getCharacteristic(ProgrammableSwitchEvent)
+          .setValue(ProgrammableSwitchEvent.LONG_PRESS);
+        break;
+      case 'on':
+        this.switchServiceOn
+          .getCharacteristic(ProgrammableSwitchEvent)
+          .setValue(ProgrammableSwitchEvent.SINGLE_PRESS);
+        break;
+      case 'off':
+        this.switchServiceOff
+          .getCharacteristic(ProgrammableSwitchEvent)
+          .setValue(ProgrammableSwitchEvent.SINGLE_PRESS);
+        break;
     }
   }
 }

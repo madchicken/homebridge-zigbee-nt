@@ -315,12 +315,15 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   }
 
   private async handleZigBeeMessage(message: MessagePayload) {
-    this.log.debug('Zigbee message ', message);
+    this.log.debug(`Zigbee message from ${message.device.ieeeAddr}`, message.type);
     if (!this.client.processQueue(message)) {
       const zigBeeAccessory = this.getHomekitAccessoryByIeeeAddr(message.device.ieeeAddr);
       if (zigBeeAccessory) {
         const state = this.client.decodeMessage(message);
+        this.log.debug(`Decoded state from incoming message`, state);
         zigBeeAccessory.update(message.device, state);
+      } else {
+        this.log.warn(`No device found from message`, message);
       }
     }
   }

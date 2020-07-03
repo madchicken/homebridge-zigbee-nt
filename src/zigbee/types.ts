@@ -31,6 +31,7 @@ export interface DeviceState {
   temperature?: number;
   humidity?: number;
   click?: 'on' | 'off' | 'brightness_down' | 'brightness_up' | 'brightness_stop' | 'play_pause';
+  battery?: number;
 }
 
 export interface ColorCapabilities {

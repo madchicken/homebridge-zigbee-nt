@@ -19,7 +19,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     this.zigBee = zigBee;
     this.log = log;
     this.store = createStore<string, DeviceState>();
-    this.setTimeout(2000);
+    this.setTimeout(5000);
   }
 
   processResponse(
@@ -98,7 +98,6 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
         this.log.debug(error.stack);
         const deferredMessage = this.consumeMessage(messageKey);
         if (deferredMessage) {
-          // TODO: consume the message
           deferredMessage.promise.reject(error);
         }
       });
@@ -296,9 +295,5 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
 
   async setColorTemperature(device: Device, colorTemperature: number) {
     return this.writeDeviceState(device, { color_temp: colorTemperature });
-  }
-
-  async sendSinglePressButton(device: Device) {
-    return this.writeDeviceState(device, { brightness });
   }
 }

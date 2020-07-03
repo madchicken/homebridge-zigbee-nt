@@ -2,34 +2,42 @@ import { ZigBeeAccessory } from '../zig-bee-accessory';
 import { Callback, CharacteristicEventTypes, Service } from 'homebridge';
 
 export class TempHumiSensor extends ZigBeeAccessory {
-  private service: Service;
+  private temperatureService: Service;
+  private humidityService: Service;
+  private batteryService: Service;
 
   getAvailableServices() {
     const Characteristic = this.platform.Characteristic;
-    const temperatureService =
+    this.temperatureService =
       this.accessory.getService(this.platform.Service.TemperatureSensor) ||
       this.accessory.addService(this.platform.Service.TemperatureSensor);
 
-    temperatureService
+    this.temperatureService
       .getCharacteristic(Characteristic.CurrentTemperature)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        const state = await this.client.getTemperature(this.zigBeeDeviceDescriptor);
-        callback(null, state.temperature);
+        callback(null, this.state.temperature);
       });
 
-    const humidityService =
+    this.humidityService =
       this.accessory.getService(this.platform.Service.HumiditySensor) ||
       this.accessory.addService(this.platform.Service.HumiditySensor);
 
-    humidityService
+    this.humidityService
       .getCharacteristic(Characteristic.CurrentRelativeHumidity)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        const state = await this.client.getHumidity(this.zigBeeDeviceDescriptor);
-        callback(null, state.humidity);
+        callback(null, this.state.humidity);
       });
 
-    return [temperatureService];
-  }
+    this.batteryService =
+      this.accessory.getService(this.platform.Service.BatteryService) ||
+      this.accessory.addService(this.platform.Service.BatteryService);
 
-  protected updateDevice() {}
+    this.batteryService
+      .getCharacteristic(Characteristic.BatteryLevel)
+      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
+        callback(null, this.state.battery);
+      });
+
+    return [this.temperatureService, this.humidityService, this.batteryService];
+  }
 }
