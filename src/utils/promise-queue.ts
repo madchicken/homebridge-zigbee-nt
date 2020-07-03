@@ -73,14 +73,16 @@ export abstract class PromiseBasedQueue<M, R> implements Queue<M, R> {
     this.queuedMessages.length = 0;
   }
 
-  processQueue(response: R) {
+  processQueue(response: R): boolean {
     if (this.queuedMessages.length) {
       if (this.processResponse(this.queuedMessages, response)) {
         console.log(`Message processed. Message queue size is now ${this.queuedMessages.length}`);
+        return true;
       }
     } else {
       console.log('No message in queue, skipping');
     }
+    return false;
   }
 
   enqueue(message: M): Promise<R> {

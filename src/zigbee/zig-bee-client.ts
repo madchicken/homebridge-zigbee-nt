@@ -19,7 +19,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     this.zigBee = zigBee;
     this.log = log;
     this.store = createStore<string, DeviceState>();
-    this.setTimeout(2000);
+    this.setTimeout(5000);
   }
 
   processResponse(
@@ -48,7 +48,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     return resolvedEntity;
   }
 
-  private decodeMessage(message: MessagePayload, options: Options = {}): DeviceState {
+  public decodeMessage(message: MessagePayload, options: Options = {}): DeviceState {
     const payload = {} as DeviceState;
     const resolvedEntity = this.resolveEntity(message.device);
     if (resolvedEntity) {
@@ -98,7 +98,6 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
         this.log.debug(error.stack);
         const deferredMessage = this.consumeMessage(messageKey);
         if (deferredMessage) {
-          // TODO: consume the message
           deferredMessage.promise.reject(error);
         }
       });
@@ -215,6 +214,11 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     return deviceState;
   }
 
+  async setBrightnessPercent(device: Device, brightness_percent: number) {
+    const brightness = Math.round(Number(brightness_percent) * 2.55);
+    return this.writeDeviceState(device, { brightness });
+  }
+
   async getColorCapabilities(device: Device, force: boolean = false): Promise<ColorCapabilities> {
     const colorCapabilities = (await this.getClusterAttribute(
       device,
@@ -291,10 +295,5 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
 
   async setColorTemperature(device: Device, colorTemperature: number) {
     return this.writeDeviceState(device, { color_temp: colorTemperature });
-  }
-
-  async setBrightnessPercent(device: Device, brightness_percent: number) {
-    const brightness = Math.round(Number(brightness_percent) * 2.55);
-    return this.writeDeviceState(device, { brightness });
   }
 }
