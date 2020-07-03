@@ -11,11 +11,14 @@ import { IkeaTadfriOutlet } from './accessories/ikea/ikea-tadfri-outlet';
 import { IkeaTadfriDimColor } from './accessories/ikea/ikea-tadfri-dim-color';
 import { IkeaOnoffSwitch } from './accessories/ikea/ikea-onoff-switch';
 import { TempHumiSensor } from './accessories/xiaomi/temp-humi-sensor';
+import { GledoptoDim } from './accessories/gledopto/gledopto-dim';
+
 
 /**
  * This method registers the platform with Homebridge
  */
 export = (api: API) => {
+  registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
   registerAccessoryClass('Philips', ['LWA001', 'LWA002', 'LWB006', 'LWB014'], PhilipsHueWhite);
   registerAccessoryClass(
     'Philips',
