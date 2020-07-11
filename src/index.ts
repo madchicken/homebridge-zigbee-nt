@@ -78,5 +78,5 @@ export = (api: API) => {
   registerAccessoryClass('IKEA of Sweden', ['E1743'], IkeaOnoffSwitch);
   registerAccessoryClass('Xiaomi', ['WSDCGQ01LM', 'WSDCGQ11LM'], TempHumiSensor);
 
-  api.registerPlatform(PLATFORM_NAME, ZigbeeNTHomebridgePlatform);
+  api.registerPlatform('homebridge-zigbee-nt', PLATFORM_NAME, ZigbeeNTHomebridgePlatform);
 };
