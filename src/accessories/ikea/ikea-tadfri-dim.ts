@@ -21,18 +21,4 @@ export class IkeaTadfriDim extends ZigBeeAccessory {
   async handleAccessoryIdentify() {
     await this.client.identify(this.zigBeeDeviceDescriptor);
   }
-
-  protected async updateDevice() {
-    const state = await this.client.getOnOffState(this.zigBeeDeviceDescriptor);
-    this.lightbulbService.updateCharacteristic(
-      this.platform.Characteristic.On,
-      state.state === 'ON'
-    );
-
-    const brightness = await this.client.getBrightnessPercent(this.zigBeeDeviceDescriptor);
-    this.lightbulbService.updateCharacteristic(
-      this.platform.Characteristic.Brightness,
-      brightness.brightness_percent
-    );
-  }
 }
