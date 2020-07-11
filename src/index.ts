@@ -12,7 +12,7 @@ import { IkeaTadfriDimColor } from './accessories/ikea/ikea-tadfri-dim-color';
 import { IkeaOnoffSwitch } from './accessories/ikea/ikea-onoff-switch';
 import { TempHumiSensor } from './accessories/xiaomi/temp-humi-sensor';
 import { GledoptoDim } from './accessories/gledopto/gledopto-dim';
-
+import { TuyaOnoffDoubleSwitch } from './accessories/tuya/tuya-onoff-double-switch';
 
 /**
  * This method registers the platform with Homebridge
@@ -78,6 +78,7 @@ export = (api: API) => {
   registerAccessoryClass('IKEA of Sweden', ['E1743'], IkeaOnoffSwitch);
   registerAccessoryClass('Xiaomi', ['WSDCGQ01LM', 'WSDCGQ11LM'], TempHumiSensor);
   registerAccessoryClass('LUMI', ['WSDCGQ01LM', 'WSDCGQ11LM'], TempHumiSensor);
+  registerAccessoryClass('TuYa', ['GDKES-02TZXD'], TuyaOnoffDoubleSwitch);
 
   api.registerPlatform('homebridge-zigbee-nt', PLATFORM_NAME, ZigbeeNTHomebridgePlatform);
 };

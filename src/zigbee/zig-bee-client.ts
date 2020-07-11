@@ -6,13 +6,11 @@ import { MessagePayload } from 'zigbee-herdsman/dist/controller/events';
 import { DeferredMessage, PromiseBasedQueue } from '../utils/promise-queue';
 import Device from 'zigbee-herdsman/dist/controller/model/device';
 import { ColorCapabilities, DeviceState, Meta, Options, ToConverter, ZigBeeEntity } from './types';
-import Timeout = NodeJS.Timeout;
 
 export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   private readonly zigBee: ZigBee;
   private readonly log: Logger;
   private readonly store: Store<string, DeviceState>;
-  private readonly cleanTimeout: Timeout;
 
   constructor(zigBee: ZigBee, log: Logger) {
     super();
@@ -295,5 +293,13 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
 
   async setColorTemperature(device: Device, colorTemperature: number) {
     return this.writeDeviceState(device, { color_temp: colorTemperature });
+  }
+
+  setLeftButtonOn(device: Device, on: boolean) {
+    return this.writeDeviceState(device, { state_left: on ? 'ON' : 'OFF' });
+  }
+
+  setRightButtonOn(device: Device, on: boolean) {
+    return this.writeDeviceState(device, { state_right: on ? 'ON' : 'OFF' });
   }
 }
