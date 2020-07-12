@@ -14,10 +14,7 @@ import { TempHumiSensor } from './accessories/xiaomi/temp-humi-sensor';
 import { GledoptoDim } from './accessories/gledopto/gledopto-dim';
 import { TuyaOnoffDoubleSwitch } from './accessories/tuya/tuya-onoff-double-switch';
 
-/**
- * This method registers the platform with Homebridge
- */
-export = (api: API) => {
+function registerSupportedDevices() {
   registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
   registerAccessoryClass('Philips', ['LWA001', 'LWA002', 'LWB006', 'LWB014'], PhilipsHueWhite);
   registerAccessoryClass(
@@ -79,6 +76,12 @@ export = (api: API) => {
   registerAccessoryClass('Xiaomi', ['WSDCGQ01LM', 'WSDCGQ11LM'], TempHumiSensor);
   registerAccessoryClass('LUMI', ['lumi.weather', 'lumi.sensor_ht.agl02'], TempHumiSensor);
   registerAccessoryClass('TuYa', ['GDKES-02TZXD'], TuyaOnoffDoubleSwitch);
+}
 
+/**
+ * This method registers the platform with Homebridge
+ */
+export = (api: API) => {
+  registerSupportedDevices();
   api.registerPlatform('homebridge-zigbee-nt', PLATFORM_NAME, ZigbeeNTHomebridgePlatform);
 };
