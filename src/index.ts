@@ -77,7 +77,7 @@ export = (api: API) => {
   registerAccessoryClass('IKEA of Sweden', ['LED1624G9'], IkeaTadfriDimColor);
   registerAccessoryClass('IKEA of Sweden', ['E1743'], IkeaOnoffSwitch);
   registerAccessoryClass('Xiaomi', ['WSDCGQ01LM', 'WSDCGQ11LM'], TempHumiSensor);
-  registerAccessoryClass('LUMI', ['WSDCGQ01LM', 'WSDCGQ11LM'], TempHumiSensor);
+  registerAccessoryClass('LUMI', ['lumi.weather', 'lumi.sensor_ht.agl02'], TempHumiSensor);
   registerAccessoryClass('TuYa', ['GDKES-02TZXD'], TuyaOnoffDoubleSwitch);
 
   api.registerPlatform('homebridge-zigbee-nt', PLATFORM_NAME, ZigbeeNTHomebridgePlatform);
