@@ -8,6 +8,8 @@ type State = 'ON' | 'OFF' | 'TOGGLE';
 
 export interface DeviceState {
   state?: State;
+  state_left?: State;
+  state_right?: State;
   brightness?: number; // Value between 0 and 255
   brightness_percent?: number; // 0-100
   // Color temperature in Reciprocal MegaKelvin, a.k.a. Mirek scale.

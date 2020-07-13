@@ -316,7 +316,10 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
 
   private async handleZigBeeMessage(message: MessagePayload) {
     this.log.debug(`Zigbee message from ${message.device.ieeeAddr}`, message.type);
-    if (!this.client.processQueue(message)) {
+    if (message.type === 'readResponse') {
+      // only process messages that we wait for
+      this.client.processQueue(message);
+    } else {
       const zigBeeAccessory = this.getHomekitAccessoryByIeeeAddr(message.device.ieeeAddr);
       if (zigBeeAccessory) {
         const state = this.client.decodeMessage(message);

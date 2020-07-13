@@ -4,6 +4,8 @@
 
 ZigBee Platform plugin for [HomeBridge](https://github.com/homebridge/homebridge)
 
+[![madchicken](https://circleci.com/gh/madchicken/homebridge-zigbee-nt.svg?style=svg)](https://app.circleci.com/pipelines/github/madchicken/homebridge-zigbee-nt)
+
 ## Description
 
 This Homebridge plugin exposes ZigBee devices connected to TI's [CC253X](http://www.ti.com/wireless-connectivity/simplelink-solutions/zigbee/products.html) wireless SoC to Apple's HomeKit.
@@ -14,7 +16,7 @@ This project has been heavily inspired by [homebridge-zigbee](https://github.com
 
 ## Supported devices
 
-[See wiki page](https://github.com/madchicken/homebridge-zigbee-nt/wiki/Supported-devices) 
+[See wiki page](https://github.com/madchicken/homebridge-zigbee-nt/wiki/Supported-devices)
 
 ## Build from sources
 
@@ -28,7 +30,7 @@ Once you get it, run yarn command:
 
     yarn && yarn build
 
-You should end up with a new `dist/` folder containing the compiled version of the plugin. 
+You should end up with a new `dist/` folder containing the compiled version of the plugin.
 
 ## License
 
