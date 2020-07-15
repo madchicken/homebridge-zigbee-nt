@@ -7,13 +7,14 @@ import {
 } from 'homebridge';
 import { DeviceState } from '../../zigbee/types';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
-import { ProgrammableSwitchOutputState } from 'hap-nodejs/dist/lib/gen/HomeKit-Bridge';
 
 export class TuyaOnoffDoubleSwitch extends ZigBeeAccessory {
   protected switchServiceButtonLeft: Service;
   protected switchServiceButtonRight: Service;
 
   getAvailableServices(): Service[] {
+    const Characteristic = this.platform.api.hap.Characteristic;
+
     this.switchServiceButtonLeft =
       this.accessory.getServiceById(
         this.platform.Service.StatefulProgrammableSwitch,
@@ -45,7 +46,7 @@ export class TuyaOnoffDoubleSwitch extends ZigBeeAccessory {
       1
     );
     this.switchServiceButtonLeft
-      .getCharacteristic(ProgrammableSwitchOutputState)
+      .getCharacteristic(Characteristic.ProgrammableSwitchOutputState)
       .on(CharacteristicEventTypes.GET, (callback: CharacteristicGetCallback) => {
         callback(null, this.state.state_left === 'ON' ? 1 : 0);
       })
@@ -66,7 +67,7 @@ export class TuyaOnoffDoubleSwitch extends ZigBeeAccessory {
       2
     );
     this.switchServiceButtonLeft
-      .getCharacteristic(ProgrammableSwitchOutputState)
+      .getCharacteristic(Characteristic.ProgrammableSwitchOutputState)
       .on(CharacteristicEventTypes.GET, (callback: CharacteristicGetCallback) => {
         callback(null, this.state.state_right === 'ON' ? 1 : 0);
       })
@@ -83,21 +84,34 @@ export class TuyaOnoffDoubleSwitch extends ZigBeeAccessory {
 
   update(device: Device, state: DeviceState) {
     super.update(device, state);
+    const Characteristic = this.platform.api.hap.Characteristic;
     switch (state.state_left) {
       case 'ON':
-        this.switchServiceButtonLeft.setCharacteristic(ProgrammableSwitchOutputState, 1);
+        this.switchServiceButtonLeft.setCharacteristic(
+          Characteristic.ProgrammableSwitchOutputState,
+          1
+        );
         break;
       case 'OFF':
-        this.switchServiceButtonLeft.setCharacteristic(ProgrammableSwitchOutputState, 0);
+        this.switchServiceButtonLeft.setCharacteristic(
+          Characteristic.ProgrammableSwitchOutputState,
+          0
+        );
         break;
     }
 
     switch (state.state_right) {
       case 'ON':
-        this.switchServiceButtonRight.setCharacteristic(ProgrammableSwitchOutputState, 1);
+        this.switchServiceButtonRight.setCharacteristic(
+          Characteristic.ProgrammableSwitchOutputState,
+          1
+        );
         break;
       case 'OFF':
-        this.switchServiceButtonRight.setCharacteristic(ProgrammableSwitchOutputState, 0);
+        this.switchServiceButtonRight.setCharacteristic(
+          Characteristic.ProgrammableSwitchOutputState,
+          0
+        );
         break;
     }
   }
