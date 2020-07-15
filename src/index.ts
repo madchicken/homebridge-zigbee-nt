@@ -1,6 +1,6 @@
 import { API } from 'homebridge';
 
-import { PLATFORM_NAME } from './settings';
+import { PLATFORM_NAME, PLUGIN_IDENTIFIER } from './settings';
 import { ZigbeeNTHomebridgePlatform } from './platform';
 import { registerAccessoryClass } from './registry';
 import { PhilipsHueWhite } from './accessories/philips/philips-hue-white';
@@ -83,5 +83,5 @@ function registerSupportedDevices() {
  */
 export = (api: API) => {
   registerSupportedDevices();
-  api.registerPlatform('homebridge-zigbee-nt', PLATFORM_NAME, ZigbeeNTHomebridgePlatform);
+  api.registerPlatform(PLUGIN_IDENTIFIER, PLATFORM_NAME, ZigbeeNTHomebridgePlatform);
 };

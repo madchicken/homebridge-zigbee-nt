@@ -7,3 +7,5 @@ export const PLATFORM_NAME = 'ZigbeeHomebridgeNTPlatform';
  * This must match the name of your plugin as defined the package.json
  */
 export const PLUGIN_NAME = 'homebridge-zigbee-nt';
+
+export const PLUGIN_IDENTIFIER = 'homebridge-zigbee-nt';
