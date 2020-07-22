@@ -34,6 +34,22 @@ export interface DeviceState {
   humidity?: number;
   click?: 'on' | 'off' | 'brightness_down' | 'brightness_up' | 'brightness_stop' | 'play_pause';
   battery?: number;
+  action?:
+    | 'toggle'
+    | 'toggle_hold'
+    | 'toggle_release'
+    | 'arrow_left_click'
+    | 'arrow_left_hold'
+    | 'arrow_left_release'
+    | 'arrow_right_click'
+    | 'arrow_right_hold'
+    | 'arrow_right_release'
+    | 'brightness_up_click'
+    | 'brightness_up_hold'
+    | 'brightness_up_release'
+    | 'brightness_down_click'
+    | 'brightness_down_hold'
+    | 'brightness_down_release';
 }
 
 export interface ColorCapabilities {
