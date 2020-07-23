@@ -53,7 +53,6 @@ export class ProgrammableSwitchServiceBuilder {
     index: number
   ): ProgrammableSwitchServiceBuilder {
     const Characteristic = this.platform.Characteristic;
-    let btnState = false;
     const service =
       this.accessory.getServiceById(this.platform.Service.StatefulProgrammableSwitch, subType) ||
       this.accessory.addService(
@@ -63,6 +62,8 @@ export class ProgrammableSwitchServiceBuilder {
       );
     service.setCharacteristic(Characteristic.Name, displayName);
     service.setCharacteristic(Characteristic.ServiceLabelIndex, index);
+    service.setCharacteristic(Characteristic.ProgrammableSwitchOutputState, 0);
+    let btnState = false;
     service
       .getCharacteristic(Characteristic.ProgrammableSwitchOutputState)
       .on(
@@ -73,7 +74,7 @@ export class ProgrammableSwitchServiceBuilder {
         }
       )
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
-        callback(null, btnState);
+        callback(null, btnState ? 1 : 0);
       });
     this.services.push(service);
     return this;
