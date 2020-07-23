@@ -4,6 +4,7 @@ import {
   Service,
   CharacteristicEventTypes,
   CharacteristicGetCallback,
+  CharacteristicSetCallback,
 } from 'homebridge';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { DeviceState } from '../zigbee/types';
@@ -28,7 +29,7 @@ export class ProgrammableSwitchServiceBuilder {
     this.services = [];
   }
 
-  withSwitch(
+  withStatelessSwitch(
     displayName: string,
     subType: string,
     index: number
@@ -42,6 +43,35 @@ export class ProgrammableSwitchServiceBuilder {
       );
     service.setCharacteristic(this.platform.Characteristic.Name, displayName);
     service.setCharacteristic(this.platform.Characteristic.ServiceLabelIndex, index);
+    this.services.push(service);
+    return this;
+  }
+
+  withStatefulSwitch(
+    displayName: string,
+    subType: string,
+    index: number
+  ): ProgrammableSwitchServiceBuilder {
+    const Characteristic = this.platform.Characteristic;
+    let btnState = false;
+    const service =
+      this.accessory.getServiceById(this.platform.Service.StatefulProgrammableSwitch, subType) ||
+      this.accessory.addService(
+        this.platform.Service.StatelessProgrammableSwitch,
+        displayName,
+        subType
+      );
+    service.setCharacteristic(Characteristic.Name, displayName);
+    service.setCharacteristic(Characteristic.ServiceLabelIndex, index);
+    service
+      .getCharacteristic(Characteristic.ProgrammableSwitchOutputState)
+      .on(
+        CharacteristicEventTypes.SET,
+        async (_state: number, callback: CharacteristicSetCallback) => {
+          btnState = !btnState;
+          callback(null, btnState ? 1 : 0);
+        }
+      );
     this.services.push(service);
     return this;
   }
