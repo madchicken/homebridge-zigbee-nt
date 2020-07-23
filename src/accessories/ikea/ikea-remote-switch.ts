@@ -75,6 +75,27 @@ export class IkeaRemoteSwitch extends ZigBeeAccessory {
           .getCharacteristic(ProgrammableSwitchEvent)
           .setValue(ProgrammableSwitchEvent.SINGLE_PRESS);
         break;
+      // LONG press
+      case 'brightness_up_release':
+        this.switchServiceBrightUp
+          .getCharacteristic(ProgrammableSwitchEvent)
+          .setValue(ProgrammableSwitchEvent.LONG_PRESS);
+        break;
+      case 'brightness_down_release':
+        this.switchServiceBrightDown
+          .getCharacteristic(ProgrammableSwitchEvent)
+          .setValue(ProgrammableSwitchEvent.LONG_PRESS);
+        break;
+      case 'arrow_left_release':
+        this.switchServiceLeft
+          .getCharacteristic(ProgrammableSwitchEvent)
+          .setValue(ProgrammableSwitchEvent.LONG_PRESS);
+        break;
+      case 'arrow_right_release':
+        this.switchServiceRight
+          .getCharacteristic(ProgrammableSwitchEvent)
+          .setValue(ProgrammableSwitchEvent.LONG_PRESS);
+        break;
     }
   }
 }
