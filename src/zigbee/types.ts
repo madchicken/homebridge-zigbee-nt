@@ -34,6 +34,10 @@ export interface DeviceState {
   humidity?: number;
   click?: 'on' | 'off' | 'brightness_down' | 'brightness_up' | 'brightness_stop' | 'play_pause';
   battery?: number;
+  voltage?: number;
+  illuminance?: number;
+  illuminance_lux?: number;
+  contact?: boolean;
   action?:
     | 'toggle'
     | 'toggle_hold'

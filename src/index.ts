@@ -13,6 +13,8 @@ import { IkeaOnoffSwitch } from './accessories/ikea/ikea-onoff-switch';
 import { TempHumiSensor } from './accessories/xiaomi/temp-humi-sensor';
 import { GledoptoDim } from './accessories/gledopto/gledopto-dim';
 import { TuyaOnoffDoubleSwitch } from './accessories/tuya/tuya-onoff-double-switch';
+import { XiaomiContactSensor } from './accessories/xiaomi/contact-sensor';
+import { XiaomiLightIntensitySensor } from './accessories/xiaomi/light-intensity-sensor';
 import { IkeaRemoteSwitch } from './accessories/ikea/ikea-remote-switch';
 
 function registerSupportedDevices() {
@@ -77,6 +79,10 @@ function registerSupportedDevices() {
   registerAccessoryClass('IKEA of Sweden', ['E1524/E1810'], IkeaRemoteSwitch);
   registerAccessoryClass('Xiaomi', ['WSDCGQ01LM', 'WSDCGQ11LM'], TempHumiSensor);
   registerAccessoryClass('LUMI', ['lumi.weather', 'lumi.sensor_ht.agl02'], TempHumiSensor);
+  registerAccessoryClass('Xiaomi', ['MCCGQ01LM'], XiaomiContactSensor);
+  registerAccessoryClass('LUMI', ['lumi.sensor_magnet'], XiaomiContactSensor);
+  registerAccessoryClass('Xiaomi', ['GZCGQ01LM'], XiaomiLightIntensitySensor);
+  registerAccessoryClass('LUMI', ['lumi.sen_ill.mgl01'], XiaomiLightIntensitySensor);
   registerAccessoryClass('TuYa', ['GDKES-02TZXD'], TuyaOnoffDoubleSwitch);
 }
 
