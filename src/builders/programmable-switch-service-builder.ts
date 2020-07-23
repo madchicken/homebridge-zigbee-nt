@@ -57,7 +57,7 @@ export class ProgrammableSwitchServiceBuilder {
     const service =
       this.accessory.getServiceById(this.platform.Service.StatefulProgrammableSwitch, subType) ||
       this.accessory.addService(
-        this.platform.Service.StatelessProgrammableSwitch,
+        this.platform.Service.StatefulProgrammableSwitch,
         displayName,
         subType
       );
