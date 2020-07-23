@@ -28,7 +28,7 @@ export class IkeaRemoteSwitch extends ZigBeeAccessory {
       this.switchServiceRight,
       this.batteryService,
     ] = builder
-      .withStatefulSwitch('ON/OFF', 'toggle', 1)
+      .withStatelessSwitch('ON/OFF', 'toggle', 1)
       .withStatelessSwitch('Brightness up', 'brightness_up', 2)
       .withStatelessSwitch('Brightness down', 'brightness_down', 3)
       .withStatelessSwitch('Left', 'left', 4)
