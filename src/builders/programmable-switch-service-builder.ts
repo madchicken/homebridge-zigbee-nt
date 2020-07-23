@@ -71,7 +71,10 @@ export class ProgrammableSwitchServiceBuilder {
           btnState = !btnState;
           callback(null, btnState ? 1 : 0);
         }
-      );
+      )
+      .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
+        callback(null, btnState);
+      });
     this.services.push(service);
     return this;
   }
