@@ -19,6 +19,11 @@ export class GledoptoDim extends ZigBeeAccessory {
   }
 
   async handleAccessoryIdentify() {
-    await this.client.identify(this.zigBeeDeviceDescriptor);
+    try {
+      await this.client.identify(this.zigBeeDeviceDescriptor);
+    } catch (e) {
+      this.log.error(e);
+      // ignore
+    }
   }
 }

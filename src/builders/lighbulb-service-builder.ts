@@ -77,9 +77,13 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.Brightness)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
-        Object.assign(this.state, await this.client.getBrightnessPercent(this.device));
-        this.log.debug(`Reporting Brightness for ${this.accessory.displayName}`, this.state);
-        callback(null, this.state.brightness_percent);
+        try {
+          Object.assign(this.state, await this.client.getBrightnessPercent(this.device));
+          this.log.debug(`Reporting Brightness for ${this.accessory.displayName}`, this.state);
+          callback(null, this.state.brightness_percent);
+        } catch (e) {
+          callback(e);
+        }
       });
     return this;
   }
@@ -238,8 +242,12 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.Saturation)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
-        const response = await this.client.getSaturation(this.device);
-        callback(null, response.color.s);
+        try {
+          const response = await this.client.getSaturation(this.device);
+          callback(null, response.color.s);
+        } catch (e) {
+          callback(e);
+        }
       });
 
     return this;
