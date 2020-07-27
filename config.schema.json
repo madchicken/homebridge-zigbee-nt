@@ -54,17 +54,17 @@
       },
       "routerPollingInterval": {
         "title": "Router Polling Interval",
-        "description": "Router polling interval, some routers need polling to prevent them from sleeping (seconds).",
+        "description": "Router polling interval, some routers need polling to prevent them from sleeping (in seconds).",
         "type": "number",
-        "default": 60,
-        "minimum": 30,
+        "default": 120,
+        "minimum": 10,
         "required": false
       },
       "disableLed": {
         "title": "Disable Led",
         "description": "Turn off the stick led indicator.",
         "type": "boolean",
-        "default": true,
+        "default": false,
         "required": false
       },
       "disablePingLog": {

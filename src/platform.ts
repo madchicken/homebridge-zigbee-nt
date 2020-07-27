@@ -195,7 +195,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       const routerPolling = new RouterPolling(
         this.zigBee,
         this.log,
-        this.config.routerPollingInterval || null
+        this.config.routerPollingInterval * 1000 || null
       );
       // Some routers need polling to prevent them from sleeping.
       routerPolling.start();
