@@ -13,11 +13,11 @@ import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 import { ZigBee } from './zigbee/zigbee';
 import { RouterPolling } from './utils/router-polling';
 import * as path from 'path';
-import { findSerialPort } from './utils/findSerialPort';
+import { findSerialPort } from './utils/find-serial-port';
 import { PermitJoinAccessory } from './accessories/permit-join-accessory';
 import retry from 'async-retry';
 import { sleep } from './utils/sleep';
-import { parseModel } from './utils/parseModel';
+import { parseModelName } from './utils/parse-model-name';
 import { ZigBeeAccessory, ZigBeeAccessoryCtor } from './accessories/zig-bee-accessory';
 import { getAccessoryClass } from './registry';
 import { ZigBeeClient } from './zigbee/zig-bee-client';
@@ -217,7 +217,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   private async initDevice(device: Device) {
     try {
       this.log.info(`Found ZigBee device: `, device);
-      const model = parseModel(device.modelID);
+      const model = parseModelName(device.modelID);
       const manufacturer = device.manufacturerName;
       const ieeeAddr = device.ieeeAddr;
       const ZigBeeAccessory: ZigBeeAccessoryCtor = getAccessoryClass(manufacturer, model);

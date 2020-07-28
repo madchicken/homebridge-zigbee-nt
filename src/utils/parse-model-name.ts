@@ -1,4 +1,4 @@
-export function parseModel(model: string): string {
+export function parseModelName(model: string): string {
   // Remove non-ascii symbols
   return !model
     ? model
