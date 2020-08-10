@@ -3,7 +3,9 @@ import { ZigBee } from '../zigbee/zigbee';
 import Timeout = NodeJS.Timeout;
 import { Logger } from 'homebridge';
 
-const DEFAULT_POLL_INTERVAL = 60 * 1000;
+export const DEFAULT_POLL_INTERVAL = 60 * 1000;
+export const MIN_POLL_INTERVAL = 10 * 1000;
+export const MAX_POLL_INTERVAL = 120 * 1000;
 
 function isDeviceRouter(device) {
   let power = 'unknown';
@@ -18,13 +20,16 @@ function isDeviceRouter(device) {
 export class RouterPolling {
   private readonly log: Logger;
   private pollingTimeout: Timeout;
-  private readonly interval: number;
+  readonly interval: number;
   private readonly zigBee: ZigBee;
 
   constructor(zigBee: ZigBee, log: Logger, interval: number) {
     this.zigBee = zigBee;
     this.log = log;
-    this.interval = interval || DEFAULT_POLL_INTERVAL;
+    this.interval = interval * 1000 || DEFAULT_POLL_INTERVAL;
+    if (this.interval < MIN_POLL_INTERVAL || this.interval > MAX_POLL_INTERVAL) {
+      this.interval = DEFAULT_POLL_INTERVAL;
+    }
   }
 
   start() {

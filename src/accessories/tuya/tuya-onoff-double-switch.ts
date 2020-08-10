@@ -53,8 +53,12 @@ export class TuyaOnoffDoubleSwitch extends ZigBeeAccessory {
       .on(
         CharacteristicEventTypes.SET,
         async (outputState: number, callback: CharacteristicSetCallback) => {
-          await this.client.setLeftButtonOn(this.zigBeeDeviceDescriptor, outputState === 1);
-          callback(null, outputState);
+          try {
+            await this.client.setLeftButtonOn(this.zigBeeDeviceDescriptor, outputState === 1);
+            callback(null, outputState);
+          } catch (e) {
+            callback(e);
+          }
         }
       );
 
@@ -74,8 +78,12 @@ export class TuyaOnoffDoubleSwitch extends ZigBeeAccessory {
       .on(
         CharacteristicEventTypes.SET,
         async (outputState: number, callback: CharacteristicSetCallback) => {
-          await this.client.setRightButtonOn(this.zigBeeDeviceDescriptor, outputState === 1);
-          callback(null, outputState);
+          try {
+            await this.client.setRightButtonOn(this.zigBeeDeviceDescriptor, outputState === 1);
+            callback(null, outputState);
+          } catch (e) {
+            callback(e);
+          }
         }
       );
 

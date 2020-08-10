@@ -35,3 +35,11 @@ You should end up with a new `dist/` folder containing the compiled version of t
 ## License
 
 Licensed under [MIT](LICENSE)
+
+## Contribute
+
+Any PR is welcome to this project, so please, fork and open one if you can!
+
+If otherwise, you simply enjoyed using this plugin, and you want to contribute in some way, you can always donate something!
+
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](paypal.me/madchicken74)
