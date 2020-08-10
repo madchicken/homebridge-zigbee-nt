@@ -9,8 +9,8 @@
     "watch-test": "yarn run test -- --watchAll",
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
-    "lint": "tsc --noEmit && eslint \"lib/*.{js,ts}\" --quiet --fix",
-    "prettier": "prettier --single-quote --trailing-comma es5 --write \"{lib,__{tests,mocks}__}/**/*.ts\"",
+    "lint": "tsc --noEmit && eslint \"src/*.{js,ts}\" --quiet --fix",
+    "prettier": "prettier --single-quote --trailing-comma es5 --write \"{src,__{tests,mocks}__}/**/*.ts\"",
     "permit-join": "node scripts/permit-join.js",
     "clean": "rimraf dist/"
   },
@@ -53,8 +53,8 @@
     "lodash": "4.17.19",
     "serialport": "8.0.8",
     "zcl-id": "0.5.0",
-    "zigbee-herdsman": "0.12.109",
-    "zigbee-herdsman-converters": "12.0.151",
+    "zigbee-herdsman": "0.12.115",
+    "zigbee-herdsman-converters": "12.0.159",
     "typescript": "3.9.7"
   },
   "devDependencies": {
