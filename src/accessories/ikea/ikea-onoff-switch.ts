@@ -2,25 +2,25 @@ import { ZigBeeAccessory } from '../zig-bee-accessory';
 import { Service } from 'homebridge';
 import { DeviceState } from '../../zigbee/types';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
+import { ProgrammableSwitchServiceBuilder } from '../../builders/programmable-switch-service-builder';
 
 export class IkeaOnoffSwitch extends ZigBeeAccessory {
   protected switchServiceOn: Service;
   protected switchServiceOff: Service;
 
   getAvailableServices(): Service[] {
-    this.switchServiceOn =
-      this.accessory.getServiceById(this.platform.Service.StatelessProgrammableSwitch, 'on') ||
-      this.accessory.addService(this.platform.Service.StatelessProgrammableSwitch, 'ON', 'on');
+    const builder = new ProgrammableSwitchServiceBuilder(
+      this.platform,
+      this.accessory,
+      this.client,
+      this.state
+    );
 
-    this.switchServiceOff =
-      this.accessory.getServiceById(this.platform.Service.StatelessProgrammableSwitch, 'off') ||
-      this.accessory.addService(this.platform.Service.StatelessProgrammableSwitch, 'OFF', 'off');
-
-    this.switchServiceOn.setCharacteristic(this.platform.Characteristic.Name, 'On button');
-    this.switchServiceOn.setCharacteristic(this.platform.Characteristic.ServiceLabelIndex, 1);
-
-    this.switchServiceOff.setCharacteristic(this.platform.Characteristic.Name, 'Off button');
-    this.switchServiceOff.setCharacteristic(this.platform.Characteristic.ServiceLabelIndex, 2);
+    [this.switchServiceOn, this.switchServiceOff] = builder
+      .withStatelessSwitch('ON', 'on', 1)
+      .withStatelessSwitch('OFF', 'off', 2)
+      .andBattery()
+      .build();
 
     return [this.switchServiceOn, this.switchServiceOff];
   }
