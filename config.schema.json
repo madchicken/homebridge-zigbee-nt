@@ -46,6 +46,14 @@
         "default": 11,
         "required": true
       },
+      "secondaryChannel": {
+        "title": "Secondary Channel",
+        "description": "Secondary (backup) Channel for your ZigBee dongle (11-25).",
+        "type": "number",
+        "enum": [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+        "default": 25,
+        "required": true
+      },
       "database": {
         "title": "Database",
         "description": "Path to zigbee database. If not set, it uses 'homebridge_storage_path/zigbee.db' path.",
@@ -81,6 +89,7 @@
     "port",
     "panId",
     "channel",
+    "secondaryChannel",
     "database",
     "permitJoinTimeout",
     "routerPollingInterval",
