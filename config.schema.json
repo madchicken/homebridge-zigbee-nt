@@ -89,6 +89,7 @@
     "port",
     "panId",
     "channel",
+    "secondaryChannel",
     "database",
     "permitJoinTimeout",
     "routerPollingInterval",
