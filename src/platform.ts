@@ -290,7 +290,11 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     } catch (error) {
       this.log.error(error);
       this.log.info('Unable to unpairing properly, trying to unregister device:', device.ieeeAddr);
-      await this.zigBee.unregister(device.ieeeAddr);
+      try {
+        await this.zigBee.unregister(device.ieeeAddr);
+      } catch (e) {
+        this.log.error(e);
+      }
     } finally {
       this.log.info('Device has been unpaired:', device.ieeeAddr);
       this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
@@ -308,7 +312,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     if (!this.getAccessoryByIeeeAddr(ieeeAddr)) {
       // Wait a little bit for a database sync
       await sleep(1500);
-      this.initDevice(message.device);
+      await this.initDevice(message.device);
     } else {
       this.log.warn(`Not initializing device ${ieeeAddr}: already mapped in Homebridge`);
     }
