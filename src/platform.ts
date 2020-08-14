@@ -32,7 +32,7 @@ import {
 import { Device } from 'zigbee-herdsman/dist/controller/model';
 
 const PERMIT_JOIN_ACCESSORY_NAME = 'zigbee:permit-join';
-const TOUCHLINK_ACCESSORY_NAME = 'zigbee:touchlink';
+const TOUCH_LINK_ACCESSORY_NAME = 'zigbee:touchlink';
 
 export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service = this.api.hap.Service;
@@ -62,12 +62,25 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   }
 
   async startZigBee() {
-    this.zigBee.init({
+    const channels = [this.config.channel];
+    const secondaryChannel = parseInt(this.config.secondaryChannel);
+    if (!isNaN(secondaryChannel)) {
+      channels.push(secondaryChannel);
+    }
+
+    const initConfig = {
       port: this.config.port || (await findSerialPort()),
       db: this.config.database || path.join(this.api.user.storagePath(), './zigBee.db'),
       panId: this.config.panId || 0xffff,
-      channels: [this.config.channel || 11, this.config.secondaryChannel || 25],
-    });
+      channels,
+    };
+
+    this.log.info(
+      `Initializing ZigBee controller on port ${
+        initConfig.port
+      } and channels ${initConfig.channels.join(', ')}`
+    );
+    this.zigBee.init(initConfig);
 
     this.zigBee.on('deviceAnnounce', (message: DeviceAnnouncePayload) =>
       this.handleDeviceAnnounce(message)
@@ -252,7 +265,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
 
   private initTouchlinkAccessory() {
     try {
-      const accessory = this.createHapAccessory(TOUCHLINK_ACCESSORY_NAME);
+      const accessory = this.createHapAccessory(TOUCH_LINK_ACCESSORY_NAME);
       this.touchlinkAccessory = new TouchlinkAccessory(this, accessory, this.zigBee);
       this.log.info('Touchlink accessory successfully registered');
     } catch (e) {
