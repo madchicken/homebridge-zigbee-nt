@@ -3,7 +3,7 @@ import { Callback, CharacteristicEventTypes, Service } from 'homebridge';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { DeviceState } from '../../zigbee/types';
 
-export class IkeaMotionSensor extends ZigBeeAccessory {
+export class LinkindMotionSensor extends ZigBeeAccessory {
   private sensorService: Service;
 
   getAvailableServices(): Service[] {
@@ -11,16 +11,21 @@ export class IkeaMotionSensor extends ZigBeeAccessory {
     const Characteristic = this.platform.api.hap.Characteristic;
 
     this.sensorService =
-      this.accessory.getService(Service.MotionSensor) ||
-      this.accessory.addService(Service.MotionSensor);
+      this.accessory.getService(Service.OccupancySensor) ||
+      this.accessory.addService(Service.OccupancySensor);
     this.sensorService.setCharacteristic(Characteristic.Name, this.name);
     this.sensorService
-      .getCharacteristic(Characteristic.MotionDetected)
+      .getCharacteristic(Characteristic.OccupancyDetected)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
         if (this.state.contact) {
           this.log.debug(`Motion detected for sensor ${this.name}`);
         }
-        callback(null, this.state.contact);
+        callback(
+          null,
+          this.state.occupancy
+            ? Characteristic.OccupancyDetected.OCCUPANCY_DETECTED
+            : Characteristic.OccupancyDetected.OCCUPANCY_NOT_DETECTED
+        );
       });
 
     this.sensorService
@@ -28,7 +33,7 @@ export class IkeaMotionSensor extends ZigBeeAccessory {
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
         callback(
           null,
-          this.state.battery && this.state.battery <= 10
+          this.state.battery_low
             ? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW
             : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL
         );
@@ -41,13 +46,17 @@ export class IkeaMotionSensor extends ZigBeeAccessory {
     super.update(device, state);
 
     const Characteristic = this.platform.api.hap.Characteristic;
+
     this.sensorService.updateCharacteristic(
-      this.platform.Characteristic.MotionDetected,
-      state.contact
+      this.platform.Characteristic.OccupancyDetected,
+      state.occupancy
+        ? Characteristic.OccupancyDetected.OCCUPANCY_DETECTED
+        : Characteristic.OccupancyDetected.OCCUPANCY_NOT_DETECTED
     );
+
     this.sensorService.updateCharacteristic(
       this.platform.Characteristic.StatusLowBattery,
-      state.battery && state.battery <= 10
+      state.battery_low
         ? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW
         : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL
     );

@@ -54,6 +54,9 @@ export interface DeviceState {
     | 'brightness_down_click'
     | 'brightness_down_hold'
     | 'brightness_down_release';
+  occupancy?: boolean;
+  tamper?: boolean;
+  battery_low?: boolean;
 }
 
 export interface ColorCapabilities {
