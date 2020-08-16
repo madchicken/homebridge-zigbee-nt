@@ -64,7 +64,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   async startZigBee() {
     const channels = [this.config.channel];
     const secondaryChannel = parseInt(this.config.secondaryChannel);
-    if (!isNaN(secondaryChannel)) {
+    if (!isNaN(secondaryChannel) && channels.indexOf(secondaryChannel) === -1) {
       channels.push(secondaryChannel);
     }
 
