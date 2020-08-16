@@ -17,6 +17,7 @@ import { XiaomiContactSensor } from './accessories/xiaomi/contact-sensor';
 import { XiaomiLightIntensitySensor } from './accessories/xiaomi/light-intensity-sensor';
 import { IkeaRemoteSwitch } from './accessories/ikea/ikea-remote-switch';
 import { IkeaMotionSensor } from './accessories/ikea/ikea-motion-sensor';
+import { LinkindMotionSensor } from './accessories/linkind/linkind-motion-sensor';
 
 function registerSupportedDevices() {
   registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
@@ -78,7 +79,11 @@ function registerSupportedDevices() {
   registerAccessoryClass('IKEA of Sweden', ['LED1624G9'], IkeaTadfriDimColor);
   registerAccessoryClass('IKEA of Sweden', ['E1743'], IkeaOnoffSwitch);
   registerAccessoryClass('IKEA of Sweden', ['E1524/E1810'], IkeaRemoteSwitch);
-  registerAccessoryClass('IKEA of Sweden', ['E1525/E1745'], IkeaMotionSensor);
+  registerAccessoryClass(
+    'IKEA of Sweden',
+    ['E1525/E1745', 'TRADFRI motion sensor'],
+    IkeaMotionSensor
+  );
   registerAccessoryClass('Xiaomi', ['WSDCGQ01LM', 'WSDCGQ11LM'], TempHumiSensor);
   registerAccessoryClass('LUMI', ['lumi.weather', 'lumi.sensor_ht.agl02'], TempHumiSensor);
   registerAccessoryClass('Xiaomi', ['MCCGQ01LM'], XiaomiContactSensor);
@@ -86,6 +91,7 @@ function registerSupportedDevices() {
   registerAccessoryClass('Xiaomi', ['GZCGQ01LM'], XiaomiLightIntensitySensor);
   registerAccessoryClass('LUMI', ['lumi.sen_ill.mgl01'], XiaomiLightIntensitySensor);
   registerAccessoryClass('TuYa', ['GDKES-02TZXD'], TuyaOnoffDoubleSwitch);
+  registerAccessoryClass('lk', ['ZB-MotionSensor-D0003'], LinkindMotionSensor);
 }
 
 /**
