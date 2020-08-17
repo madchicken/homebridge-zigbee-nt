@@ -1,6 +1,6 @@
 {
   "name": "homebridge-zigbee-nt",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "ZigBee New Technology Platform plugin for HomeBridge",
   "main": "dist/index.js",
   "scripts": {
@@ -41,7 +41,7 @@
     "hue"
   ],
   "author": {
-    "name": "Pierpaolo Folloa",
+    "name": "Pierpaolo Follia",
     "email": "pfollia@gmail.com",
     "url": "https://github.com/madchicken/homebridge-zigbee-nt.git"
   },
