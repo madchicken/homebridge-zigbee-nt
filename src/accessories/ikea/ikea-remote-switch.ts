@@ -20,6 +20,8 @@ export class IkeaRemoteSwitch extends ZigBeeAccessory {
       this.state
     );
 
+    const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
+
     [
       this.switchServiceToggle,
       this.switchServiceBrightUp,
@@ -28,11 +30,23 @@ export class IkeaRemoteSwitch extends ZigBeeAccessory {
       this.switchServiceRight,
       this.batteryService,
     ] = builder
-      .withStatelessSwitch('ON/OFF', 'toggle', 1)
-      .withStatelessSwitch('Brightness up', 'brightness_up', 2)
-      .withStatelessSwitch('Brightness down', 'brightness_down', 3)
-      .withStatelessSwitch('Left', 'left', 4)
-      .withStatelessSwitch('Right', 'right', 5)
+      .withStatelessSwitch('ON/OFF', 'toggle', 1, [ProgrammableSwitchEvent.SINGLE_PRESS])
+      .withStatelessSwitch('Brightness up', 'brightness_up', 2, [
+        ProgrammableSwitchEvent.SINGLE_PRESS,
+        ProgrammableSwitchEvent.LONG_PRESS,
+      ])
+      .withStatelessSwitch('Brightness down', 'brightness_down', 3, [
+        ProgrammableSwitchEvent.SINGLE_PRESS,
+        ProgrammableSwitchEvent.LONG_PRESS,
+      ])
+      .withStatelessSwitch('Left', 'left', 4, [
+        ProgrammableSwitchEvent.SINGLE_PRESS,
+        ProgrammableSwitchEvent.LONG_PRESS,
+      ])
+      .withStatelessSwitch('Right', 'right', 5, [
+        ProgrammableSwitchEvent.SINGLE_PRESS,
+        ProgrammableSwitchEvent.LONG_PRESS,
+      ])
       .andBattery()
       .build();
 
