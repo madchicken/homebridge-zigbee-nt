@@ -85,10 +85,14 @@ function registerSupportedDevices() {
     IkeaMotionSensor
   );
   registerAccessoryClass('Xiaomi', ['WSDCGQ01LM', 'WSDCGQ11LM'], TempHumiSensor);
-  registerAccessoryClass('LUMI', ['lumi.weather', 'lumi.sensor_ht.agl02'], TempHumiSensor);
-  registerAccessoryClass('Xiaomi', ['MCCGQ01LM'], XiaomiContactSensor);
-  registerAccessoryClass('LUMI', ['lumi.sensor_magnet'], XiaomiContactSensor);
+  registerAccessoryClass(
+    'Xiaomi',
+    ['lumi.sensor_magnet', 'lumi.sensor_magnet.aq2'],
+    XiaomiContactSensor
+  );
   registerAccessoryClass('Xiaomi', ['GZCGQ01LM'], XiaomiLightIntensitySensor);
+  registerAccessoryClass('LUMI', ['lumi.weather', 'lumi.sensor_ht.agl02'], TempHumiSensor);
+  registerAccessoryClass('LUMI', ['lumi.sensor_magnet'], XiaomiContactSensor);
   registerAccessoryClass('LUMI', ['lumi.sen_ill.mgl01'], XiaomiLightIntensitySensor);
   registerAccessoryClass('TuYa', ['GDKES-02TZXD'], TuyaOnoffDoubleSwitch);
   registerAccessoryClass('lk', ['ZB-MotionSensor-D0003'], LinkindMotionSensor);
