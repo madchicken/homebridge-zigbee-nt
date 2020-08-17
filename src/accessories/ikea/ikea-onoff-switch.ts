@@ -16,8 +16,12 @@ export class IkeaOnoffSwitch extends ZigBeeAccessory {
       this.state
     );
 
+    const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
     [this.switchServiceOn, this.switchServiceOff] = builder
-      .withStatelessSwitch('ON', 'on', 1)
+      .withStatelessSwitch('ON', 'on', 1, [
+        ProgrammableSwitchEvent.SINGLE_PRESS,
+        ProgrammableSwitchEvent.LONG_PRESS,
+      ])
       .withStatelessSwitch('OFF', 'off', 2)
       .andBattery()
       .build();

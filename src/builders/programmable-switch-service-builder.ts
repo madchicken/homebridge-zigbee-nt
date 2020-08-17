@@ -32,7 +32,8 @@ export class ProgrammableSwitchServiceBuilder {
   withStatelessSwitch(
     displayName: string,
     subType: string,
-    index: number
+    index: number,
+    supportedActions?: number[]
   ): ProgrammableSwitchServiceBuilder {
     const service =
       this.accessory.getServiceById(this.platform.Service.StatelessProgrammableSwitch, subType) ||
@@ -43,6 +44,11 @@ export class ProgrammableSwitchServiceBuilder {
       );
     service.setCharacteristic(this.platform.Characteristic.Name, displayName);
     service.setCharacteristic(this.platform.Characteristic.ServiceLabelIndex, index);
+    if (supportedActions && supportedActions.length) {
+      service.getCharacteristic(this.platform.Characteristic.ProgrammableSwitchEvent).setProps({
+        validValues: supportedActions,
+      });
+    }
     this.services.push(service);
     return this;
   }
