@@ -22,7 +22,10 @@ export class IkeaOnoffSwitch extends ZigBeeAccessory {
         ProgrammableSwitchEvent.SINGLE_PRESS,
         ProgrammableSwitchEvent.LONG_PRESS,
       ])
-      .withStatelessSwitch('OFF', 'off', 2)
+      .withStatelessSwitch('OFF', 'off', 2, [
+        ProgrammableSwitchEvent.SINGLE_PRESS,
+        ProgrammableSwitchEvent.LONG_PRESS,
+      ])
       .andBattery()
       .build();
 
