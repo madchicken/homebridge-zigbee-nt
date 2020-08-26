@@ -98,6 +98,7 @@ export abstract class ZigBeeAccessory {
           this.coordinatorEndpoint
         );
         this.isConfigured = true;
+        this.log.info(`Device ${this.name} successfully configured!`);
       } catch (e) {
         this.log.error(`Cannot configure device ${this.name}: ${e.message}`);
         this.isConfigured = false;
@@ -105,9 +106,10 @@ export abstract class ZigBeeAccessory {
     }
   }
 
-  update(device: Device, state: DeviceState) {
+  async update(device: Device, state: DeviceState) {
     Object.assign(this.accessory.context, { ...device });
     Object.assign(this.state, state);
     this.zigBeeDeviceDescriptor.updateLastSeen();
+    await this.configureDevice();
   }
 }
