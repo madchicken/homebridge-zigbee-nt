@@ -4,7 +4,12 @@ import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import { findByDevice } from 'zigbee-herdsman-converters';
 import { Device, Endpoint } from 'zigbee-herdsman/dist/controller/model';
 import { DeviceState, ZigBeeDefinition, ZigBeeEntity } from '../zigbee/types';
-import { isDeviceRouter } from '../utils/router-polling';
+import {
+  DEFAULT_POLL_INTERVAL,
+  isDeviceRouter,
+  MAX_POLL_INTERVAL,
+  MIN_POLL_INTERVAL,
+} from '../utils/router-polling';
 
 export interface ZigBeeAccessoryCtor {
   new (
@@ -79,12 +84,18 @@ export abstract class ZigBeeAccessory {
   public abstract getAvailableServices(): Service[];
 
   public async onDeviceMount() {
+    this.log.info(`Mounting device ${this.name}...`);
     this.zigBeeDeviceDescriptor.updateLastSeen();
     if (isDeviceRouter(this.zigBeeDeviceDescriptor)) {
+      this.log.info(`Device ${this.name} is a router, install ping`);
+      let interval = this.platform.config.routerPollingInterval * 1000 || DEFAULT_POLL_INTERVAL;
+      if (interval < MIN_POLL_INTERVAL || interval > MAX_POLL_INTERVAL) {
+        interval = DEFAULT_POLL_INTERVAL;
+      }
       await this.ping();
       setInterval(() => {
         this.ping();
-      }, 30000);
+      }, interval);
     } else {
       await this.configureDevice();
     }
@@ -107,9 +118,10 @@ export abstract class ZigBeeAccessory {
   }
 
   update(device: Device, state: DeviceState) {
+    this.log.debug(`Updating state of device ${this.name}: `, state);
     Object.assign(this.accessory.context, { ...device });
     Object.assign(this.state, state);
     this.zigBeeDeviceDescriptor.updateLastSeen();
-    this.configureDevice();
+    this.configureDevice(); // Ignore the promise result (try/catch inside the function)
   }
 }

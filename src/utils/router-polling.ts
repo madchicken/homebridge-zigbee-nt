@@ -3,7 +3,7 @@ import { ZigBee } from '../zigbee/zigbee';
 import Timeout = NodeJS.Timeout;
 import { Logger } from 'homebridge';
 
-export const DEFAULT_POLL_INTERVAL = 60 * 1000;
+export const DEFAULT_POLL_INTERVAL = 30 * 1000;
 export const MIN_POLL_INTERVAL = 10 * 1000;
 export const MAX_POLL_INTERVAL = 120 * 1000;
 

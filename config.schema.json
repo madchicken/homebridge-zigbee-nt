@@ -78,11 +78,12 @@
         "required": false
       },
       "routerPollingInterval": {
-        "title": "Router Polling Interval",
-        "description": "Router polling interval, some routers need polling to prevent them from sleeping (in seconds).",
+        "title": "Ping Interval",
+        "description": "Ping interval for routers to prevent them from sleeping (in seconds).",
         "type": "number",
-        "default": 120,
+        "default": 30,
         "minimum": 10,
+        "maximum": 180,
         "required": false
       },
       "disableLed": {
@@ -90,13 +91,6 @@
         "description": "Turn off the stick led indicator.",
         "type": "boolean",
         "default": false,
-        "required": false
-      },
-      "disablePingLog": {
-        "title": "Disable Ping Log",
-        "description": "Disable ping records in log.",
-        "type": "boolean",
-        "default": true,
         "required": false
       }
     }
@@ -109,7 +103,6 @@
     "secondaryChannel",
     "database",
     "routerPollingInterval",
-    "disablePingLog",
     "disableLed"
   ]
 }
