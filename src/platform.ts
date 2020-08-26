@@ -11,7 +11,6 @@ import {
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 import { ZigBee } from './zigbee/zigbee';
-import { RouterPolling } from './utils/router-polling';
 import * as path from 'path';
 import { findSerialPort } from './utils/find-serial-port';
 import { PermitJoinAccessory } from './accessories/permit-join-accessory';
@@ -34,6 +33,16 @@ import { Device } from 'zigbee-herdsman/dist/controller/model';
 const PERMIT_JOIN_ACCESSORY_NAME = 'zigbee:permit-join';
 const TOUCH_LINK_ACCESSORY_NAME = 'zigbee:touchlink';
 
+interface ZigBeeNTPlatformConfig extends PlatformConfig {
+  name: string;
+  port?: string;
+  panId?: number;
+  channel?: number;
+  secondaryChannel?: string;
+  database?: string;
+  routerPollingInterval?: number;
+}
+
 export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service = this.api.hap.Service;
   public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
@@ -48,7 +57,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
 
   constructor(
     public readonly log: Logger,
-    public readonly config: PlatformConfig,
+    public readonly config: ZigBeeNTPlatformConfig,
     public readonly api: API
   ) {
     this.zigBee = new ZigBee(log);
@@ -68,8 +77,10 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       channels.push(secondaryChannel);
     }
 
+    const port = this.config.port || (await findSerialPort());
+    this.log.info(`Configured port for ZigBee dongle is ${port}`);
     const initConfig = {
-      port: this.config.port || (await findSerialPort()),
+      port,
       db: this.config.database || path.join(this.api.user.storagePath(), './zigBee.db'),
       panId: this.config.panId || 0xffff,
       channels,
@@ -165,7 +176,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     if (!accessory) {
       // Wait a little bit for a database sync
       await sleep(1500);
-      this.initDevice(device);
+      await this.initDevice(device);
       return true;
     } else {
       this.log.debug(`Not initializing device ${device.ieeeAddr}: already mapped in Homebridge`);
@@ -203,16 +214,6 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     this.client = new ZigBeeClient(this.zigBee, this.log);
     // Init devices
     this.zigBee.list().forEach(data => this.initDevice(data));
-    // Init log for router polling service
-    if (!this.config.disablePingLog) {
-      const routerPolling = new RouterPolling(
-        this.zigBee,
-        this.log,
-        this.config.routerPollingInterval * 1000 || null
-      );
-      // Some routers need polling to prevent them from sleeping.
-      routerPolling.start();
-    }
   }
 
   private getAccessoryByIeeeAddr(ieeeAddr: string) {
@@ -328,6 +329,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       await this.initDevice(message.device);
     } else {
       this.log.warn(`Not initializing device ${ieeeAddr}: already mapped in Homebridge`);
+      await this.homekitAccessories.get(this.getAccessoryByIeeeAddr(ieeeAddr).UUID).onDeviceMount();
     }
   }
 

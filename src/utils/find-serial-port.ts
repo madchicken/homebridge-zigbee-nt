@@ -5,7 +5,6 @@ export async function findSerialPort(): Promise<string> {
     const ports = await serialport.list();
     const port = ports.find(item => item.manufacturer === 'Texas Instruments');
     if (port) {
-      console.log('Found COM port', port);
       return port.path;
     }
   } catch (e) {

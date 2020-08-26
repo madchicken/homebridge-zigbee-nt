@@ -4,6 +4,12 @@ import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import { findByDevice } from 'zigbee-herdsman-converters';
 import { Device, Endpoint } from 'zigbee-herdsman/dist/controller/model';
 import { DeviceState, ZigBeeDefinition, ZigBeeEntity } from '../zigbee/types';
+import {
+  DEFAULT_POLL_INTERVAL,
+  isDeviceRouter,
+  MAX_POLL_INTERVAL,
+  MIN_POLL_INTERVAL,
+} from '../utils/router-polling';
 
 export interface ZigBeeAccessoryCtor {
   new (
@@ -22,7 +28,8 @@ export abstract class ZigBeeAccessory {
   protected readonly client: ZigBeeClient;
   protected state: DeviceState;
   protected readonly entity: ZigBeeEntity;
-  private coordinatorEndpoint: Endpoint;
+  private readonly coordinatorEndpoint: Endpoint;
+  private isConfigured: boolean;
 
   constructor(
     platform: ZigbeeNTHomebridgePlatform,
@@ -39,6 +46,7 @@ export abstract class ZigBeeAccessory {
     this.accessory.context = device;
     this.entity = this.client.resolveEntity(device);
     this.coordinatorEndpoint = this.client.getCoodinator().getEndpoint(1);
+    this.isConfigured = false;
     let Characteristic = platform.Characteristic;
     this.accessory
       .getService(this.platform.Service.AccessoryInformation)
@@ -64,25 +72,56 @@ export abstract class ZigBeeAccessory {
     return this.zigBeeDefinition?.description;
   }
 
+  async ping() {
+    try {
+      await this.zigBeeDeviceDescriptor.ping();
+      await this.configureDevice();
+    } catch (e) {
+      this.log.warn(`No response from ${this.zigBeeDefinition.description}. Is it online?`);
+    }
+  }
+
   public abstract getAvailableServices(): Service[];
 
   public async onDeviceMount() {
+    this.log.info(`Mounting device ${this.name}...`);
     this.zigBeeDeviceDescriptor.updateLastSeen();
-    if (this.entity.definition.configure) {
+    if (isDeviceRouter(this.zigBeeDeviceDescriptor)) {
+      this.log.info(`Device ${this.name} is a router, install ping`);
+      let interval = this.platform.config.routerPollingInterval * 1000 || DEFAULT_POLL_INTERVAL;
+      if (interval < MIN_POLL_INTERVAL || interval > MAX_POLL_INTERVAL) {
+        interval = DEFAULT_POLL_INTERVAL;
+      }
+      await this.ping();
+      setInterval(() => {
+        this.ping();
+      }, interval);
+    } else {
+      await this.configureDevice();
+    }
+  }
+
+  public async configureDevice() {
+    if (this.entity.definition.configure && !this.isConfigured) {
       try {
         await this.entity.definition.configure(
           this.zigBeeDeviceDescriptor,
           this.coordinatorEndpoint
         );
+        this.isConfigured = true;
+        this.log.info(`Device ${this.name} successfully configured!`);
       } catch (e) {
         this.log.error(`Cannot configure device ${this.name}: ${e.message}`);
+        this.isConfigured = false;
       }
     }
   }
 
   update(device: Device, state: DeviceState) {
+    this.log.debug(`Updating state of device ${this.name}: `, state);
     Object.assign(this.accessory.context, { ...device });
     Object.assign(this.state, state);
     this.zigBeeDeviceDescriptor.updateLastSeen();
+    this.configureDevice(); // Ignore the promise result (try/catch inside the function)
   }
 }
