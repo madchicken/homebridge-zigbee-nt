@@ -22,7 +22,8 @@ export abstract class ZigBeeAccessory {
   protected readonly client: ZigBeeClient;
   protected state: DeviceState;
   protected readonly entity: ZigBeeEntity;
-  private coordinatorEndpoint: Endpoint;
+  private readonly coordinatorEndpoint: Endpoint;
+  private isConfigured: boolean;
 
   constructor(
     platform: ZigbeeNTHomebridgePlatform,
@@ -39,6 +40,7 @@ export abstract class ZigBeeAccessory {
     this.accessory.context = device;
     this.entity = this.client.resolveEntity(device);
     this.coordinatorEndpoint = this.client.getCoodinator().getEndpoint(1);
+    this.isConfigured = false;
     let Characteristic = platform.Characteristic;
     this.accessory
       .getService(this.platform.Service.AccessoryInformation)
@@ -64,9 +66,29 @@ export abstract class ZigBeeAccessory {
     return this.zigBeeDefinition?.description;
   }
 
+  async ping() {
+    try {
+      await this.zigBeeDeviceDescriptor.ping();
+      if (this.isConfigured === false) {
+        await this.configureDevice();
+        this.isConfigured = true;
+      }
+    } catch (e) {
+      this.log.error(`No response from ${this.zigBeeDefinition.description}. Reset configuration.`);
+      this.isConfigured = false;
+    }
+  }
+
   public abstract getAvailableServices(): Service[];
 
   public async onDeviceMount() {
+    await this.ping();
+    setInterval(() => {
+      this.ping();
+    }, 30000);
+  }
+
+  public async configureDevice() {
     this.zigBeeDeviceDescriptor.updateLastSeen();
     if (this.entity.definition.configure) {
       try {

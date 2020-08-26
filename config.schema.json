@@ -108,9 +108,8 @@
     "channel",
     "secondaryChannel",
     "database",
-    "permitJoinTimeout",
     "routerPollingInterval",
-    "disableLed",
-    "disablePingLog"
+    "disablePingLog",
+    "disableLed"
   ]
 }

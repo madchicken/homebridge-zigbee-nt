@@ -11,7 +11,7 @@ import {
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 import { ZigBee } from './zigbee/zigbee';
-import { RouterPolling } from './utils/router-polling';
+// import { RouterPolling } from './utils/router-polling';
 import * as path from 'path';
 import { findSerialPort } from './utils/find-serial-port';
 import { PermitJoinAccessory } from './accessories/permit-join-accessory';
@@ -165,7 +165,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     if (!accessory) {
       // Wait a little bit for a database sync
       await sleep(1500);
-      this.initDevice(device);
+      await this.initDevice(device);
       return true;
     } else {
       this.log.debug(`Not initializing device ${device.ieeeAddr}: already mapped in Homebridge`);
@@ -204,6 +204,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     // Init devices
     this.zigBee.list().forEach(data => this.initDevice(data));
     // Init log for router polling service
+    /*
     if (!this.config.disablePingLog) {
       const routerPolling = new RouterPolling(
         this.zigBee,
@@ -213,6 +214,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       // Some routers need polling to prevent them from sleeping.
       routerPolling.start();
     }
+*/
   }
 
   private getAccessoryByIeeeAddr(ieeeAddr: string) {
