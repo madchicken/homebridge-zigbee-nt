@@ -77,8 +77,10 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       channels.push(secondaryChannel);
     }
 
+    const port = this.config.port || (await findSerialPort());
+    this.log.info(`Configured port for ZigBee dongle is ${port}`);
     const initConfig = {
-      port: this.config.port || (await findSerialPort()),
+      port,
       db: this.config.database || path.join(this.api.user.storagePath(), './zigBee.db'),
       panId: this.config.panId || 0xffff,
       channels,

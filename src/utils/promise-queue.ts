@@ -76,11 +76,8 @@ export abstract class PromiseBasedQueue<M, R> implements Queue<M, R> {
   processQueue(response: R): boolean {
     if (this.queuedMessages.length) {
       if (this.processResponse(this.queuedMessages, response)) {
-        console.log(`Message processed. Message queue size is now ${this.queuedMessages.length}`);
         return true;
       }
-    } else {
-      console.log('No message in queue, skipping');
     }
     return false;
   }
@@ -89,7 +86,6 @@ export abstract class PromiseBasedQueue<M, R> implements Queue<M, R> {
     const timestamp = new Date().getTime();
     const promise = new DeferredPromise<R>();
     this.queuedMessages.push({ timestamp, message, promise });
-    console.log(`Message queue size is ${this.queuedMessages.length}`);
     return promise.promise;
   }
 }
