@@ -106,10 +106,10 @@ export abstract class ZigBeeAccessory {
     }
   }
 
-  async update(device: Device, state: DeviceState) {
+  update(device: Device, state: DeviceState) {
     Object.assign(this.accessory.context, { ...device });
     Object.assign(this.state, state);
     this.zigBeeDeviceDescriptor.updateLastSeen();
-    await this.configureDevice();
+    this.configureDevice();
   }
 }
