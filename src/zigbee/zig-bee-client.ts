@@ -28,7 +28,6 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     const deferredMessage = this.consumeMessage(key);
     if (deferredMessage) {
       this.log.debug(`Found message in queue for key ${key}, resolving`, response);
-      this.log.debug(`resolving promise`, deferredMessage.promise);
       deferredMessage.promise.resolve(response);
       return true;
     }
