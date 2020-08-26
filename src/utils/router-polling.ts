@@ -7,7 +7,7 @@ export const DEFAULT_POLL_INTERVAL = 60 * 1000;
 export const MIN_POLL_INTERVAL = 10 * 1000;
 export const MAX_POLL_INTERVAL = 120 * 1000;
 
-function isDeviceRouter(device) {
+export function isDeviceRouter(device) {
   let power = 'unknown';
   if (device.powerSource) {
     power = device.powerSource.toLowerCase().split(' ')[0];

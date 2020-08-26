@@ -4,6 +4,7 @@ import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import { findByDevice } from 'zigbee-herdsman-converters';
 import { Device, Endpoint } from 'zigbee-herdsman/dist/controller/model';
 import { DeviceState, ZigBeeDefinition, ZigBeeEntity } from '../zigbee/types';
+import { isDeviceRouter } from '../utils/router-polling';
 
 export interface ZigBeeAccessoryCtor {
   new (
@@ -69,35 +70,37 @@ export abstract class ZigBeeAccessory {
   async ping() {
     try {
       await this.zigBeeDeviceDescriptor.ping();
-      if (this.isConfigured === false) {
-        await this.configureDevice();
-        this.isConfigured = true;
-      }
+      await this.configureDevice();
     } catch (e) {
-      this.log.error(`No response from ${this.zigBeeDefinition.description}. Reset configuration.`);
-      this.isConfigured = false;
+      this.log.warn(`No response from ${this.zigBeeDefinition.description}. Is it online?`);
     }
   }
 
   public abstract getAvailableServices(): Service[];
 
   public async onDeviceMount() {
-    await this.ping();
-    setInterval(() => {
-      this.ping();
-    }, 30000);
+    this.zigBeeDeviceDescriptor.updateLastSeen();
+    if (isDeviceRouter(this.zigBeeDeviceDescriptor)) {
+      await this.ping();
+      setInterval(() => {
+        this.ping();
+      }, 30000);
+    } else {
+      await this.configureDevice();
+    }
   }
 
   public async configureDevice() {
-    this.zigBeeDeviceDescriptor.updateLastSeen();
-    if (this.entity.definition.configure) {
+    if (this.entity.definition.configure && !this.isConfigured) {
       try {
         await this.entity.definition.configure(
           this.zigBeeDeviceDescriptor,
           this.coordinatorEndpoint
         );
+        this.isConfigured = true;
       } catch (e) {
         this.log.error(`Cannot configure device ${this.name}: ${e.message}`);
+        this.isConfigured = false;
       }
     }
   }

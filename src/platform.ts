@@ -330,6 +330,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       await this.initDevice(message.device);
     } else {
       this.log.warn(`Not initializing device ${ieeeAddr}: already mapped in Homebridge`);
+      await this.homekitAccessories.get(this.getAccessoryByIeeeAddr(ieeeAddr).UUID).onDeviceMount();
     }
   }
 
