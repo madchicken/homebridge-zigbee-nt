@@ -4,6 +4,7 @@
 
 ZigBee Platform plugin for [HomeBridge](https://github.com/homebridge/homebridge)
 
+[![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
 [![madchicken](https://circleci.com/gh/madchicken/homebridge-zigbee-nt.svg?style=svg)](https://app.circleci.com/pipelines/github/madchicken/homebridge-zigbee-nt)
 
 ## Description
