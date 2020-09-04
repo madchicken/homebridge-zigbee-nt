@@ -15,6 +15,7 @@ import { GledoptoDim } from './accessories/gledopto/gledopto-dim';
 import { TuyaOnoffDoubleSwitch } from './accessories/tuya/tuya-onoff-double-switch';
 import { XiaomiContactSensor } from './accessories/xiaomi/contact-sensor';
 import { XiaomiLightIntensitySensor } from './accessories/xiaomi/light-intensity-sensor';
+import { XiaomiOutlet } from './accessories/xiaomi/xiaomi-outlet';
 import { IkeaRemoteSwitch } from './accessories/ikea/ikea-remote-switch';
 import { IkeaMotionSensor } from './accessories/ikea/ikea-motion-sensor';
 import { LinkindMotionSensor } from './accessories/linkind/linkind-motion-sensor';
@@ -84,6 +85,30 @@ function registerSupportedDevices() {
     ['E1525/E1745', 'TRADFRI motion sensor'],
     IkeaMotionSensor
   );
+
+  registerAccessoryClass(
+    'Xiaomi',
+    [
+      'ZNCZ02LM' /*ZH*/,
+      'ZNCZ03LM' /*TW*/,
+      'ZNCZ04LM' /*EU*/,
+      'SP-EUC01' /*EU-Aqara*/,
+      'ZNCZ12LM' /*US*/,
+    ],
+    XiaomiOutlet
+  );
+  registerAccessoryClass(
+    'LUMI',
+    [
+      'ZNCZ02LM' /*ZH*/,
+      'ZNCZ03LM' /*TW*/,
+      'ZNCZ04LM' /*EU*/,
+      'SP-EUC01' /*EU-Aqara*/,
+      'ZNCZ12LM' /*US*/,
+    ],
+    XiaomiOutlet
+  );
+
   registerAccessoryClass('Xiaomi', ['WSDCGQ01LM', 'WSDCGQ11LM'], TempHumiSensor);
   registerAccessoryClass(
     'Xiaomi',
