@@ -4,7 +4,7 @@ import { DeviceState } from '../../zigbee/types';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { ProgrammableSwitchServiceBuilder } from '../../builders/programmable-switch-service-builder';
 
-export class IkeaOnoffSwitch extends ZigBeeAccessory {
+export class XiaomiOnoffSwitch extends ZigBeeAccessory {
   protected switchServiceOn: Service;
   protected switchServiceOff: Service;
 
@@ -20,10 +20,12 @@ export class IkeaOnoffSwitch extends ZigBeeAccessory {
     [this.switchServiceOn, this.switchServiceOff] = builder
       .withStatelessSwitch('ON', 'on', 1, [
         ProgrammableSwitchEvent.SINGLE_PRESS,
+        ProgrammableSwitchEvent.DOUBLE_PRESS,
         ProgrammableSwitchEvent.LONG_PRESS,
       ])
       .withStatelessSwitch('OFF', 'off', 2, [
         ProgrammableSwitchEvent.SINGLE_PRESS,
+        ProgrammableSwitchEvent.DOUBLE_PRESS,
         ProgrammableSwitchEvent.LONG_PRESS,
       ])
       .andBattery()
