@@ -20,13 +20,10 @@ export class XiaomiWirelessSwitch extends ZigBeeAccessory {
     const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
   
 [
-  this.switchServiceSinglePress, this.switchServiceDoublePress, this.switchServiceLongPress] = builder
+  this.switchServiceSinglePress, 
+  this.switchServiceDoublePress, 
+  this.switchServiceLongPress] = builder
       .withStatelessSwitch('ON', 'on', 1, [
-        ProgrammableSwitchEvent.SINGLE_PRESS,
-        ProgrammableSwitchEvent.DOUBLE_PRESS,
-        ProgrammableSwitchEvent.LONG_PRESS,
-      ])
-      .withStatelessSwitch('OFF', 'off', 2, [
         ProgrammableSwitchEvent.SINGLE_PRESS,
         ProgrammableSwitchEvent.DOUBLE_PRESS,
         ProgrammableSwitchEvent.LONG_PRESS,
@@ -34,7 +31,11 @@ export class XiaomiWirelessSwitch extends ZigBeeAccessory {
       .andBattery()
       .build();
 
-    return [this.switchServiceOn, this.switchServiceOff];
+    return [
+      this.switchServiceSinglePress, 
+      this.switchServiceDoublePress, 
+      this.switchServiceLongPress
+    ];
   }
 
   update(device: Device, state: DeviceState) {
