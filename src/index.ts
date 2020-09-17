@@ -13,7 +13,7 @@ import { IkeaOnoffSwitch } from './accessories/ikea/ikea-onoff-switch';
 import { TempHumiSensor } from './accessories/xiaomi/temp-humi-sensor';
 import { GledoptoDim } from './accessories/gledopto/gledopto-dim';
 import { TuyaOnoffDoubleSwitch } from './accessories/tuya/tuya-onoff-double-switch';
-import { XiaomiOnoffSwitch } from './accessories/xiaomi/xiaomi-onoff-switch';
+import { XiaomiWirelessSwitch } from './accessories/xiaomi/xiaomi-wireless-switch';
 import { XiaomiContactSensor } from './accessories/xiaomi/contact-sensor';
 import { XiaomiLightIntensitySensor } from './accessories/xiaomi/light-intensity-sensor';
 import { IkeaRemoteSwitch } from './accessories/ikea/ikea-remote-switch';
