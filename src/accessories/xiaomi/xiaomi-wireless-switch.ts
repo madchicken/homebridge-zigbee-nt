@@ -5,9 +5,8 @@ import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { ProgrammableSwitchServiceBuilder } from '../../builders/programmable-switch-service-builder';
 
 export class XiaomiWirelessSwitch extends ZigBeeAccessory {
-  protected switchServiceSinglePress: Service;
-  protected switchServiceDoublePress: Service;
-  protected switchServiceLongPress: Service;
+  protected switchServicePress: Service;
+  protected batteryService: Service;
 
   getAvailableServices(): Service[] {
     const builder = new ProgrammableSwitchServiceBuilder(
@@ -20,9 +19,8 @@ export class XiaomiWirelessSwitch extends ZigBeeAccessory {
     const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
   
 [
-  this.switchServiceSinglePress, 
-  this.switchServiceDoublePress, 
-  this.switchServiceLongPress] = builder
+  this.switchServicePress, 
+  this.batteryService] = builder
       .withStatelessSwitch('ON', 'on', 1, [
         ProgrammableSwitchEvent.SINGLE_PRESS,
         ProgrammableSwitchEvent.DOUBLE_PRESS,
@@ -33,8 +31,7 @@ export class XiaomiWirelessSwitch extends ZigBeeAccessory {
 
     return [
       this.switchServiceSinglePress, 
-      this.switchServiceDoublePress, 
-      this.switchServiceLongPress
+      this.batteryService,
     ];
   }
 
@@ -42,25 +39,20 @@ export class XiaomiWirelessSwitch extends ZigBeeAccessory {
     const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
     super.update(device, state);
     switch (state.click) {
-      case 'brightness_up':
-        this.switchServiceOn
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.LONG_PRESS);
-        break;
-      case 'brightness_down':
-        this.switchServiceOff
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.LONG_PRESS);
-        break;
-      case 'on':
-        this.switchServiceOn
+      case 'single_click':
+        this.switchServicePress
           .getCharacteristic(ProgrammableSwitchEvent)
           .setValue(ProgrammableSwitchEvent.SINGLE_PRESS);
         break;
-      case 'off':
-        this.switchServiceOff
+      case 'double_click':
+        this.switchServicePress
           .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.SINGLE_PRESS);
+          .setValue(ProgrammableSwitchEvent.DOUBLE_PRESS);
+        break;
+      case 'hold_click':
+        this.switchServicePress
+          .getCharacteristic(ProgrammableSwitchEvent)
+          .setValue(ProgrammableSwitchEvent.LONG_PRESS);
         break;
     }
   }
