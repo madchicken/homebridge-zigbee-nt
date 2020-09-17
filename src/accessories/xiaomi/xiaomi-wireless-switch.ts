@@ -4,9 +4,10 @@ import { DeviceState } from '../../zigbee/types';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { ProgrammableSwitchServiceBuilder } from '../../builders/programmable-switch-service-builder';
 
-export class XiaomiOnoffSwitch extends ZigBeeAccessory {
-  protected switchServiceOn: Service;
-  protected switchServiceOff: Service;
+export class XiaomiWirelessSwitch extends ZigBeeAccessory {
+  protected switchServiceSinglePress: Service;
+  protected switchServiceDoublePress: Service;
+  protected switchServiceLongPress: Service;
 
   getAvailableServices(): Service[] {
     const builder = new ProgrammableSwitchServiceBuilder(
@@ -17,7 +18,9 @@ export class XiaomiOnoffSwitch extends ZigBeeAccessory {
     );
 
     const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
-    [this.switchServiceOn, this.switchServiceOff] = builder
+  
+[
+  this.switchServiceSinglePress, this.switchServiceDoublePress, this.switchServiceLongPress] = builder
       .withStatelessSwitch('ON', 'on', 1, [
         ProgrammableSwitchEvent.SINGLE_PRESS,
         ProgrammableSwitchEvent.DOUBLE_PRESS,
