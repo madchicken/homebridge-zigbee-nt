@@ -19,6 +19,8 @@ import { XiaomiOutlet } from './accessories/xiaomi/xiaomi-outlet';
 import { IkeaRemoteSwitch } from './accessories/ikea/ikea-remote-switch';
 import { IkeaMotionSensor } from './accessories/ikea/ikea-motion-sensor';
 import { LinkindMotionSensor } from './accessories/linkind/linkind-motion-sensor';
+import { NamronDimmer } from './accessories/namron/namron-dimmer';
+import { NamronSwitch } from './accessories/namron/namron-switch';
 
 function registerSupportedDevices() {
   registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
@@ -125,6 +127,8 @@ function registerSupportedDevices() {
   registerAccessoryClass('LUMI', ['lumi.sen_ill.mgl01'], XiaomiLightIntensitySensor);
   registerAccessoryClass('TuYa', ['GDKES-02TZXD'], TuyaOnoffDoubleSwitch);
   registerAccessoryClass('lk', ['ZB-MotionSensor-D0003'], LinkindMotionSensor);
+  registerAccessoryClass('NAMRON AS', ['4512700', '1402755'], NamronDimmer);
+  registerAccessoryClass('NAMRON AS', ['4512704'], NamronSwitch);
 }
 
 /**
