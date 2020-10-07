@@ -118,7 +118,7 @@ function registerSupportedDevices() {
     XiaomiContactSensor
   );
   registerAccessoryClass('Xiaomi', ['GZCGQ01LM'], XiaomiLightIntensitySensor);
-  registerAccessoryClass('LUMI', ['lumi.weather', 'lumi.sensor_ht.agl02'], TempHumiSensor);
+  registerAccessoryClass('LUMI', ['lumi.weather', 'lumi.sensor_ht.agl02', 'lumi.sensor_ht'], TempHumiSensor);
   registerAccessoryClass(
     'LUMI',
     ['lumi.sensor_magnet', 'lumi.sensor_magnet.aq2'],
