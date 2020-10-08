@@ -30,7 +30,7 @@ export class XiaomiWirelessSwitch extends ZigBeeAccessory {
       .build();
 
     return [
-      this.switchServiceSinglePress, 
+      this.switchServiceToggle, 
       this.batteryService,
     ];
   }
