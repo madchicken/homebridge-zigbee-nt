@@ -21,7 +21,7 @@ export class XiaomiWirelessSwitch extends ZigBeeAccessory {
 [
   this.switchServiceToggle, 
   this.batteryService] = builder
-      .withStatelessSwitch('ON', 'on', 1, [
+      .withStatelessSwitch('ON/OFF', 'toggle', 1, [
         ProgrammableSwitchEvent.SINGLE_PRESS,
         ProgrammableSwitchEvent.DOUBLE_PRESS,
         ProgrammableSwitchEvent.LONG_PRESS,
