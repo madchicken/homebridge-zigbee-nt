@@ -118,7 +118,7 @@ function registerSupportedDevices() {
   registerAccessoryClass('LUMI', ['lumi.weather', 'lumi.sensor_ht.agl02', 'lumi.sensor_ht'], TempHumiSensor);
   registerAccessoryClass('LUMI', ['lumi.sensor_magnet', 'lumi.sensor_magnet.aq2'], XiaomiContactSensor);
   registerAccessoryClass('LUMI', ['lumi.sen_ill.mgl01'], XiaomiLightIntensitySensor);
-  registerAccessoryClass('LUMI', ['lumi.sensor_switch.aq2', 'lumi.sensor_switch'], XiaomiOnoffSwitch);
+  registerAccessoryClass('LUMI', ['lumi.sensor_switch.aq2', 'lumi.sensor_switch'], XiaomiWirelessSwitch);
   registerAccessoryClass('TuYa', ['GDKES-02TZXD'], TuyaOnoffDoubleSwitch);
   registerAccessoryClass('lk', ['ZB-MotionSensor-D0003'], LinkindMotionSensor);
   registerAccessoryClass('NAMRON AS', ['4512700', '1402755'], NamronDimmer);
