@@ -13,6 +13,7 @@ import { IkeaOnoffSwitch } from './accessories/ikea/ikea-onoff-switch';
 import { TempHumiSensor } from './accessories/xiaomi/temp-humi-sensor';
 import { GledoptoDim } from './accessories/gledopto/gledopto-dim';
 import { TuyaOnoffDoubleSwitch } from './accessories/tuya/tuya-onoff-double-switch';
+import { XiaomiWirelessSwitch } from './accessories/xiaomi/xiaomi-wireless-switch';
 import { XiaomiContactSensor } from './accessories/xiaomi/contact-sensor';
 import { XiaomiLightIntensitySensor } from './accessories/xiaomi/light-intensity-sensor';
 import { XiaomiOutlet } from './accessories/xiaomi/xiaomi-outlet';
@@ -112,19 +113,12 @@ function registerSupportedDevices() {
   );
 
   registerAccessoryClass('Xiaomi', ['WSDCGQ01LM', 'WSDCGQ11LM'], TempHumiSensor);
-  registerAccessoryClass(
-    'Xiaomi',
-    ['lumi.sensor_magnet', 'lumi.sensor_magnet.aq2'],
-    XiaomiContactSensor
-  );
+  registerAccessoryClass('Xiaomi', ['lumi.sensor_magnet', 'lumi.sensor_magnet.aq2'], XiaomiContactSensor);
   registerAccessoryClass('Xiaomi', ['GZCGQ01LM'], XiaomiLightIntensitySensor);
   registerAccessoryClass('LUMI', ['lumi.weather', 'lumi.sensor_ht.agl02', 'lumi.sensor_ht'], TempHumiSensor);
-  registerAccessoryClass(
-    'LUMI',
-    ['lumi.sensor_magnet', 'lumi.sensor_magnet.aq2'],
-    XiaomiContactSensor
-  );
+  registerAccessoryClass('LUMI', ['lumi.sensor_magnet', 'lumi.sensor_magnet.aq2'], XiaomiContactSensor);
   registerAccessoryClass('LUMI', ['lumi.sen_ill.mgl01'], XiaomiLightIntensitySensor);
+  registerAccessoryClass('LUMI', ['lumi.sensor_switch.aq2', 'lumi.sensor_switch'], XiaomiOnoffSwitch);
   registerAccessoryClass('TuYa', ['GDKES-02TZXD'], TuyaOnoffDoubleSwitch);
   registerAccessoryClass('lk', ['ZB-MotionSensor-D0003'], LinkindMotionSensor);
   registerAccessoryClass('NAMRON AS', ['4512700', '1402755'], NamronDimmer);
