@@ -30,10 +30,7 @@ export class IkeaRemoteSwitch extends ZigBeeAccessory {
       this.switchServiceRight,
       this.batteryService,
     ] = builder
-      .withStatelessSwitch('ON/OFF', 'toggle', 1, [
-        ProgrammableSwitchEvent.SINGLE_PRESS,
-        ProgrammableSwitchEvent.LONG_PRESS,
-      ])
+      .withStatelessSwitch('ON/OFF', 'toggle', 1, [ProgrammableSwitchEvent.SINGLE_PRESS])
       .withStatelessSwitch('Brightness up', 'brightness_up', 2, [
         ProgrammableSwitchEvent.SINGLE_PRESS,
         ProgrammableSwitchEvent.LONG_PRESS,
@@ -100,11 +97,6 @@ export class IkeaRemoteSwitch extends ZigBeeAccessory {
         break;
       case 'brightness_down_hold':
         this.switchServiceBrightDown
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.LONG_PRESS);
-        break;
-      case 'toggle_hold':
-        this.switchServiceToggle
           .getCharacteristic(ProgrammableSwitchEvent)
           .setValue(ProgrammableSwitchEvent.LONG_PRESS);
         break;
