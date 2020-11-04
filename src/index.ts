@@ -4,12 +4,15 @@ import { PLATFORM_NAME, PLUGIN_IDENTIFIER } from './settings';
 import { ZigbeeNTHomebridgePlatform } from './platform';
 import { registerAccessoryClass } from './registry';
 import { PhilipsHueWhite } from './accessories/philips/philips-hue-white';
+import { PhilipsHueWhiteTemperature } from './accessories/philips/philips-hue-white-temperature';
 import { PhilipsHueWhiteAndColor } from './accessories/philips/philips-hue-white-and-color';
 import { IkeaTadfriDimColortemp } from './accessories/ikea/ikea-tadfri-dim-colortemp';
 import { IkeaTadfriDim } from './accessories/ikea/ikea-tadfri-dim';
 import { IkeaTadfriOutlet } from './accessories/ikea/ikea-tadfri-outlet';
 import { IkeaTadfriDimColor } from './accessories/ikea/ikea-tadfri-dim-color';
 import { IkeaOnoffSwitch } from './accessories/ikea/ikea-onoff-switch';
+import { InnrWhite } from './accessories/innr/innr-white';
+import { InnrWhiteTemperature } from './accessories/innr/innr-white-temperature';
 import { TempHumiSensor } from './accessories/xiaomi/temp-humi-sensor';
 import { GledoptoDim } from './accessories/gledopto/gledopto-dim';
 import { TuyaOnoffDoubleSwitch } from './accessories/tuya/tuya-onoff-double-switch';
@@ -26,6 +29,7 @@ import { NamronSwitch } from './accessories/namron/namron-switch';
 function registerSupportedDevices() {
   registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
   registerAccessoryClass('Philips', ['LWA001', 'LWA002', 'LWB006', 'LWB014'], PhilipsHueWhite);
+  registerAccessoryClass('Philips', ['LTA001'], PhilipsHueWhiteTemperature);
   registerAccessoryClass(
     'Philips',
     [
@@ -88,6 +92,8 @@ function registerSupportedDevices() {
     ['E1525/E1745', 'TRADFRI motion sensor'],
     IkeaMotionSensor
   );
+
+  registerAccessoryClass('innr', ['RB 278 T'], InnrWhiteTemperature);
 
   registerAccessoryClass(
     'Xiaomi',
