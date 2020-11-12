@@ -270,6 +270,6 @@ export class ZigBee {
   }
 
   async touchlinkFactoryReset() {
-    return this.herdsman.touchlinkFactoryReset();
+    return this.herdsman.touchlinkFactoryResetFirst();
   }
 }
