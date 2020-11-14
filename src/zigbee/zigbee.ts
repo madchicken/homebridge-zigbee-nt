@@ -180,7 +180,7 @@ export class ZigBee {
   }
 
   remove(ieeeAddr: string) {
-    let device = this.herdsman.getDeviceByIeeeAddr(ieeeAddr);
+    const device = this.herdsman.getDeviceByIeeeAddr(ieeeAddr);
     if (device) {
       return device.removeFromDatabase();
     }

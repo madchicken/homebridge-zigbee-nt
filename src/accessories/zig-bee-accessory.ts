@@ -29,7 +29,6 @@ export abstract class ZigBeeAccessory {
   protected state: DeviceState;
   protected readonly entity: ZigBeeEntity;
   private readonly coordinatorEndpoint: Endpoint;
-  private isConfigured: boolean;
 
   constructor(
     platform: ZigbeeNTHomebridgePlatform,
@@ -46,7 +45,6 @@ export abstract class ZigBeeAccessory {
     this.accessory.context = device;
     this.entity = this.client.resolveEntity(device);
     this.coordinatorEndpoint = this.client.getCoodinator().getEndpoint(1);
-    this.isConfigured = false;
     let Characteristic = platform.Characteristic;
     this.accessory
       .getService(this.platform.Service.AccessoryInformation)
@@ -59,6 +57,14 @@ export abstract class ZigBeeAccessory {
   }
 
   handleAccessoryIdentify() {}
+
+  private get isConfigured() {
+    return this.zigBeeDefinition.meta.configured === true;
+  }
+
+  private set isConfigured(val: boolean) {
+    this.zigBeeDefinition.meta.configured = val;
+  }
 
   public get zigBeeDeviceDescriptor(): Device {
     return this.accessory.context as Device;
@@ -109,6 +115,7 @@ export abstract class ZigBeeAccessory {
           this.coordinatorEndpoint
         );
         this.isConfigured = true;
+        this.zigBeeDeviceDescriptor.save();
         this.log.info(`Device ${this.name} successfully configured!`);
       } catch (e) {
         this.log.error(`Cannot configure device ${this.name}: ${e.message}`);
