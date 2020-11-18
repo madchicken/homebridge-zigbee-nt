@@ -1,6 +1,6 @@
 {
   "name": "homebridge-zigbee-nt",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "ZigBee New Technology Platform plugin for HomeBridge",
   "main": "dist/index.js",
   "scripts": {
@@ -53,8 +53,8 @@
     "lodash": "4.17.20",
     "serialport": "8.0.8",
     "typescript": "3.9.7",
-    "zigbee-herdsman": "0.12.132",
-    "zigbee-herdsman-converters": "12.0.208"
+    "zigbee-herdsman": "0.13.26",
+    "zigbee-herdsman-converters": "12.0.231"
   },
   "devDependencies": {
     "@types/async-retry": "^1.4.2",

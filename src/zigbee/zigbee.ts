@@ -180,7 +180,7 @@ export class ZigBee {
   }
 
   remove(ieeeAddr: string) {
-    let device = this.herdsman.getDeviceByIeeeAddr(ieeeAddr);
+    const device = this.herdsman.getDeviceByIeeeAddr(ieeeAddr);
     if (device) {
       return device.removeFromDatabase();
     }
@@ -270,6 +270,6 @@ export class ZigBee {
   }
 
   async touchlinkFactoryReset() {
-    return this.herdsman.touchlinkFactoryReset();
+    return this.herdsman.touchlinkFactoryResetFirst();
   }
 }
