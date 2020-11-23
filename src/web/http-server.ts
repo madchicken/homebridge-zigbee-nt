@@ -11,7 +11,7 @@ export class HttpServer {
   private readonly port: number;
   private readonly host: string;
 
-  constructor(host: string = '0.0.0.0', port: number = 9090) {
+  constructor(host: string = '0.0.0.0', port: number = 9000) {
     this.port = port;
     this.host = host;
     this.express = express();
