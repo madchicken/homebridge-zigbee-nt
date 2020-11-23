@@ -8,13 +8,13 @@ export function mapDevicesRoutes(express: Express, zigBee: ZigBeeClient) {
     const devices: Device[] = zigBee.getAllPairedDevices();
     res.status(constants.HTTP_STATUS_OK);
     res.contentType('application/json');
-    res.end({ devices });
+    res.end(JSON.stringify({ devices }));
   });
 
   express.get('/devices/:ieeeAddr', (req, res) => {
     const device: Device = zigBee.getDevice(req.params.ieeeAddr);
     res.status(constants.HTTP_STATUS_OK);
     res.contentType('application/json');
-    res.end({ device });
+    res.end(JSON.stringify({ device }));
   });
 }

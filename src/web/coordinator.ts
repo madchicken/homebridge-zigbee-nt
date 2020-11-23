@@ -8,6 +8,6 @@ export function mapCoordinatorRoutes(express: Express, zigBee: ZigBeeClient) {
     const coordinator: Device = zigBee.getCoodinator();
     res.status(constants.HTTP_STATUS_OK);
     res.contentType('application/json');
-    res.end({ coordinator });
+    res.end(JSON.stringify({ coordinator }));
   });
 }
