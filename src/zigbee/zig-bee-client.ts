@@ -301,4 +301,12 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   setRightButtonOn(device: Device, on: boolean) {
     return this.writeDeviceState(device, { state_right: on ? 'ON' : 'OFF' });
   }
+
+  getAllPairedDevices(): Device[] {
+    return this.zigBee.list();
+  }
+
+  getDevice(ieeeAddr: string) {
+    return this.zigBee.device(ieeeAddr);
+  }
 }

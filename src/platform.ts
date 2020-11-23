@@ -29,6 +29,7 @@ import {
   MessagePayload,
 } from 'zigbee-herdsman/dist/controller/events';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
+import { HttpServer } from './web/http-server';
 
 const PERMIT_JOIN_ACCESSORY_NAME = 'zigbee:permit-join';
 const TOUCH_LINK_ACCESSORY_NAME = 'zigbee:touchlink';
@@ -213,7 +214,9 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     // Create client
     this.client = new ZigBeeClient(this.zigBee, this.log);
     // Init devices
-    this.zigBee.list().forEach(data => this.initDevice(data));
+    await Promise.all(this.zigBee.list().map(data => this.initDevice(data)));
+    const httpServer = new HttpServer();
+    httpServer.start(this.client);
   }
 
   private getAccessoryByIeeeAddr(ieeeAddr: string) {
@@ -244,7 +247,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       const homeKitAccessory = new ZigBeeAccessory(this, accessory, this.client, device);
       this.log.info('Registered device:', ieeeAddr, manufacturer, model);
       this.homekitAccessories.set(accessory.UUID, homeKitAccessory);
-      await homeKitAccessory.onDeviceMount();
+      return await homeKitAccessory.onDeviceMount();
     } catch (error) {
       this.log.info(
         `Unable to initialize device ${device && device.ieeeAddr}, ` +
@@ -252,6 +255,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       );
       this.log.info('Reason:', error);
     }
+    return null;
   }
 
   private initPermitJoinAccessory() {
