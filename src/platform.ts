@@ -55,6 +55,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   public readonly PlatformAccessory: typeof PlatformAccessory;
   private readonly zigBee: ZigBee;
   private client: ZigBeeClient;
+  private httpServer: HttpServer;
 
   constructor(
     public readonly log: Logger,
@@ -133,8 +134,13 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   }
 
   async stopZigbee() {
-    await this.zigBee.stop();
-    this.log.info('Successfully stopped ZigBee service');
+    try {
+      await this.zigBee.stop();
+      await this.httpServer.stop();
+      this.log.info('Successfully stopped ZigBee service');
+    } catch (e) {
+      this.log.error('Error while stopping ZigBee service', e);
+    }
   }
 
   /**
@@ -215,8 +221,8 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     this.client = new ZigBeeClient(this.zigBee, this.log);
     // Init devices
     await Promise.all(this.zigBee.list().map(data => this.initDevice(data)));
-    const httpServer = new HttpServer();
-    httpServer.start(this.client);
+    this.httpServer = new HttpServer();
+    this.httpServer.start(this.client);
   }
 
   private getAccessoryByIeeeAddr(ieeeAddr: string) {
