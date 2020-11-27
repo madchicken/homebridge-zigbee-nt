@@ -28,7 +28,7 @@ import { NamronSwitch } from './accessories/namron/namron-switch';
 
 function registerSupportedDevices() {
   registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
-  registerAccessoryClass('Philips', ['LWA001', 'LWA002', 'LWB006', 'LWB014'], PhilipsHueWhite);
+  registerAccessoryClass('Philips', ['LWA001', 'LWA002', 'LWB006', 'LWB010', 'LWB014'], PhilipsHueWhite);
   registerAccessoryClass('Philips', ['LTA001'], PhilipsHueWhiteTemperature);
   registerAccessoryClass(
     'Philips',
