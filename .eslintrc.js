@@ -7,13 +7,8 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'prettier',
     'prettier/@typescript-eslint',
-    'plugin:@typescript-eslint/recommended-requiring-type-checking',
     'plugin:react/recommended',
   ],
-  parserOptions: {
-    tsconfigRootDir: './',
-    project: './tsconfig.json',
-  },
   env: {
     browser: true,
     node: true,
@@ -45,6 +40,5 @@ module.exports = {
     '@typescript-eslint/no-inferrable-types': 'warn',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-empty-function': 'off',
-    '@typescript-eslint/no-misused-promises': 'warn',
   },
 };

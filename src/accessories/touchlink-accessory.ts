@@ -3,8 +3,6 @@ import { Logger, PlatformAccessory, Service } from 'homebridge';
 
 import { ZigBee } from '../zigbee/zigbee';
 
-import * as pkg from '../../package.json';
-
 export class TouchlinkAccessory {
   private inProgress: boolean;
   private readonly log: Logger;
@@ -29,10 +27,10 @@ export class TouchlinkAccessory {
     const Characteristic = platform.Characteristic;
     this.accessory
       .getService(platform.Service.AccessoryInformation)
-      .setCharacteristic(Characteristic.Manufacturer, pkg.author.name)
-      .setCharacteristic(Characteristic.Model, pkg.name)
+      .setCharacteristic(Characteristic.Manufacturer, 'None')
+      .setCharacteristic(Characteristic.Model, 'None')
       .setCharacteristic(Characteristic.SerialNumber, serialNumber)
-      .setCharacteristic(Characteristic.FirmwareRevision, pkg.version)
+      .setCharacteristic(Characteristic.FirmwareRevision, '1.0.0')
       .setCharacteristic(Characteristic.Name, 'ZigBee Touchlink');
 
     this.switchService =
