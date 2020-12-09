@@ -1,4 +1,3 @@
-import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { AnyAction, Dispatch } from 'redux';
 import { ACTIONS } from '../reducers/device';
 
@@ -7,8 +6,19 @@ export interface BaseResponse {
   error?: string;
 }
 
+export type DeviceModel = {
+  type: string;
+  ieeeAddr: string;
+  networkAddress: number;
+  manufacturerID: string;
+  manufacturerName: string;
+  powerSource: string;
+  modelID: string;
+  interviewCompleted: boolean;
+};
+
 export interface DeviceResponse extends BaseResponse {
-  devices: Device[];
+  devices: DeviceModel[];
   total?: number;
 }
 
@@ -18,19 +28,16 @@ export async function fetchDevicesFromAPI(): Promise<DeviceResponse> {
     const json = await response.json();
     return {
       result: 'success',
-      devices: json.devices.map(d =>
-        Device.create(
-          d._type,
-          d._ieeeAddr,
-          d._networkAddress,
-          d._manufacturerID,
-          d._manufacturerName,
-          d._powerSource,
-          d._modelID,
-          d._interviewCompleted,
-          d._endpoints
-        )
-      ),
+      devices: json.devices.map(d => ({
+        type: d._type,
+        ieeeAddr: d._ieeeAddr,
+        networkAddress: d._networkAddress,
+        manufacturerID: d._manufacturerID,
+        manufacturerName: d._manufacturerName,
+        powerSource: d._powerSource,
+        modelID: d._modelID,
+        interviewCompleted: d._interviewCompleted,
+      })),
       total: json.devices.length,
     };
   } catch (e) {
