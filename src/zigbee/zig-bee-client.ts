@@ -1,6 +1,5 @@
 import { ZigBee } from './zigbee';
 import { Logger } from 'homebridge';
-import { createStore, Store } from '../utils/state-manager';
 import { sleep } from '../utils/sleep';
 import { MessagePayload } from 'zigbee-herdsman/dist/controller/events';
 import { DeferredMessage, PromiseBasedQueue } from '../utils/promise-queue';
@@ -10,13 +9,11 @@ import { ColorCapabilities, DeviceState, Meta, Options, ToConverter, ZigBeeEntit
 export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   private readonly zigBee: ZigBee;
   private readonly log: Logger;
-  private readonly store: Store<string, DeviceState>;
 
   constructor(zigBee: ZigBee, log: Logger) {
     super();
     this.zigBee = zigBee;
     this.log = log;
-    this.store = createStore<string, DeviceState>();
     this.setTimeout(5000);
   }
 
@@ -211,12 +208,12 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     return deviceState;
   }
 
-  async setBrightnessPercent(device: Device, brightness_percent: number) {
-    const brightness = Math.round(Number(brightness_percent) * 2.55);
+  async setBrightnessPercent(device: Device, brightnessPercent: number) {
+    const brightness = Math.round(Number(brightnessPercent) * 2.55);
     return this.writeDeviceState(device, { brightness });
   }
 
-  async getColorCapabilities(device: Device, force: boolean = false): Promise<ColorCapabilities> {
+  async getColorCapabilities(device: Device, force = false): Promise<ColorCapabilities> {
     const colorCapabilities = (await this.getClusterAttribute(
       device,
       'lightingColorCtrl',
@@ -234,7 +231,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     device: Device,
     cluster: string,
     attribute: string,
-    force: boolean = false
+    force = false
   ): Promise<string | number> {
     const resolvedEntity = this.zigBee.resolveEntity(device);
     const endpoint = resolvedEntity.endpoint;

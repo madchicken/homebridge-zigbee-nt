@@ -1,9 +1,10 @@
 import express, { Express } from 'express';
 import * as http from 'http';
 import * as bodyParser from 'body-parser';
-import { ZigBeeClient } from '../zigbee/zig-bee-client';
+import { ZigBeeClient } from '../../zigbee/zig-bee-client';
 import { mapDevicesRoutes } from './devices';
 import { mapCoordinatorRoutes } from './coordinator';
+import path from 'path';
 
 export class HttpServer {
   private readonly express: Express;
@@ -22,6 +23,7 @@ export class HttpServer {
     this.express.set('port', this.port);
     this.express.use(bodyParser.json());
     this.express.use(bodyParser.urlencoded({ extended: false }));
+    this.express.use('/public', express.static(path.resolve(__dirname, '../../public')));
     this.server = http.createServer(this.express);
     mapDevicesRoutes(this.express, zigBee);
     mapCoordinatorRoutes(this.express, zigBee);
@@ -42,7 +44,7 @@ export class HttpServer {
     });
   }
 
-  private handleError(error) {
+  private handleError(error: Error) {
     const bind = typeof this.port === 'string' ? `Pipe ${this.port}` : `Port ${this.port}`;
 
     // handle specific listen errors with friendly messages

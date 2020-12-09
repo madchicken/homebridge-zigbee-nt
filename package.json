@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "yarn clean && yarn build-ts",
+    "build-ui": "parcel build public/index.html",
     "test": "jest --forceExit --coverage --verbose",
     "watch-test": "yarn run test -- --watchAll",
     "build-ts": "tsc",
@@ -12,7 +13,8 @@
     "lint": "tsc --noEmit && eslint \"src/*.{js,ts}\" --quiet --fix",
     "prettier": "prettier --single-quote --trailing-comma es5 --write \"{src,__{tests,mocks}__}/**/*.ts\"",
     "permit-join": "node scripts/permit-join.js",
-    "clean": "rimraf dist/"
+    "clean": "rimraf dist/",
+    "serve": "ts-node scripts/serve.ts"
   },
   "husky": {
     "hooks": {
@@ -49,6 +51,7 @@
   "homepage": "https://github.com/madchicken/homebridge-zigbee-nt.git#README.md",
   "dependencies": {
     "async-retry": "1.3.1",
+    "evergreen-ui": "5.1.2",
     "js-big-decimal": "1.2.4",
     "lodash": "4.17.20",
     "serialport": "9.0.2",
@@ -56,6 +59,13 @@
     "zigbee-herdsman": "0.13.30",
     "zigbee-herdsman-converters": "12.0.235",
     "express": "4.17.1",
+    "react": "17.0.1",
+    "react-dom": "17.0.1",
+    "redux": "4.0.5",
+    "redux-thunk": "2.3.0",
+    "react-redux": "7.2.2",
+    "react-thunk": "1.0.0",
+    "react-query": "2.26.4",
     "body-parser": "1.19.0"
   },
   "devDependencies": {
@@ -68,21 +78,42 @@
     "@types/serialport": "^8.0.1",
     "@typescript-eslint/eslint-plugin": "^2.14.0",
     "@typescript-eslint/parser": "^2.14.0",
+    "@types/react": "17.0.0",
+    "@types/react-dom": "17.0.0",
+    "@types/react-redux": "7.1.11",
     "eslint": "^6.4.0",
     "eslint-config-prettier": "^6.10.0",
     "eslint-plugin-prettier": "^3.1.2",
-    "homebridge": "^1.1.1",
+    "eslint-plugin-react": "^7.21.5",
+    "eslint-plugin-jest": "^24.1.3",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "@emotion/eslint-plugin": "^11.0.0",
+    "homebridge": "^1.1.6",
     "husky": "^4.2.3",
     "jest": "^25.5.4",
     "nock": "^12.0.2",
     "prettier": "^1.19.1",
     "pretty-quick": "^2.0.1",
     "rimraf": "^3.0.2",
-    "ts-jest": "^25.2.1"
+    "ts-jest": "^25.2.1",
+    "ts-node": "^9.1.1",
+    "parcel-bundler": "1.12.4",
+    "http-proxy-middleware": "^1.0.6"
+  },
+  "resolutions": {
+    "@types/react": "17.0.0"
   },
   "files": [
     "dist",
+    "public",
     "config.schema.json",
     "package.json"
+  ],
+  "browserslist": [
+    "last 3 and_chr versions",
+    "last 3 chrome versions",
+    "last 3 opera versions",
+    "last 3 ios_saf versions",
+    "last 3 safari versions"
   ]
 }

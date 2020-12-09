@@ -29,7 +29,7 @@ import {
   MessagePayload,
 } from 'zigbee-herdsman/dist/controller/events';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
-import { HttpServer } from './web/http-server';
+import { HttpServer } from './web/api/http-server';
 
 const PERMIT_JOIN_ACCESSORY_NAME = 'zigbee:permit-join';
 const TOUCH_LINK_ACCESSORY_NAME = 'zigbee:touchlink';
@@ -51,7 +51,6 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   private readonly accessories: Map<string, PlatformAccessory>;
   private readonly homekitAccessories: Map<string, ZigBeeAccessory>;
   private permitJoinAccessory: PermitJoinAccessory;
-  private touchlinkAccessory: TouchlinkAccessory;
   public readonly PlatformAccessory: typeof PlatformAccessory;
   private readonly zigBee: ZigBee;
   private client: ZigBeeClient;
@@ -75,7 +74,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   async startZigBee() {
     const channels = [this.config.channel];
     const secondaryChannel = parseInt(this.config.secondaryChannel);
-    if (!isNaN(secondaryChannel) && channels.indexOf(secondaryChannel) === -1) {
+    if (!isNaN(secondaryChannel) && !channels.includes(secondaryChannel)) {
       channels.push(secondaryChannel);
     }
 
@@ -277,7 +276,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   private initTouchlinkAccessory() {
     try {
       const accessory = this.createHapAccessory(TOUCH_LINK_ACCESSORY_NAME);
-      this.touchlinkAccessory = new TouchlinkAccessory(this, accessory, this.zigBee);
+      new TouchlinkAccessory(this, accessory, this.zigBee);
       this.log.info('Touchlink accessory successfully registered');
     } catch (e) {
       this.log.error('Touchlink accessory not registered: ', e);
@@ -298,8 +297,8 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     return accessory;
   }
 
-  private async removeAccessory(ieeeAddr: string) {
-    let uuid = this.generateUUID(ieeeAddr);
+  private removeAccessory(ieeeAddr: string) {
+    const uuid = this.generateUUID(ieeeAddr);
     const accessory = this.accessories.get(uuid);
     if (accessory) {
       this.accessories.delete(uuid);
@@ -324,7 +323,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
         this.getAccessoryByIeeeAddr(device.ieeeAddr),
       ]);
-      await this.removeAccessory(device.ieeeAddr);
+      this.removeAccessory(device.ieeeAddr);
     }
   }
 
@@ -343,7 +342,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     }
   }
 
-  private async handleZigBeeMessage(message: MessagePayload) {
+  private handleZigBeeMessage(message: MessagePayload) {
     this.log.debug(`Zigbee message from ${message.device.ieeeAddr}`, message.type);
     if (message.type === 'readResponse') {
       // only process messages that we wait for

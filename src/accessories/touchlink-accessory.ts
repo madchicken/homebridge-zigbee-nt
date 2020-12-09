@@ -3,11 +3,10 @@ import { Logger, PlatformAccessory, Service } from 'homebridge';
 
 import { ZigBee } from '../zigbee/zigbee';
 
-const pkg = require('../../package.json');
+import * as pkg from '../../package.json';
 
 export class TouchlinkAccessory {
   private inProgress: boolean;
-  private readonly timeout: number;
   private readonly log: Logger;
   private readonly platform: ZigbeeNTHomebridgePlatform;
   private readonly accessory: PlatformAccessory;
@@ -18,8 +17,6 @@ export class TouchlinkAccessory {
     this.zigBee = zigBee;
     // Current progress status
     this.inProgress = false;
-    // Permit join timeout
-    this.timeout = platform.config.permitJoinTimeout || 120;
     // Save platform
     this.platform = platform;
     // Save logger
@@ -42,7 +39,7 @@ export class TouchlinkAccessory {
       this.accessory.getService(platform.Service.Switch) ||
       this.accessory.addService(platform.Service.Switch);
 
-    this.accessory.on('identify', this.handleAccessoryIdentify);
+    this.accessory.on('identify', () => this.handleAccessoryIdentify());
     const characteristic = this.switchService.getCharacteristic(this.platform.Characteristic.On);
     characteristic.on('get', callback => this.handleGetSwitchOn(callback));
     characteristic.on('set', (value, callback) => this.handleSetSwitchOn(value, callback));
@@ -54,7 +51,7 @@ export class TouchlinkAccessory {
     callback(null, this.inProgress);
   }
 
-  handleSetSwitchOn(value: boolean, callback) {
+  handleSetSwitchOn(_value: boolean, callback) {
     this.log.info('Starting touchlink factory reset...');
     if (!this.inProgress) {
       this.switchService.getCharacteristic(this.platform.Characteristic.On).updateValue(true);

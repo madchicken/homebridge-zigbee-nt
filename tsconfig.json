@@ -1,19 +1,26 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
+    "target": "ES6",
+    "module": "CommonJS",
     "moduleResolution": "node",
-    "allowJs": false,
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
     "strict": false,
     "noImplicitAny": false,
     "esModuleInterop": true,
     "downlevelIteration": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "outDir": "dist",
     "sourceMap": true,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "resolveJsonModule": true,
+    "jsx": "react",
+    "lib": ["esnext", "dom"]
   },
-  "lib": ["esnext"],
-  "include": ["src"],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["**/__tests__/*"]
 }
