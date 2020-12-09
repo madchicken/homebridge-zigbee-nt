@@ -16,7 +16,23 @@ export async function fetchDevicesFromAPI(): Promise<DeviceResponse> {
   try {
     const response = await fetch('/api/devices');
     const json = await response.json();
-    return { result: 'success', devices: json.devices, total: json.devices.length };
+    return {
+      result: 'success',
+      devices: json.devices.map(d =>
+        Device.create(
+          d._type,
+          d._ieeeAddr,
+          d._networkAddress,
+          d._manufacturerID,
+          d._manufacturerName,
+          d._powerSource,
+          d._modelID,
+          d._interviewCompleted,
+          d._endpoints
+        )
+      ),
+      total: json.devices.length,
+    };
   } catch (e) {
     // eslint-disable-next-line no-undef
     console.error(e);

@@ -56,12 +56,8 @@ export default function DeviceTable(): ReactElement {
         <Table.TextHeaderCell>IEE Address</Table.TextHeaderCell>
       </Table.Head>
       <Table.Body height={240}>
-        {devices.map(device => (
-          <Table.Row
-            key={device.ieeeAddr}
-            isSelectable
-            onSelect={(): void => console.log(device.modelID)}
-          >
+        {devices.map((device, index) => (
+          <Table.Row key={index} isSelectable onSelect={(): void => console.log(device.modelID)}>
             <Table.TextCell>{device.modelID}</Table.TextCell>
             <Table.TextCell>{device.manufacturerName}</Table.TextCell>
             <Table.TextCell>{device.ieeeAddr}</Table.TextCell>
