@@ -12,6 +12,7 @@ export type DeviceModel = {
   powerSource: string;
   modelID: string;
   interviewCompleted: boolean;
+  endpoints?: any[];
 };
 
 export interface DeviceResponse extends BaseResponse {
@@ -60,6 +61,23 @@ export class DevicesService {
     }
   }
 
+  static async fetchDevice(ieeAddr: string): Promise<DeviceResponse> {
+    try {
+      const response = await fetch(`/api/devices/${ieeAddr}`);
+      if (response.ok) {
+        const json = await response.json();
+        return {
+          result: 'success',
+          device: normalizeModel(json.device),
+        };
+      } else {
+        return handleError(await response.text());
+      }
+    } catch (e) {
+      return handleError(e.message);
+    }
+  }
+
   static async deleteDevice(ieeAddr: string): Promise<DeviceResponse> {
     try {
       const response = await fetch(`/api/devices/${ieeAddr}`, {
@@ -70,7 +88,6 @@ export class DevicesService {
         return {
           result: 'success',
           device: normalizeModel(json.device),
-          total: json.devices.length,
         };
       } else {
         return handleError(await response.text());

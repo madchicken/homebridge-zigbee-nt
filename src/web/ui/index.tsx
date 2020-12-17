@@ -4,21 +4,21 @@ import { Home } from './home';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Coordinator } from './coordinator';
 import { Devices } from './devices';
-import { QueryCache, ReactQueryCacheProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import { NavBar } from './components/nav-bar';
 import { Pane } from 'evergreen-ui';
 
-const queryCache = new QueryCache();
+const queryClient = new QueryClient();
 
 function App() {
   return (
     <Pane display="flex" height="100%">
-      <ReactQueryCacheProvider queryCache={queryCache}>
+      <QueryClientProvider client={queryClient}>
         <Router>
           <NavBar />
           <Pane padding={16} flex="1">
             <Switch>
-              <Route path="/devices">
+              <Route path="/devices/:ieeAddr?">
                 <Devices />
               </Route>
               <Route path="/coordinator">
@@ -30,7 +30,7 @@ function App() {
             </Switch>
           </Pane>
         </Router>
-      </ReactQueryCacheProvider>
+      </QueryClientProvider>
     </Pane>
   );
 }
