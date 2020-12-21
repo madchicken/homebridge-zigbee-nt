@@ -104,7 +104,7 @@
         "title": "HTTP Server Port",
         "description": "Port for HTTP server. Default to 5000",
         "type": "number",
-        "default": 5000,
+        "default": 1234,
         "required": false
       },
       "disableLed": {

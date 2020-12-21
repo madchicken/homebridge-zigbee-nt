@@ -12,7 +12,7 @@ export class HttpServer {
   private readonly port: number;
   private readonly host: string;
 
-  constructor(port = 5000, host = '0.0.0.0') {
+  constructor(port = 1234, host = '0.0.0.0') {
     this.port = port;
     this.host = host;
     this.express = express();
