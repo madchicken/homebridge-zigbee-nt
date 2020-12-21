@@ -8,7 +8,9 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { NavBar } from './components/nav-bar';
 import { Pane } from 'evergreen-ui';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { refetchOnWindowFocus: false } },
+});
 
 function App() {
   return (

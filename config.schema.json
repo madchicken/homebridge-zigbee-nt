@@ -86,6 +86,27 @@
         "maximum": 180,
         "required": false
       },
+      "disableRouterPolling": {
+        "title": "Disable Router Polling",
+        "description": "Turn off the polling for router devices",
+        "type": "boolean",
+        "default": false,
+        "required": false
+      },
+      "disableHttpServer": {
+        "title": "Disable HTTP Server (UI)",
+        "description": "Turn off the HTTP server and the internal UI used for managing devices",
+        "type": "boolean",
+        "default": false,
+        "required": false
+      },
+      "httpPort": {
+        "title": "HTTP Server Port",
+        "description": "Port for HTTP server. Default to 5000",
+        "type": "number",
+        "default": 5000,
+        "required": false
+      },
       "disableLed": {
         "title": "Disable Led",
         "description": "Turn off the stick led indicator.",
@@ -102,7 +123,10 @@
     "channel",
     "secondaryChannel",
     "database",
+    "disableRouterPolling",
     "routerPollingInterval",
+    "disableHttpServer",
+    "httpPort",
     "disableLed"
   ]
 }

@@ -1,8 +1,8 @@
 import React, { ReactElement } from 'react';
 import { Heading, Pane, Spinner, Table } from 'evergreen-ui';
 import { useQuery } from 'react-query';
-import { DeviceModel, DeviceResponse, DevicesService } from '../actions/devices';
-import { Error } from './error';
+import { DeviceModel, DeviceResponse, DevicesService } from '../../actions/devices';
+import { Error } from '../error';
 import { useHistory } from 'react-router-dom';
 
 function renderTable(devices: DeviceModel[], history) {

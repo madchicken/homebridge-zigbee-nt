@@ -1,7 +1,26 @@
+import { handleError } from './utils';
+
 export interface BaseResponse {
   result: 'success' | 'error';
   error?: string;
 }
+
+export type Endpoint = {
+  ID: number;
+  profileID: number;
+  deviceID: number;
+  inputClusters: number[];
+  outputClusters: number[];
+  deviceNetworkAddress: number;
+  deviceIeeeAddress: string;
+  clusters: {
+    [k: string]: {
+      attributes: any;
+    };
+  };
+  _binds: any[];
+  meta: any;
+};
 
 export type DeviceModel = {
   type: string;
@@ -12,7 +31,7 @@ export type DeviceModel = {
   powerSource: string;
   modelID: string;
   interviewCompleted: boolean;
-  endpoints?: any[];
+  endpoints?: Endpoint[];
 };
 
 export interface DeviceResponse extends BaseResponse {
@@ -21,7 +40,7 @@ export interface DeviceResponse extends BaseResponse {
   total?: number;
 }
 
-function normalizeModel(d) {
+export function normalizeDeviceModel(d): DeviceModel {
   return {
     type: d._type,
     ieeeAddr: d._ieeeAddr,
@@ -31,14 +50,7 @@ function normalizeModel(d) {
     powerSource: d._powerSource,
     modelID: d._modelID,
     interviewCompleted: d._interviewCompleted,
-  };
-}
-
-function handleError(message: string): DeviceResponse {
-  return {
-    result: 'error',
-    error: message,
-    devices: null,
+    endpoints: d._endpoints,
   };
 }
 
@@ -50,7 +62,7 @@ export class DevicesService {
         const json = await response.json();
         return {
           result: 'success',
-          devices: json.devices.map(normalizeModel),
+          devices: json.devices.map(normalizeDeviceModel),
           total: json.devices.length,
         };
       } else {
@@ -68,7 +80,7 @@ export class DevicesService {
         const json = await response.json();
         return {
           result: 'success',
-          device: normalizeModel(json.device),
+          device: normalizeDeviceModel(json.device),
         };
       } else {
         return handleError(await response.text());
@@ -87,7 +99,7 @@ export class DevicesService {
         const json = await response.json();
         return {
           result: 'success',
-          device: normalizeModel(json.device),
+          device: normalizeDeviceModel(json.device),
         };
       } else {
         return handleError(await response.text());

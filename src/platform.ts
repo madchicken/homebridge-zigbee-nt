@@ -30,6 +30,7 @@ import {
 } from 'zigbee-herdsman/dist/controller/events';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { HttpServer } from './web/api/http-server';
+import { RouterPolling } from './utils/router-polling';
 
 const PERMIT_JOIN_ACCESSORY_NAME = 'zigbee:permit-join';
 const TOUCH_LINK_ACCESSORY_NAME = 'zigbee:touchlink';
@@ -41,6 +42,9 @@ interface ZigBeeNTPlatformConfig extends PlatformConfig {
   channel?: number;
   secondaryChannel?: string;
   database?: string;
+  httpPort?: number;
+  disableRoutingPolling?: boolean;
+  disableHttpServer?: boolean;
   routerPollingInterval?: number;
 }
 
@@ -55,6 +59,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   private readonly zigBee: ZigBee;
   private client: ZigBeeClient;
   private httpServer: HttpServer;
+  private routerPolling: RouterPolling;
 
   constructor(
     public readonly log: Logger,
@@ -69,6 +74,10 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     this.log.info(`Initializing platform: ${this.config.name}`);
     this.api.on(APIEvent.DID_FINISH_LAUNCHING, () => this.startZigBee());
     this.api.on(APIEvent.SHUTDOWN, () => this.stopZigbee());
+  }
+
+  get zigBeeClient() {
+    return this.client;
   }
 
   async startZigBee() {
@@ -134,8 +143,16 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
 
   async stopZigbee() {
     try {
+      this.log.info('Stopping zigbee service');
       await this.zigBee.stop();
-      await this.httpServer.stop();
+      if (this.routerPolling) {
+        this.log.info('Stopping router polling');
+        this.routerPolling.stop();
+      }
+      if (this.httpServer) {
+        this.log.info('Stopping http server');
+        await this.httpServer.stop();
+      }
       this.log.info('Successfully stopped ZigBee service');
     } catch (e) {
       this.log.error('Error while stopping ZigBee service', e);
@@ -203,7 +220,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     const accessory = this.getAccessoryByIeeeAddr(message.ieeeAddr);
     // Sometimes we can unpair device which doesn't exist in HomeKit
     if (accessory) {
-      await this.unpairDevice(accessory.context as Device);
+      await this.unpairDevice(ieeeAddr);
     }
   }
 
@@ -220,8 +237,20 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     this.client = new ZigBeeClient(this.zigBee, this.log);
     // Init devices
     await Promise.all(this.zigBee.list().map(data => this.initDevice(data)));
-    this.httpServer = new HttpServer();
-    this.httpServer.start(this.client);
+
+    if (this.config.disableRoutingPolling !== true) {
+      this.routerPolling = new RouterPolling(
+        this.zigBee,
+        this.log,
+        this.config.routerPollingInterval
+      );
+      this.routerPolling.start();
+    }
+
+    if (this.config.disableHttpServer !== true) {
+      this.httpServer = new HttpServer(this.config.httpPort);
+      this.httpServer.start(this);
+    }
   }
 
   private getAccessoryByIeeeAddr(ieeeAddr: string) {
@@ -306,24 +335,24 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     }
   }
 
-  private async unpairDevice(device: Device) {
+  public async unpairDevice(ieeeAddr: string) {
     try {
-      this.log.info('Unpairing device:', device.ieeeAddr);
-      await this.zigBee.remove(device.ieeeAddr);
+      this.log.info('Unpairing device:', ieeeAddr);
+      await this.zigBee.remove(ieeeAddr);
     } catch (error) {
       this.log.error(error);
-      this.log.info('Unable to unpairing properly, trying to unregister device:', device.ieeeAddr);
+      this.log.info('Unable to unpairing properly, trying to unregister device:', ieeeAddr);
       try {
-        await this.zigBee.unregister(device.ieeeAddr);
+        await this.zigBee.unregister(ieeeAddr);
       } catch (e) {
         this.log.error(e);
       }
     } finally {
-      this.log.info('Device has been unpaired:', device.ieeeAddr);
+      this.log.info('Device has been unpaired:', ieeeAddr);
       this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
-        this.getAccessoryByIeeeAddr(device.ieeeAddr),
+        this.getAccessoryByIeeeAddr(ieeeAddr),
       ]);
-      this.removeAccessory(device.ieeeAddr);
+      this.removeAccessory(ieeeAddr);
     }
   }
 

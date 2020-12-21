@@ -9692,17 +9692,17 @@ yn@3.1.1:
   resolved "https://registry.yarnpkg.com/yn/-/yn-3.1.1.tgz#1e87401a09d767c1d5eab26a6e4c185182d2eb50"
   integrity sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==
 
-zigbee-herdsman-converters@^12.0.235:
-  version "12.0.235"
-  resolved "https://registry.yarnpkg.com/zigbee-herdsman-converters/-/zigbee-herdsman-converters-12.0.235.tgz#42ddbf5dbc5dd4d41a24a8100c63e3d3328f2db6"
-  integrity sha512-/knTKyO71P4HMmA13phVdnb+PwgRCZa+oPg1od9iTDNfm1VDGlpDJYCKLIIbSnuftpvubD0Xnem1PhfQTnh8UQ==
+zigbee-herdsman-converters@^13.0.24:
+  version "13.0.24"
+  resolved "https://registry.yarnpkg.com/zigbee-herdsman-converters/-/zigbee-herdsman-converters-13.0.24.tgz#548d9aa6a2cc651f6cbea3a6a55e47ae9614787c"
+  integrity sha512-/5LOf69FOk7TCNja8rJjH6R/raS8ekY4CLDTk9bjIyFt2r3xjWt6jMn6GaODteDGm+rZY9WogkOT1oZD/VnHBw==
   dependencies:
     axios "^0.21.0"
     buffer-crc32 "^0.2.13"
     https-proxy-agent "^5.0.0"
     tar-stream "^2.1.4"
 
-zigbee-herdsman@^0.13.30:
+zigbee-herdsman@^0.13.41:
   version "0.13.41"
   resolved "https://registry.yarnpkg.com/zigbee-herdsman/-/zigbee-herdsman-0.13.41.tgz#78d81b2ac7851c88837b8e0787a92985030a5c5b"
   integrity sha512-qHAvPHr8CrzD9pRiiqNmlwxh/KvIfvGpopGBl4Hl2LJln3ruzt1cpHA3jcvR/WUC4vQsTtdEk2911BNEb5APWw==

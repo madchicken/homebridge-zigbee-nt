@@ -1,7 +1,7 @@
 import React, { ReactElement, useMemo } from 'react';
-import DeviceTable from './components/device-table';
+import DeviceTable from './components/devices/device-table';
 import { Card } from 'evergreen-ui';
-import { DeviceDetails } from './components/device-details';
+import { DeviceDetails } from './components/devices/device-details';
 import { useLocation } from 'react-router-dom';
 
 export function Devices(): ReactElement {

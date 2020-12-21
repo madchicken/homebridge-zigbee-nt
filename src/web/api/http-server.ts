@@ -1,10 +1,10 @@
 import express, { Express } from 'express';
 import * as http from 'http';
 import * as bodyParser from 'body-parser';
-import { ZigBeeClient } from '../../zigbee/zig-bee-client';
 import { mapDevicesRoutes } from './devices';
 import { mapCoordinatorRoutes } from './coordinator';
 import path from 'path';
+import { ZigbeeNTHomebridgePlatform } from '../../platform';
 
 export class HttpServer {
   private readonly express: Express;
@@ -12,13 +12,13 @@ export class HttpServer {
   private readonly port: number;
   private readonly host: string;
 
-  constructor(host: string = '0.0.0.0', port: number = 9000) {
+  constructor(port = 5000, host = '0.0.0.0') {
     this.port = port;
     this.host = host;
     this.express = express();
   }
 
-  public start(zigBee: ZigBeeClient) {
+  public start(zigBee: ZigbeeNTHomebridgePlatform) {
     this.express.set('host', this.host);
     this.express.set('port', this.port);
     this.express.use(bodyParser.json());
