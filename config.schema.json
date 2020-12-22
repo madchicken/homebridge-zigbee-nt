@@ -102,9 +102,8 @@
       },
       "httpPort": {
         "title": "HTTP Server Port",
-        "description": "Port for HTTP server. Default to 5000",
+        "description": "Port for HTTP server. Default to 9000",
         "type": "number",
-        "default": 1234,
         "required": false
       },
       "disableLed": {

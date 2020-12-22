@@ -6,13 +6,16 @@ import { mapCoordinatorRoutes } from './coordinator';
 import path from 'path';
 import { ZigbeeNTHomebridgePlatform } from '../../platform';
 
+const DEFAULT_WEB_PORT = 9000;
+const DEFAULT_WEB_HOST = '0.0.0.0';
+
 export class HttpServer {
   private readonly express: Express;
   private server: http.Server;
   private readonly port: number;
   private readonly host: string;
 
-  constructor(port = 1234, host = '0.0.0.0') {
+  constructor(port = DEFAULT_WEB_PORT, host = DEFAULT_WEB_HOST) {
     this.port = port;
     this.host = host;
     this.express = express();
@@ -23,7 +26,7 @@ export class HttpServer {
     this.express.set('port', this.port);
     this.express.use(bodyParser.json());
     this.express.use(bodyParser.urlencoded({ extended: false }));
-    this.express.use('/public', express.static(path.resolve(__dirname, '../../public')));
+    this.express.use('/', express.static(path.resolve(__dirname, '../../../dist/public')));
     this.server = http.createServer(this.express);
     mapDevicesRoutes(this.express, zigBee);
     mapCoordinatorRoutes(this.express, zigBee);
@@ -56,7 +59,7 @@ export class HttpServer {
         console.error(`${bind} is already in use`);
         break;
       default:
-        throw error;
+        console.error(error);
     }
   }
 

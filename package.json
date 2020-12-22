@@ -4,8 +4,8 @@
   "description": "ZigBee New Technology Platform plugin for HomeBridge",
   "main": "dist/index.js",
   "scripts": {
-    "build": "yarn clean && yarn build:ts",
-    "build:ui": "parcel build public/index.html",
+    "build": "yarn clean && yarn build:ts && yarn build:ui",
+    "build:ui": "parcel build public/index.html --out-dir dist/public",
     "test": "jest --forceExit --coverage --verbose",
     "watch:test": "yarn run test -- --watchAll",
     "build:ts": "tsc",
