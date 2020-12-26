@@ -27,6 +27,7 @@ import { NamronSwitch } from './accessories/namron/namron-switch';
 import { XiaomiVibrationSensor } from './accessories/xiaomi/vibration-sensor';
 import { LonsonhoDoubleSwitch } from './accessories/lonsonho/lonsonho-double-switch';
 import { XiaomiLeakSensor } from './accessories/xiaomi/leak-sensor';
+import { XiaomiMotionSensor } from './accessories/xiaomi/motion-sensor';
 
 function registerSupportedDevices(): void {
   registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
@@ -149,6 +150,7 @@ function registerSupportedDevices(): void {
     ['lumi.sensor_switch.aq2', 'lumi.sensor_switch'],
     XiaomiWirelessSwitch
   );
+  registerAccessoryClass('LUMI', ['lumi.sensor_motion.aq2'], XiaomiMotionSensor);
   registerAccessoryClass('LUMI', ['lumi.sensor_wleak.aq1'], XiaomiLeakSensor);
   registerAccessoryClass('TuYa', ['GDKES-02TZXD'], TuyaOnoffDoubleSwitch);
   registerAccessoryClass('TuYa', ['TS0012'], LonsonhoDoubleSwitch);
