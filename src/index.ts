@@ -11,7 +11,6 @@ import { IkeaTadfriDim } from './accessories/ikea/ikea-tadfri-dim';
 import { IkeaTadfriOutlet } from './accessories/ikea/ikea-tadfri-outlet';
 import { IkeaTadfriDimColor } from './accessories/ikea/ikea-tadfri-dim-color';
 import { IkeaOnoffSwitch } from './accessories/ikea/ikea-onoff-switch';
-import { InnrWhite } from './accessories/innr/innr-white';
 import { InnrWhiteTemperature } from './accessories/innr/innr-white-temperature';
 import { TempHumiSensor } from './accessories/xiaomi/temp-humi-sensor';
 import { GledoptoDim } from './accessories/gledopto/gledopto-dim';
@@ -26,9 +25,13 @@ import { LinkindMotionSensor } from './accessories/linkind/linkind-motion-sensor
 import { NamronDimmer } from './accessories/namron/namron-dimmer';
 import { NamronSwitch } from './accessories/namron/namron-switch';
 
-function registerSupportedDevices() {
+function registerSupportedDevices(): void {
   registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
-  registerAccessoryClass('Philips', ['LWA001', 'LWA002', 'LWB006', 'LWB010', 'LWB014'], PhilipsHueWhite);
+  registerAccessoryClass(
+    'Philips',
+    ['LWA001', 'LWA002', 'LWB006', 'LWB010', 'LWB014'],
+    PhilipsHueWhite
+  );
   registerAccessoryClass('Philips', ['LTA001'], PhilipsHueWhiteTemperature);
   registerAccessoryClass(
     'Philips',
@@ -119,12 +122,28 @@ function registerSupportedDevices() {
   );
 
   registerAccessoryClass('Xiaomi', ['WSDCGQ01LM', 'WSDCGQ11LM'], TempHumiSensor);
-  registerAccessoryClass('Xiaomi', ['lumi.sensor_magnet', 'lumi.sensor_magnet.aq2'], XiaomiContactSensor);
+  registerAccessoryClass(
+    'Xiaomi',
+    ['lumi.sensor_magnet', 'lumi.sensor_magnet.aq2'],
+    XiaomiContactSensor
+  );
   registerAccessoryClass('Xiaomi', ['GZCGQ01LM'], XiaomiLightIntensitySensor);
-  registerAccessoryClass('LUMI', ['lumi.weather', 'lumi.sensor_ht.agl02', 'lumi.sensor_ht'], TempHumiSensor);
-  registerAccessoryClass('LUMI', ['lumi.sensor_magnet', 'lumi.sensor_magnet.aq2'], XiaomiContactSensor);
+  registerAccessoryClass(
+    'LUMI',
+    ['lumi.weather', 'lumi.sensor_ht.agl02', 'lumi.sensor_ht'],
+    TempHumiSensor
+  );
+  registerAccessoryClass(
+    'LUMI',
+    ['lumi.sensor_magnet', 'lumi.sensor_magnet.aq2'],
+    XiaomiContactSensor
+  );
   registerAccessoryClass('LUMI', ['lumi.sen_ill.mgl01'], XiaomiLightIntensitySensor);
-  registerAccessoryClass('LUMI', ['lumi.sensor_switch.aq2', 'lumi.sensor_switch'], XiaomiWirelessSwitch);
+  registerAccessoryClass(
+    'LUMI',
+    ['lumi.sensor_switch.aq2', 'lumi.sensor_switch'],
+    XiaomiWirelessSwitch
+  );
   registerAccessoryClass('TuYa', ['GDKES-02TZXD'], TuyaOnoffDoubleSwitch);
   registerAccessoryClass('lk', ['ZB-MotionSensor-D0003'], LinkindMotionSensor);
   registerAccessoryClass('NAMRON AS', ['4512700', '1402755'], NamronDimmer);
@@ -134,7 +153,7 @@ function registerSupportedDevices() {
 /**
  * This method registers the platform with Homebridge
  */
-export = (api: API) => {
+export default function(api: API): void {
   registerSupportedDevices();
   api.registerPlatform(PLUGIN_IDENTIFIER, PLATFORM_NAME, ZigbeeNTHomebridgePlatform);
-};
+}

@@ -8,12 +8,15 @@
     "noImplicitAny": false,
     "esModuleInterop": true,
     "downlevelIteration": true,
-    "outDir": "dist",
+    "outDir": "./dist",
     "sourceMap": true,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "jsx": "react",
+    "resolveJsonModule": true,
+    "rootDir": "./src"
   },
-  "lib": ["esnext"],
-  "include": ["src"],
+  "lib": ["esnext", "dom"],
+  "include": ["src/"],
   "exclude": ["**/__tests__/*"]
 }

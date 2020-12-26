@@ -33,10 +33,11 @@ export class RouterPolling {
   }
 
   start() {
+    this.log.info(`Starting router polling with ${this.interval}ms interval`);
     this.stop();
-    this.pollingTimeout = setTimeout(() => {
+    this.pollingTimeout = setTimeout(async () => {
       const devices = this.zigBee.list().filter(isDeviceRouter);
-      devices.forEach(async device => {
+      const promises = devices.map(async device => {
         try {
           if (this.log) {
             this.log.debug(
@@ -51,7 +52,9 @@ export class RouterPolling {
             e
           );
         }
+        return Promise.resolve();
       });
+      await Promise.all(promises);
       this.pollingTimeout.refresh();
     }, this.interval);
   }

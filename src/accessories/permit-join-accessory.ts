@@ -1,14 +1,10 @@
 import { ZigbeeNTHomebridgePlatform } from '../platform';
-import { CharacteristicEventTypes, Logger, PlatformAccessory, Service } from 'homebridge';
+import { CharacteristicEventTypes, PlatformAccessory, Service } from 'homebridge';
 
 import { ZigBee } from '../zigbee/zigbee';
 
-const pkg = require('../../package.json');
-
 export class PermitJoinAccessory {
   private inProgress: boolean;
-  private readonly timeout: number;
-  private readonly log: Logger;
   private readonly platform: ZigbeeNTHomebridgePlatform;
   private readonly accessory: PlatformAccessory;
   private switchService: Service;
@@ -18,12 +14,8 @@ export class PermitJoinAccessory {
     this.zigBee = zigBee;
     // Current progress status
     this.inProgress = false;
-    // Permit join timeout
-    this.timeout = platform.config.permitJoinTimeout || 120;
     // Save platform
     this.platform = platform;
-    // Save logger
-    this.log = platform.log;
     this.accessory = accessory;
     // Verify accessory
     const serialNumber = Math.random()
@@ -32,27 +24,28 @@ export class PermitJoinAccessory {
     const Characteristic = platform.Characteristic;
     this.accessory
       .getService(platform.Service.AccessoryInformation)
-      .setCharacteristic(Characteristic.Manufacturer, pkg.author.name)
-      .setCharacteristic(Characteristic.Model, pkg.name)
+      .setCharacteristic(Characteristic.Manufacturer, 'None')
+      .setCharacteristic(Characteristic.Model, 'None')
       .setCharacteristic(Characteristic.SerialNumber, serialNumber)
-      .setCharacteristic(Characteristic.FirmwareRevision, pkg.version)
+      .setCharacteristic(Characteristic.FirmwareRevision, '1.0.0')
       .setCharacteristic(platform.Characteristic.Name, 'ZigBee Permit Join');
 
     this.switchService =
       this.accessory.getService(platform.Service.Switch) ||
       this.accessory.addService(platform.Service.Switch);
 
-    this.accessory.on('identify', this.handleAccessoryIdentify);
+    this.accessory.on('identify', () => this.handleAccessoryIdentify());
     const characteristic = this.switchService.getCharacteristic(this.platform.Characteristic.On);
     characteristic.on(CharacteristicEventTypes.GET, callback => this.handleGetSwitchOn(callback));
-    characteristic.on(CharacteristicEventTypes.SET, (value, callback) =>
-      this.handleSetSwitchOn(value, callback)
-    );
+    characteristic.on(CharacteristicEventTypes.SET, (value, callback) => {
+      this.handleSetSwitchOn(value, callback);
+    });
     // Disable permit join on start
     this.setPermitJoin(false);
   }
 
-  handleAccessoryIdentify() {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  handleAccessoryIdentify(): void {}
 
   async setPermitJoin(value: boolean) {
     await this.zigBee.permitJoin(value);
