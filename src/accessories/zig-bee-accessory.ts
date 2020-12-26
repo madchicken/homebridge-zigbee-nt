@@ -45,7 +45,7 @@ export abstract class ZigBeeAccessory {
     this.accessory.context = device;
     this.entity = this.client.resolveEntity(device);
     this.coordinatorEndpoint = this.client.getCoodinator().getEndpoint(1);
-    let Characteristic = platform.Characteristic;
+    const Characteristic = platform.Characteristic;
     this.accessory
       .getService(this.platform.Service.AccessoryInformation)
       .setCharacteristic(Characteristic.Manufacturer, device.manufacturerName)

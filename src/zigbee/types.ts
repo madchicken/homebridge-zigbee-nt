@@ -65,6 +65,7 @@ export interface DeviceState {
   strength?: number;
   linkquality?: number;
   sensitivity?: 'low' | 'medium' | 'high';
+  water_leak?: boolean;
 }
 
 export interface ColorCapabilities {
