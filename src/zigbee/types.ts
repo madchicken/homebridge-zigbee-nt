@@ -53,10 +53,16 @@ export interface DeviceState {
     | 'brightness_up_release'
     | 'brightness_down_click'
     | 'brightness_down_hold'
-    | 'brightness_down_release';
+    | 'brightness_down_release'
+    | 'vibration'
+    | 'tilt'
+    | 'drop';
   occupancy?: boolean;
   tamper?: boolean;
   battery_low?: boolean;
+  strength?: number;
+  linkquality?: number;
+  sensitivity?: 'low' | 'medium' | 'high';
 }
 
 export interface ColorCapabilities {

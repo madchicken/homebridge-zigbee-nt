@@ -7,6 +7,7 @@ import { ProgrammableSwitchServiceBuilder } from '../../builders/programmable-sw
 export class IkeaOnoffSwitch extends ZigBeeAccessory {
   protected switchServiceOn: Service;
   protected switchServiceOff: Service;
+  protected batteryService: Service;
 
   getAvailableServices(): Service[] {
     const builder = new ProgrammableSwitchServiceBuilder(
@@ -17,7 +18,7 @@ export class IkeaOnoffSwitch extends ZigBeeAccessory {
     );
 
     const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
-    [this.switchServiceOn, this.switchServiceOff] = builder
+    [this.switchServiceOn, this.switchServiceOff, this.batteryService] = builder
       .withStatelessSwitch('ON', 'on', 1, [
         ProgrammableSwitchEvent.SINGLE_PRESS,
         ProgrammableSwitchEvent.LONG_PRESS,
@@ -29,7 +30,7 @@ export class IkeaOnoffSwitch extends ZigBeeAccessory {
       .andBattery()
       .build();
 
-    return [this.switchServiceOn, this.switchServiceOff];
+    return [this.switchServiceOn, this.switchServiceOff, this.batteryService];
   }
 
   update(device: Device, state: DeviceState) {
@@ -56,6 +57,11 @@ export class IkeaOnoffSwitch extends ZigBeeAccessory {
           .getCharacteristic(ProgrammableSwitchEvent)
           .setValue(ProgrammableSwitchEvent.SINGLE_PRESS);
         break;
+    }
+    if (this.entity.definition.supports.includes('battery')) {
+      this.batteryService
+        .getCharacteristic(this.platform.Characteristic.BatteryLevel)
+        .setValue(this.state.battery);
     }
   }
 }
