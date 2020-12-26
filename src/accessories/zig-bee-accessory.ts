@@ -45,7 +45,7 @@ export abstract class ZigBeeAccessory {
     this.accessory.context = device;
     this.entity = this.client.resolveEntity(device);
     this.coordinatorEndpoint = this.client.getCoodinator().getEndpoint(1);
-    let Characteristic = platform.Characteristic;
+    const Characteristic = platform.Characteristic;
     this.accessory
       .getService(this.platform.Service.AccessoryInformation)
       .setCharacteristic(Characteristic.Manufacturer, device.manufacturerName)
@@ -130,5 +130,9 @@ export abstract class ZigBeeAccessory {
     Object.assign(this.state, state);
     this.zigBeeDeviceDescriptor.updateLastSeen();
     this.configureDevice(); // Ignore the promise result (try/catch inside the function)
+  }
+
+  supports(property: string) {
+    return this.entity.definition.supports?.includes(property);
   }
 }

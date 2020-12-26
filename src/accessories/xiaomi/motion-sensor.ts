@@ -3,8 +3,9 @@ import { Callback, CharacteristicEventTypes, Service } from 'homebridge';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { DeviceState } from '../../zigbee/types';
 
-export class IkeaMotionSensor extends ZigBeeAccessory {
+export class XiaomiMotionSensor extends ZigBeeAccessory {
   private sensorService: Service;
+  private batteryService: Service;
 
   getAvailableServices(): Service[] {
     const Service = this.platform.api.hap.Service;
@@ -34,7 +35,22 @@ export class IkeaMotionSensor extends ZigBeeAccessory {
         );
       });
 
-    return [this.sensorService];
+    this.batteryService =
+      this.accessory.getService(this.platform.Service.BatteryService) ||
+      this.accessory.addService(this.platform.Service.BatteryService);
+
+    this.batteryService
+      .getCharacteristic(Characteristic.BatteryLevel)
+      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
+        this.log.debug(
+          `XiaomiMotionSensor get BatteryLevel for ${this.accessory.displayName}`,
+          this.state
+        );
+
+        callback(null, this.state.battery || 100);
+      });
+
+    return [this.sensorService, this.batteryService];
   }
 
   update(device: Device, state: DeviceState) {
@@ -50,6 +66,10 @@ export class IkeaMotionSensor extends ZigBeeAccessory {
       state.battery && state.battery <= 10
         ? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW
         : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL
+    );
+    this.batteryService.updateCharacteristic(
+      this.platform.Characteristic.BatteryLevel,
+      state.battery || 100
     );
   }
 }

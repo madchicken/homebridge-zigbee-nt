@@ -33,6 +33,8 @@ export interface DeviceState {
   temperature?: number;
   humidity?: number;
   click?: 'on' | 'off' | 'brightness_down' | 'brightness_up' | 'brightness_stop' | 'play_pause';
+  state_l1?: 'ON' | 'OFF' | 'TOGGLE';
+  state_l2?: 'ON' | 'OFF' | 'TOGGLE';
   battery?: number;
   voltage?: number;
   illuminance?: number;
@@ -53,10 +55,17 @@ export interface DeviceState {
     | 'brightness_up_release'
     | 'brightness_down_click'
     | 'brightness_down_hold'
-    | 'brightness_down_release';
+    | 'brightness_down_release'
+    | 'vibration'
+    | 'tilt'
+    | 'drop';
   occupancy?: boolean;
   tamper?: boolean;
   battery_low?: boolean;
+  strength?: number;
+  linkquality?: number;
+  sensitivity?: 'low' | 'medium' | 'high';
+  water_leak?: boolean;
 }
 
 export interface ColorCapabilities {

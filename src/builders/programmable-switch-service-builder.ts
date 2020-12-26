@@ -99,6 +99,7 @@ export class ProgrammableSwitchServiceBuilder {
         callback(null, this.state.battery);
       });
 
+    this.services.push(service);
     return this;
   }
 

@@ -24,6 +24,10 @@ import { IkeaMotionSensor } from './accessories/ikea/ikea-motion-sensor';
 import { LinkindMotionSensor } from './accessories/linkind/linkind-motion-sensor';
 import { NamronDimmer } from './accessories/namron/namron-dimmer';
 import { NamronSwitch } from './accessories/namron/namron-switch';
+import { XiaomiVibrationSensor } from './accessories/xiaomi/vibration-sensor';
+import { LonsonhoDoubleSwitch } from './accessories/lonsonho/lonsonho-double-switch';
+import { XiaomiLeakSensor } from './accessories/xiaomi/leak-sensor';
+import { XiaomiMotionSensor } from './accessories/xiaomi/motion-sensor';
 
 function registerSupportedDevices(): void {
   registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
@@ -121,6 +125,8 @@ function registerSupportedDevices(): void {
     XiaomiOutlet
   );
 
+  registerAccessoryClass('LUMI', ['DJT11LM', 'DJT12LM'], XiaomiVibrationSensor);
+
   registerAccessoryClass('Xiaomi', ['WSDCGQ01LM', 'WSDCGQ11LM'], TempHumiSensor);
   registerAccessoryClass(
     'Xiaomi',
@@ -144,7 +150,10 @@ function registerSupportedDevices(): void {
     ['lumi.sensor_switch.aq2', 'lumi.sensor_switch'],
     XiaomiWirelessSwitch
   );
+  registerAccessoryClass('LUMI', ['lumi.sensor_motion.aq2'], XiaomiMotionSensor);
+  registerAccessoryClass('LUMI', ['lumi.sensor_wleak.aq1'], XiaomiLeakSensor);
   registerAccessoryClass('TuYa', ['GDKES-02TZXD'], TuyaOnoffDoubleSwitch);
+  registerAccessoryClass('TuYa', ['TS0012'], LonsonhoDoubleSwitch);
   registerAccessoryClass('lk', ['ZB-MotionSensor-D0003'], LinkindMotionSensor);
   registerAccessoryClass('NAMRON AS', ['4512700', '1402755'], NamronDimmer);
   registerAccessoryClass('NAMRON AS', ['4512704'], NamronSwitch);
