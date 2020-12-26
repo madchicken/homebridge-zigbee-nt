@@ -13,7 +13,7 @@ export class CoordinatorService {
         const json = await response.json();
         return {
           result: 'success',
-          coordinator: normalizeDeviceModel(json.device),
+          coordinator: normalizeDeviceModel(json.coordinator),
         };
       } else {
         return handleError(await response.text());
