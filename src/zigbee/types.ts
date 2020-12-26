@@ -33,6 +33,8 @@ export interface DeviceState {
   temperature?: number;
   humidity?: number;
   click?: 'on' | 'off' | 'brightness_down' | 'brightness_up' | 'brightness_stop' | 'play_pause';
+  state_l1?: 'ON' | 'OFF' | 'TOGGLE';
+  state_l2?: 'ON' | 'OFF' | 'TOGGLE';
   battery?: number;
   voltage?: number;
   illuminance?: number;

@@ -25,6 +25,7 @@ import { LinkindMotionSensor } from './accessories/linkind/linkind-motion-sensor
 import { NamronDimmer } from './accessories/namron/namron-dimmer';
 import { NamronSwitch } from './accessories/namron/namron-switch';
 import { XiaomiVibrationSensor } from './accessories/xiaomi/vibration-sensor';
+import { LonsonhoDoubleSwitch } from './accessories/lonsonho/lonsonho-double-switch';
 
 function registerSupportedDevices(): void {
   registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
@@ -148,6 +149,7 @@ function registerSupportedDevices(): void {
     XiaomiWirelessSwitch
   );
   registerAccessoryClass('TuYa', ['GDKES-02TZXD'], TuyaOnoffDoubleSwitch);
+  registerAccessoryClass('TuYa', ['TS0012'], LonsonhoDoubleSwitch);
   registerAccessoryClass('lk', ['ZB-MotionSensor-D0003'], LinkindMotionSensor);
   registerAccessoryClass('NAMRON AS', ['4512700', '1402755'], NamronDimmer);
   registerAccessoryClass('NAMRON AS', ['4512704'], NamronSwitch);
