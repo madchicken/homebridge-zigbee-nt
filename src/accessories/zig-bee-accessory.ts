@@ -131,4 +131,8 @@ export abstract class ZigBeeAccessory {
     this.zigBeeDeviceDescriptor.updateLastSeen();
     this.configureDevice(); // Ignore the promise result (try/catch inside the function)
   }
+
+  supports(property: string) {
+    return this.entity.definition.supports?.includes(property);
+  }
 }

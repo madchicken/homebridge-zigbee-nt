@@ -32,7 +32,7 @@ export class XiaomiVibrationSensor extends ZigBeeAccessory {
       });
 
     const supportedServices = [this.contactService];
-    if (this.entity.definition.supports.includes('battery')) {
+    if (this.supports('battery')) {
       this.contactService
         .getCharacteristic(Characteristic.StatusLowBattery)
         .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
@@ -87,7 +87,7 @@ export class XiaomiVibrationSensor extends ZigBeeAccessory {
           : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED
       );
 
-    if (this.entity.definition.supports.includes('battery')) {
+    if (this.supports('battery')) {
       this.batteryService
         .getCharacteristic(Characteristic.BatteryLevel)
         .setValue(this.state.battery);
