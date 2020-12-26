@@ -1,11 +1,12 @@
 import { Button, Dialog, Pane, Paragraph, SideSheet, Spinner } from 'evergreen-ui';
 import React, { ReactElement, useState } from 'react';
 import { DeviceModel, DeviceResponse, DevicesService } from '../../actions/devices';
-import { useQuery } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import { Error } from '../error';
 import { useHistory } from 'react-router-dom';
 import * as H from 'history';
 import { DeviceDetailsBody } from './device-details-body';
+import { DEVICES_QUERY_KEY } from './device-table';
 
 interface State {
   isDeleteConfirmationShown: boolean;
@@ -19,6 +20,7 @@ function renderConfirmDialog(
   setState,
   history: H.History
 ) {
+  const queryClient = useQueryClient();
   return (
     <Dialog
       isShown={state.isDeleteConfirmationShown}
@@ -28,6 +30,7 @@ function renderConfirmDialog(
         const response = await DevicesService.deleteDevice(selectedDevice.ieeeAddr);
         if (response.result === 'success') {
           setState({ ...state, isDialogShown: false, isDeletingDevice: false });
+          await queryClient.invalidateQueries(DEVICES_QUERY_KEY);
           history.push('/devices');
         }
       }}

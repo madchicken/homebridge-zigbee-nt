@@ -4,7 +4,7 @@ import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { ZigbeeNTHomebridgePlatform } from '../../platform';
 
 export function mapCoordinatorRoutes(express: Express, platform: ZigbeeNTHomebridgePlatform) {
-  express.get('/coordinator', (_req, res) => {
+  express.get('/api/coordinator', (_req, res) => {
     const coordinator: Device = platform.zigBeeClient.getCoodinator();
     res.status(constants.HTTP_STATUS_OK);
     res.contentType('application/json');

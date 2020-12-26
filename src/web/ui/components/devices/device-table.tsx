@@ -31,9 +31,10 @@ function renderSpinner() {
   );
 }
 
+export const DEVICES_QUERY_KEY = 'devices';
 export default function DeviceTable(): ReactElement {
   const { isLoading, isError, data, error } = useQuery<DeviceResponse>(
-    'devices',
+    DEVICES_QUERY_KEY,
     DevicesService.fetchDevices
   );
   const history = useHistory();
