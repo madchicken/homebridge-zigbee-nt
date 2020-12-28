@@ -1441,11 +1441,6 @@
   dependencies:
     "@types/node" "*"
 
-"@types/datejs@^0.0.31":
-  version "0.0.31"
-  resolved "https://registry.yarnpkg.com/@types/datejs/-/datejs-0.0.31.tgz#921ff76e338a39c5fc2f8a7abdbd3abe9ddd86a0"
-  integrity sha512-Y8z5tvhPcjWBbGByO/PoDnzi4MiVO5Aimh45b7N5iEO7qN8grAfUQYfWIQsr5ugb1IGlPZX4FcMzH6Lb0WBpmw==
-
 "@types/eslint-visitor-keys@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@types/eslint-visitor-keys/-/eslint-visitor-keys-1.0.0.tgz#1ee30d79544ca84d68d4b3cdb0af4f205663dd2d"
@@ -2087,10 +2082,10 @@ aws4@^1.8.0:
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.10.0.tgz#a17b3a8ea811060e74d47d306122400ad4497ae2"
   integrity sha512-3YDiu347mtVtjpyV3u5kVqQLP242c06zwDOgpeRnybmXlYYsLbtTrUBUm8i8srONt+FWobl5aibnU1030PeeuA==
 
-axios@^0.21.0:
-  version "0.21.0"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.0.tgz#26df088803a2350dff2c27f96fef99fe49442aca"
-  integrity sha512-fmkJBknJKoZwem3/IKSSLpkdNXZeBu5Q7GA/aRsr2btgrptmSCxi2oFjZHqGdK9DoTil9PIHlPIZw2EcRJXRvw==
+axios@^0.21.1:
+  version "0.21.1"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.1.tgz#22563481962f4d6bde9a76d516ef0e5d3c09b2b8"
+  integrity sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==
   dependencies:
     follow-redirects "^1.10.0"
 
@@ -9702,15 +9697,16 @@ yn@3.1.1:
   resolved "https://registry.yarnpkg.com/yn/-/yn-3.1.1.tgz#1e87401a09d767c1d5eab26a6e4c185182d2eb50"
   integrity sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==
 
-zigbee-herdsman-converters@^13.0.24:
-  version "13.0.24"
-  resolved "https://registry.yarnpkg.com/zigbee-herdsman-converters/-/zigbee-herdsman-converters-13.0.24.tgz#548d9aa6a2cc651f6cbea3a6a55e47ae9614787c"
-  integrity sha512-/5LOf69FOk7TCNja8rJjH6R/raS8ekY4CLDTk9bjIyFt2r3xjWt6jMn6GaODteDGm+rZY9WogkOT1oZD/VnHBw==
+zigbee-herdsman-converters@^13.0.35:
+  version "13.0.35"
+  resolved "https://registry.yarnpkg.com/zigbee-herdsman-converters/-/zigbee-herdsman-converters-13.0.35.tgz#b3e196d6455af24065f4285adeb6cef72dd609dc"
+  integrity sha512-NKKwFmHMZPBDA7P1FS7YB2bjf4TdKftM49rSM5YkCZ1ceobfMwUIJX4Ze18A89/sOlx1+0UnCfRxvpuAVWq62A==
   dependencies:
-    axios "^0.21.0"
+    axios "^0.21.1"
     buffer-crc32 "^0.2.13"
     https-proxy-agent "^5.0.0"
     tar-stream "^2.1.4"
+    zigbee-herdsman "^0.13.41"
 
 zigbee-herdsman@^0.13.41:
   version "0.13.41"

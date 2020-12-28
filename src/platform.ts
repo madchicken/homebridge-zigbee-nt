@@ -27,7 +27,6 @@ import {
 } from 'zigbee-herdsman/dist/controller/events';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { HttpServer } from './web/api/http-server';
-import { RouterPolling } from './utils/router-polling';
 
 const PERMIT_JOIN_ACCESSORY_NAME = 'zigbee:permit-join';
 const TOUCH_LINK_ACCESSORY_NAME = 'zigbee:touchlink';
@@ -55,7 +54,6 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   public readonly PlatformAccessory: typeof PlatformAccessory;
   private client: ZigBeeClient;
   private httpServer: HttpServer;
-  private routerPolling: RouterPolling;
 
   constructor(
     public readonly log: Logger,
@@ -106,15 +104,9 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   async stopZigbee() {
     try {
       this.log.info('Stopping zigbee service');
-      await this.zigBeeClient.stop();
-      if (this.routerPolling) {
-        this.log.info('Stopping router polling');
-        this.routerPolling.stop();
-      }
-      if (this.httpServer) {
-        this.log.info('Stopping http server');
-        await this.httpServer.stop();
-      }
+      await this.zigBeeClient?.stop();
+      this.log.info('Stopping http server');
+      await this.httpServer?.stop();
       this.log.info('Successfully stopped ZigBee service');
     } catch (e) {
       this.log.error('Error while stopping ZigBee service', e);
@@ -198,15 +190,6 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     this.initTouchlinkAccessory();
     // Init devices
     await Promise.all(this.zigBeeClient.getAllPairedDevices().map(data => this.initDevice(data)));
-
-    if (this.config.disableRoutingPolling !== true) {
-      this.routerPolling = new RouterPolling(
-        this.zigBeeClient,
-        this.log,
-        this.config.routerPollingInterval
-      );
-      this.routerPolling.start();
-    }
 
     if (this.config.disableHttpServer !== true) {
       this.httpServer = new HttpServer(this.config.httpPort);

@@ -17,6 +17,9 @@ export function isDeviceRouter(device) {
   }
 }
 
+/**
+ * @deprecated
+ */
 export class RouterPolling {
   private readonly log: Logger;
   private pollingTimeout: Timeout;
