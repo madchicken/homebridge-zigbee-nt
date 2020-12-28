@@ -53,7 +53,7 @@ export default function DeviceTable(): ReactElement {
         </Pane>
         <Table>
           <Table.Head>
-            <Table.SearchHeaderCell />
+            <Table.TextHeaderCell>Model ID</Table.TextHeaderCell>
             <Table.TextHeaderCell>Manufacturer</Table.TextHeaderCell>
             <Table.TextHeaderCell>IEEE Address</Table.TextHeaderCell>
             <Table.TextHeaderCell>Power source</Table.TextHeaderCell>

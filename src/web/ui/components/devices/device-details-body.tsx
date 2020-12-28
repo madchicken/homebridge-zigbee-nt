@@ -87,7 +87,7 @@ export function DeviceDetailsBody(props: Props) {
           {device.manufacturerName} {device.modelID}
         </Heading>
         <Paragraph size={400} color="muted">
-          {device.type}
+          Type: {device.type}
         </Paragraph>
       </Pane>
       <Pane display="flex" padding={8} flexDirection="column">
