@@ -79,6 +79,13 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     // Create client
     this.client = new ZigBeeClient(this.log);
 
+    await this.client.start({
+      channel: this.config.channel,
+      secondaryChannel: this.config.secondaryChannel,
+      port: this.config.port,
+      panId: this.config.panId || 0xffff,
+      database: this.config.database || path.join(this.api.user.storagePath(), './zigBee.db'),
+    });
     this.zigBeeClient.on('deviceAnnounce', (message: DeviceAnnouncePayload) =>
       this.handleDeviceAnnounce(message)
     );
@@ -93,13 +100,6 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     );
     this.zigBeeClient.on('message', (message: MessagePayload) => this.handleZigBeeMessage(message));
 
-    await this.client.start({
-      channel: this.config.channel,
-      secondaryChannel: this.config.secondaryChannel,
-      port: this.config.port,
-      panId: this.config.panId || 0xffff,
-      database: this.config.database || path.join(this.api.user.storagePath(), './zigBee.db'),
-    });
     await this.handleZigBeeReady();
   }
 
