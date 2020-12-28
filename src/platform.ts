@@ -10,11 +10,8 @@ import {
 } from 'homebridge';
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
-import { ZigBee } from './zigbee/zigbee';
 import * as path from 'path';
-import { findSerialPort } from './utils/find-serial-port';
 import { PermitJoinAccessory } from './accessories/permit-join-accessory';
-import retry from 'async-retry';
 import { sleep } from './utils/sleep';
 import { parseModelName } from './utils/parse-model-name';
 import { ZigBeeAccessory, ZigBeeAccessoryCtor } from './accessories/zig-bee-accessory';
@@ -56,7 +53,6 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   private readonly homekitAccessories: Map<string, ZigBeeAccessory>;
   private permitJoinAccessory: PermitJoinAccessory;
   public readonly PlatformAccessory: typeof PlatformAccessory;
-  private readonly zigBee: ZigBee;
   private client: ZigBeeClient;
   private httpServer: HttpServer;
   private routerPolling: RouterPolling;
@@ -66,7 +62,6 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     public readonly config: ZigBeeNTPlatformConfig,
     public readonly api: API
   ) {
-    this.zigBee = new ZigBee(log);
     this.accessories = new Map<string, PlatformAccessory>();
     this.homekitAccessories = new Map<string, ZigBeeAccessory>();
     this.permitJoinAccessory = null;
@@ -81,70 +76,37 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   }
 
   async startZigBee() {
-    const channels = [this.config.channel];
-    const secondaryChannel = parseInt(this.config.secondaryChannel);
-    if (!isNaN(secondaryChannel) && !channels.includes(secondaryChannel)) {
-      channels.push(secondaryChannel);
-    }
+    // Create client
+    this.client = new ZigBeeClient(this.log);
 
-    const port = this.config.port || (await findSerialPort());
-    this.log.info(`Configured port for ZigBee dongle is ${port}`);
-    const initConfig = {
-      port,
-      db: this.config.database || path.join(this.api.user.storagePath(), './zigBee.db'),
-      panId: this.config.panId || 0xffff,
-      channels,
-    };
-
-    this.log.info(
-      `Initializing ZigBee controller on port ${
-        initConfig.port
-      } and channels ${initConfig.channels.join(', ')}`
-    );
-    this.zigBee.init(initConfig);
-
-    this.zigBee.on('deviceAnnounce', (message: DeviceAnnouncePayload) =>
+    this.zigBeeClient.on('deviceAnnounce', (message: DeviceAnnouncePayload) =>
       this.handleDeviceAnnounce(message)
     );
-    this.zigBee.on('deviceInterview', (message: DeviceInterviewPayload) =>
+    this.zigBeeClient.on('deviceInterview', (message: DeviceInterviewPayload) =>
       this.handleZigBeeDevInterview(message)
     );
-    this.zigBee.on('deviceJoined', (message: DeviceJoinedPayload) =>
+    this.zigBeeClient.on('deviceJoined', (message: DeviceJoinedPayload) =>
       this.handleZigBeeDevJoined(message)
     );
-    this.zigBee.on('deviceLeave', (message: DeviceLeavePayload) =>
+    this.zigBeeClient.on('deviceLeave', (message: DeviceLeavePayload) =>
       this.handleZigBeeDevLeaving(message)
     );
-    this.zigBee.on('message', (message: MessagePayload) => this.handleZigBeeMessage(message));
+    this.zigBeeClient.on('message', (message: MessagePayload) => this.handleZigBeeMessage(message));
 
-    const retrier = async () => {
-      try {
-        await this.zigBee.start();
-        await this.handleZigBeeReady();
-        this.log.info('Successfully started ZigBee service');
-      } catch (error) {
-        this.log.error(error);
-        await this.zigBee.stop();
-        throw error;
-      }
-    };
-
-    try {
-      await retry(retrier, {
-        retries: 20,
-        minTimeout: 5000,
-        maxTimeout: 5000,
-        onRetry: () => this.log.info('Retrying connect to hardware'),
-      });
-    } catch (error) {
-      this.log.info('error:', error);
-    }
+    await this.client.start({
+      channel: this.config.channel,
+      secondaryChannel: this.config.secondaryChannel,
+      port: this.config.port,
+      panId: this.config.panId || 0xffff,
+      database: this.config.database || path.join(this.api.user.storagePath(), './zigBee.db'),
+    });
+    await this.handleZigBeeReady();
   }
 
   async stopZigbee() {
     try {
       this.log.info('Stopping zigbee service');
-      await this.zigBee.stop();
+      await this.zigBeeClient.stop();
       if (this.routerPolling) {
         this.log.info('Stopping router polling');
         this.routerPolling.stop();
@@ -224,23 +186,22 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     }
   }
 
+  // TODO: I need to move everything into the client
   async handleZigBeeReady() {
-    const info: Device = this.zigBee.coordinator();
+    const info: Device = this.zigBeeClient.getCoodinator();
     this.log.info(`ZigBee platform initialized @ ${info.ieeeAddr}`);
     // Set led indicator
-    await this.zigBee.toggleLed(!this.config.disableLed);
+    await this.zigBeeClient.toggleLed(!this.config.disableLed);
     // Init permit join accessory
     this.initPermitJoinAccessory();
     // Init switch to reset devices through Touchlink feature
     this.initTouchlinkAccessory();
-    // Create client
-    this.client = new ZigBeeClient(this.zigBee, this.log);
     // Init devices
-    await Promise.all(this.zigBee.list().map(data => this.initDevice(data)));
+    await Promise.all(this.zigBeeClient.getAllPairedDevices().map(data => this.initDevice(data)));
 
     if (this.config.disableRoutingPolling !== true) {
       this.routerPolling = new RouterPolling(
-        this.zigBee,
+        this.zigBeeClient,
         this.log,
         this.config.routerPollingInterval
       );
@@ -295,7 +256,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   private initPermitJoinAccessory() {
     try {
       const accessory = this.createHapAccessory(PERMIT_JOIN_ACCESSORY_NAME);
-      this.permitJoinAccessory = new PermitJoinAccessory(this, accessory, this.zigBee);
+      this.permitJoinAccessory = new PermitJoinAccessory(this, accessory, this.zigBeeClient);
       this.log.info('PermitJoin accessory successfully registered');
     } catch (e) {
       this.log.error('PermitJoin accessory not registered: ', e);
@@ -305,7 +266,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   private initTouchlinkAccessory() {
     try {
       const accessory = this.createHapAccessory(TOUCH_LINK_ACCESSORY_NAME);
-      new TouchlinkAccessory(this, accessory, this.zigBee);
+      new TouchlinkAccessory(this, accessory, this.zigBeeClient);
       this.log.info('Touchlink accessory successfully registered');
     } catch (e) {
       this.log.error('Touchlink accessory not registered: ', e);
@@ -336,23 +297,15 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   }
 
   public async unpairDevice(ieeeAddr: string) {
-    try {
-      this.log.info('Unpairing device:', ieeeAddr);
-      await this.zigBee.remove(ieeeAddr);
-    } catch (error) {
-      this.log.error(error);
-      this.log.info('Unable to unpairing properly, trying to unregister device:', ieeeAddr);
-      try {
-        await this.zigBee.unregister(ieeeAddr);
-      } catch (e) {
-        this.log.error(e);
-      }
-    } finally {
+    const result = await this.zigBeeClient.unpairDevice(ieeeAddr);
+    if (result) {
       this.log.info('Device has been unpaired:', ieeeAddr);
       this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
         this.getAccessoryByIeeeAddr(ieeeAddr),
       ]);
       this.removeAccessory(ieeeAddr);
+    } else {
+      this.log.error('Device has NOT been unpaired:', ieeeAddr);
     }
   }
 

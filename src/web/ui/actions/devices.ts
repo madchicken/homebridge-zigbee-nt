@@ -31,6 +31,8 @@ export type DeviceModel = {
   powerSource: string;
   modelID: string;
   interviewCompleted: boolean;
+  lastSeen: number;
+  softwareBuildID: string;
   endpoints?: Endpoint[];
 };
 
@@ -50,6 +52,8 @@ export function normalizeDeviceModel(d): DeviceModel {
     powerSource: d._powerSource,
     modelID: d._modelID,
     interviewCompleted: d._interviewCompleted,
+    softwareBuildID: d._softwareBuildID,
+    lastSeen: d._lastSeen,
     endpoints: d._endpoints,
   };
 }

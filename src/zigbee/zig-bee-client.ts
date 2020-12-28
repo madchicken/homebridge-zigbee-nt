@@ -5,16 +5,74 @@ import { MessagePayload } from 'zigbee-herdsman/dist/controller/events';
 import { DeferredMessage, PromiseBasedQueue } from '../utils/promise-queue';
 import Device from 'zigbee-herdsman/dist/controller/model/device';
 import { ColorCapabilities, DeviceState, Meta, Options, ToConverter, ZigBeeEntity } from './types';
+import { findSerialPort } from '../utils/find-serial-port';
+import retry from 'async-retry';
+
+export interface ZigBeeClientConfig {
+  channel: number;
+  port?: string;
+  database: string;
+  panId: number;
+  secondaryChannel?: string;
+}
 
 export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   private readonly zigBee: ZigBee;
   private readonly log: Logger;
 
-  constructor(zigBee: ZigBee, log: Logger) {
+  constructor(log: Logger) {
     super();
-    this.zigBee = zigBee;
+    this.zigBee = new ZigBee(this.log);
     this.log = log;
     this.setTimeout(5000);
+  }
+
+  async start(config: ZigBeeClientConfig): Promise<boolean> {
+    const channels = [config.channel];
+    const secondaryChannel = parseInt(config.secondaryChannel);
+    if (!isNaN(secondaryChannel) && !channels.includes(secondaryChannel)) {
+      channels.push(secondaryChannel);
+    }
+
+    const port = config.port || (await findSerialPort());
+    this.log.info(`Configured port for ZigBee dongle is ${port}`);
+    const initConfig = {
+      port,
+      db: config.database,
+      panId: config.panId,
+      channels,
+    };
+
+    this.log.info(
+      `Initializing ZigBee controller on port ${
+        initConfig.port
+      } and channels ${initConfig.channels.join(', ')}`
+    );
+    this.zigBee.init(initConfig);
+
+    const retrier = async () => {
+      try {
+        await this.zigBee.start();
+        this.log.info('Successfully started ZigBee service');
+        return true;
+      } catch (error) {
+        this.log.error(error);
+        await this.zigBee.stop();
+        throw error;
+      }
+    };
+
+    try {
+      return await retry(retrier, {
+        retries: 20,
+        minTimeout: 5000,
+        maxTimeout: 5000,
+        onRetry: () => this.log.info('Retrying connect to hardware'),
+      });
+    } catch (error) {
+      this.log.info('error:', error);
+      return false;
+    }
   }
 
   processResponse(
@@ -305,5 +363,51 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
 
   getDevice(ieeeAddr: string) {
     return this.zigBee.device(ieeeAddr);
+  }
+
+  permitJoin(value: boolean) {
+    return this.zigBee.permitJoin(value);
+  }
+
+  getPermitJoin(): Promise<boolean> {
+    return this.zigBee.getPermitJoin();
+  }
+
+  stop(): Promise<void> {
+    return this.zigBee.stop();
+  }
+
+  touchlinkFactoryReset(): Promise<boolean> {
+    return this.zigBee.touchlinkFactoryReset();
+  }
+
+  async unpairDevice(ieeeAddr: string): Promise<boolean> {
+    try {
+      this.log.info('Unpairing device:', ieeeAddr);
+      await this.zigBee.remove(ieeeAddr);
+      return true; // unpaired!
+    } catch (error) {
+      this.log.error(error);
+      this.log.info('Unable to unpairing properly, trying to unregister device:', ieeeAddr);
+      try {
+        await this.zigBee.unregister(ieeeAddr);
+        return true; // unregistered!
+      } catch (e) {
+        this.log.error(e);
+      }
+    }
+    return false; // something went wrong
+  }
+
+  on(message: string, listener: (...args: any[]) => void) {
+    this.zigBee.on(message, listener);
+  }
+
+  toggleLed(state: boolean): Promise<void> {
+    return this.zigBee.toggleLed(state);
+  }
+
+  async ping(ieeeAddr: string) {
+    return this.zigBee.ping(ieeeAddr);
   }
 }

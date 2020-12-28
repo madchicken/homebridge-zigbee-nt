@@ -1,17 +1,20 @@
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { CharacteristicEventTypes, PlatformAccessory, Service } from 'homebridge';
-
-import { ZigBee } from '../zigbee/zigbee';
+import { ZigBeeClient } from '../zigbee/zig-bee-client';
 
 export class PermitJoinAccessory {
   private inProgress: boolean;
   private readonly platform: ZigbeeNTHomebridgePlatform;
   private readonly accessory: PlatformAccessory;
   private switchService: Service;
-  private zigBee: ZigBee;
+  private zigBeeClient: ZigBeeClient;
 
-  constructor(platform: ZigbeeNTHomebridgePlatform, accessory: PlatformAccessory, zigBee: ZigBee) {
-    this.zigBee = zigBee;
+  constructor(
+    platform: ZigbeeNTHomebridgePlatform,
+    accessory: PlatformAccessory,
+    zigBeeClient: ZigBeeClient
+  ) {
+    this.zigBeeClient = zigBeeClient;
     // Current progress status
     this.inProgress = false;
     // Save platform
@@ -48,7 +51,7 @@ export class PermitJoinAccessory {
   handleAccessoryIdentify(): void {}
 
   async setPermitJoin(value: boolean) {
-    await this.zigBee.permitJoin(value);
+    await this.zigBeeClient.permitJoin(value);
     this.switchService.getCharacteristic(this.platform.Characteristic.On).updateValue(value);
     this.inProgress = value;
   }

@@ -1441,6 +1441,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/datejs@^0.0.31":
+  version "0.0.31"
+  resolved "https://registry.yarnpkg.com/@types/datejs/-/datejs-0.0.31.tgz#921ff76e338a39c5fc2f8a7abdbd3abe9ddd86a0"
+  integrity sha512-Y8z5tvhPcjWBbGByO/PoDnzi4MiVO5Aimh45b7N5iEO7qN8grAfUQYfWIQsr5ugb1IGlPZX4FcMzH6Lb0WBpmw==
+
 "@types/eslint-visitor-keys@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@types/eslint-visitor-keys/-/eslint-visitor-keys-1.0.0.tgz#1ee30d79544ca84d68d4b3cdb0af4f205663dd2d"
@@ -3216,6 +3221,11 @@ date-fns@^2.0.1:
   version "2.16.1"
   resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.16.1.tgz#05775792c3f3331da812af253e1a935851d3834b"
   integrity sha512-sAJVKx/FqrLYHAQeN7VpJrPhagZc9R4ImZIWYRFZaaohR3KzmuK88touwsSwSVT8Qcbd4zoDsnGfX4GFB4imyQ==
+
+dayjs@^1.9.8:
+  version "1.9.8"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.9.8.tgz#9a65fbdca037e3d5835f98672da6e796f757cd58"
+  integrity sha512-F42qBtJRa30FKF7XDnOQyNUTsaxDkuaZRj/i7BejSHC34LlLfPoIU4aeopvWfM+m1dJ6/DHKAWLg2ur+pLgq1w==
 
 deasync@^0.1.14:
   version "0.1.21"

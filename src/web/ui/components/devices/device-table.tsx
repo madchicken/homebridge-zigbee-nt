@@ -4,6 +4,7 @@ import { useQuery } from 'react-query';
 import { DeviceModel, DeviceResponse, DevicesService } from '../../actions/devices';
 import { Error } from '../error';
 import { useHistory } from 'react-router-dom';
+import dayjs from 'dayjs';
 
 function renderTable(devices: DeviceModel[], history) {
   return (
@@ -17,6 +18,8 @@ function renderTable(devices: DeviceModel[], history) {
           <Table.TextCell>{device.modelID}</Table.TextCell>
           <Table.TextCell>{device.manufacturerName}</Table.TextCell>
           <Table.TextCell>{device.ieeeAddr}</Table.TextCell>
+          <Table.TextCell>{device.powerSource}</Table.TextCell>
+          <Table.TextCell>{dayjs(device.lastSeen).format('MMMM D, YYYY h:mm:ss A')}</Table.TextCell>
         </Table.Row>
       ))}
     </React.Fragment>
@@ -53,6 +56,8 @@ export default function DeviceTable(): ReactElement {
             <Table.SearchHeaderCell />
             <Table.TextHeaderCell>Manufacturer</Table.TextHeaderCell>
             <Table.TextHeaderCell>IEEE Address</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Power source</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Last seen</Table.TextHeaderCell>
           </Table.Head>
           <Table.Body height={240}>
             {isLoading ? renderSpinner() : renderTable(data?.devices || [], history)}
