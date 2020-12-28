@@ -5,6 +5,7 @@ import { DeviceState } from '../../zigbee/types';
 
 export class IkeaMotionSensor extends ZigBeeAccessory {
   private sensorService: Service;
+  private batteryService: Service;
 
   getAvailableServices(): Service[] {
     const Service = this.platform.api.hap.Service;
@@ -34,7 +35,11 @@ export class IkeaMotionSensor extends ZigBeeAccessory {
         );
       });
 
-    return [this.sensorService];
+    this.batteryService =
+      this.accessory.getService(Service.BatteryService) ||
+      this.accessory.addService(Service.BatteryService);
+
+    return [this.sensorService, this.batteryService];
   }
 
   update(device: Device, state: DeviceState) {
@@ -43,13 +48,17 @@ export class IkeaMotionSensor extends ZigBeeAccessory {
     const Characteristic = this.platform.api.hap.Characteristic;
     this.sensorService.updateCharacteristic(
       this.platform.Characteristic.MotionDetected,
-      state.occupancy
+      state.occupancy === true
     );
     this.sensorService.updateCharacteristic(
       this.platform.Characteristic.StatusLowBattery,
       state.battery && state.battery <= 10
         ? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW
         : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL
+    );
+    this.batteryService.updateCharacteristic(
+      this.platform.Characteristic.BatteryLevel,
+      state.battery
     );
   }
 }
