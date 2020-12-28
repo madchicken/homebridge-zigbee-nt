@@ -5,7 +5,7 @@ import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { ProgrammableSwitchServiceBuilder } from '../../builders/programmable-switch-service-builder';
 
 export class XiaomiWirelessSwitch extends ZigBeeAccessory {
-  protected switchServiceToggle: Service;
+  protected switchService: Service;
   protected batteryService: Service;
 
   getAvailableServices(): Service[] {
@@ -17,24 +17,41 @@ export class XiaomiWirelessSwitch extends ZigBeeAccessory {
     );
 
     const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
-
-    [this.switchServiceToggle, this.batteryService] = builder
-      .withStatelessSwitch('ON/OFF', 'toggle', 1, [ProgrammableSwitchEvent.SINGLE_PRESS])
+    [this.switchService, this.batteryService] = builder
+      .withStatelessSwitch('ON/OFF', 'toggle', 1, [
+        ProgrammableSwitchEvent.SINGLE_PRESS,
+        ProgrammableSwitchEvent.DOUBLE_PRESS,
+        ProgrammableSwitchEvent.LONG_PRESS,
+      ])
       .andBattery()
       .build();
 
-    return [this.switchServiceToggle, this.batteryService];
+    return [this.switchService, this.batteryService];
   }
 
   update(device: Device, state: DeviceState) {
     const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
     super.update(device, state);
-    switch (state.action) {
-      case 'toggle':
-        this.switchServiceToggle
+    switch (state.click) {
+      case 'single':
+        this.switchService
           .getCharacteristic(ProgrammableSwitchEvent)
           .setValue(ProgrammableSwitchEvent.SINGLE_PRESS);
         break;
+      case 'hold':
+      case 'release':
+        this.switchService
+          .getCharacteristic(ProgrammableSwitchEvent)
+          .setValue(ProgrammableSwitchEvent.LONG_PRESS);
+        break;
+      case 'double':
+        this.switchService
+          .getCharacteristic(ProgrammableSwitchEvent)
+          .setValue(ProgrammableSwitchEvent.DOUBLE_PRESS);
+        break;
     }
+    this.batteryService
+      .getCharacteristic(this.platform.Characteristic.BatteryLevel)
+      .setValue(this.state.battery || 100);
   }
 }

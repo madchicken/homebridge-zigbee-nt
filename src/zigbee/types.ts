@@ -32,7 +32,17 @@ export interface DeviceState {
   alert?: 'select' | 'lselect' | 'none';
   temperature?: number;
   humidity?: number;
-  click?: 'on' | 'off' | 'brightness_down' | 'brightness_up' | 'brightness_stop' | 'play_pause';
+  click?:
+    | 'on'
+    | 'off'
+    | 'brightness_down'
+    | 'brightness_up'
+    | 'brightness_stop'
+    | 'play_pause'
+    | 'single'
+    | 'double'
+    | 'hold'
+    | 'release';
   state_l1?: 'ON' | 'OFF' | 'TOGGLE';
   state_l2?: 'ON' | 'OFF' | 'TOGGLE';
   battery?: number;
