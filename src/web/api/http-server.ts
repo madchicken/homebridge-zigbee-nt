@@ -43,7 +43,7 @@ export class HttpServer {
         if (error) {
           reject(error);
         } else {
-          resolve();
+          resolve(null);
         }
       });
     });

@@ -55,7 +55,7 @@ export class HSBType {
    * @param b blue 0-255
    */
   public static fromRGB(r: number, g: number, b: number): HSBType {
-    let tmpHue: number, tmpSaturation: number, tmpBrightness: number;
+    let tmpHue: number;
     let max = r > g ? r : g;
     if (b > max) {
       max = b;
@@ -64,8 +64,8 @@ export class HSBType {
     if (b < min) {
       min = b;
     }
-    tmpBrightness = max / 2.55;
-    tmpSaturation = (max != 0 ? (max - min) / max : 0) * 100;
+    const tmpBrightness = max / 2.55;
+    const tmpSaturation = (max != 0 ? (max - min) / max : 0) * 100;
     if (tmpSaturation == 0) {
       tmpHue = 0;
     } else {
