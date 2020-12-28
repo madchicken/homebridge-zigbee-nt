@@ -1,7 +1,6 @@
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { Logger, PlatformAccessory, Service } from 'homebridge';
-
-import { ZigBee } from '../zigbee/zigbee';
+import { ZigBeeClient } from '../zigbee/zig-bee-client';
 
 export class TouchlinkAccessory {
   private inProgress: boolean;
@@ -9,9 +8,13 @@ export class TouchlinkAccessory {
   private readonly platform: ZigbeeNTHomebridgePlatform;
   private readonly accessory: PlatformAccessory;
   private switchService: Service;
-  private zigBee: ZigBee;
+  private zigBee: ZigBeeClient;
 
-  constructor(platform: ZigbeeNTHomebridgePlatform, accessory: PlatformAccessory, zigBee: ZigBee) {
+  constructor(
+    platform: ZigbeeNTHomebridgePlatform,
+    accessory: PlatformAccessory,
+    zigBee: ZigBeeClient
+  ) {
     this.zigBee = zigBee;
     // Current progress status
     this.inProgress = false;
@@ -53,15 +56,21 @@ export class TouchlinkAccessory {
     this.log.info('Starting touchlink factory reset...');
     if (!this.inProgress) {
       this.switchService.getCharacteristic(this.platform.Characteristic.On).updateValue(true);
-      this.zigBee.touchlinkFactoryReset().then(result => {
-        this.inProgress = false;
-        this.switchService.getCharacteristic(this.platform.Characteristic.On).updateValue(false);
-        if (result) {
-          this.log.info('Successfully factory reset device through Touchlink');
-        } else {
-          this.log.warn('Failed to factory reset device through Touchlink');
-        }
-      });
+      this.zigBee
+        .touchlinkFactoryReset()
+        .then(result => {
+          this.inProgress = false;
+          this.switchService.getCharacteristic(this.platform.Characteristic.On).updateValue(false);
+          if (result) {
+            this.log.info('Successfully factory reset device through Touchlink');
+          } else {
+            this.log.warn('Failed to factory reset device through Touchlink');
+          }
+        })
+        .catch(error => {
+          this.log.error('Failed to factory reset device through Touchlink');
+          this.log.error(error.message, error);
+        });
     }
     callback();
   }

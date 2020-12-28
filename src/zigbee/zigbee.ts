@@ -140,8 +140,8 @@ export class ZigBee {
     await this.herdsman.reset(type);
   }
 
-  async permitJoin(permit) {
-    permit
+  async permitJoin(permit: boolean): Promise<void> {
+    permit === true
       ? this.log.info('Zigbee: allowing new devices to join.')
       : this.log.info('Zigbee: disabling joining new devices.');
 

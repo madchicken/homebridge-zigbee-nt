@@ -61,7 +61,7 @@ export class IkeaOnoffSwitch extends ZigBeeAccessory {
     if (this.supports('battery')) {
       this.batteryService
         .getCharacteristic(this.platform.Characteristic.BatteryLevel)
-        .setValue(this.state.battery);
+        .setValue(this.state.battery || 100);
     }
   }
 }

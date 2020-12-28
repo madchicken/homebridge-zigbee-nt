@@ -16,7 +16,7 @@
     "resolveJsonModule": true,
     "rootDir": "./src"
   },
-  "lib": ["esnext", "dom"],
+  "lib": ["esnext", "dom", "nodejs"],
   "include": ["src/"],
   "exclude": ["**/__tests__/*"]
 }

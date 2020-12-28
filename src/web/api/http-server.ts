@@ -5,6 +5,7 @@ import { mapDevicesRoutes } from './devices';
 import { mapCoordinatorRoutes } from './coordinator';
 import path from 'path';
 import { ZigbeeNTHomebridgePlatform } from '../../platform';
+import { mapZigBeeRoutes } from './zigbee';
 
 const DEFAULT_WEB_PORT = 9000;
 const DEFAULT_WEB_HOST = '0.0.0.0';
@@ -30,6 +31,7 @@ export class HttpServer {
     this.server = http.createServer(this.express);
     mapDevicesRoutes(this.express, zigBee);
     mapCoordinatorRoutes(this.express, zigBee);
+    mapZigBeeRoutes(this.express, zigBee);
     this.server.listen(this.port, this.host);
     this.server.on('error', error => this.handleError(error));
     this.server.on('listening', () => this.handleListening());

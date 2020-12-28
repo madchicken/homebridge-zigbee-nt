@@ -86,7 +86,7 @@ export function DeviceDetails(props: Props): ReactElement {
             flexDirection: 'column',
           }}
         >
-          <Pane zIndex={1} flexShrink={0} elevation={0} backgroundColor="white">
+          <Pane zIndex={1} flexShrink={0} elevation={0} backgroundColor="white" minHeight={400}>
             {queryResult.isLoading ? (
               renderSpinner()
             ) : (
@@ -102,6 +102,7 @@ export function DeviceDetails(props: Props): ReactElement {
               <Button
                 marginRight={16}
                 onClick={() => setState({ ...state, isDeleteConfirmationShown: true })}
+                disabled={queryResult.isLoading || queryResult.isError}
               >
                 Delete
               </Button>

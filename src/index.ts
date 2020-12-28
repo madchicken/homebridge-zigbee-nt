@@ -15,7 +15,6 @@ import { InnrWhiteTemperature } from './accessories/innr/innr-white-temperature'
 import { TempHumiSensor } from './accessories/xiaomi/temp-humi-sensor';
 import { GledoptoDim } from './accessories/gledopto/gledopto-dim';
 import { TuyaOnoffDoubleSwitch } from './accessories/tuya/tuya-onoff-double-switch';
-import { XiaomiWirelessSwitch } from './accessories/xiaomi/xiaomi-wireless-switch';
 import { XiaomiContactSensor } from './accessories/xiaomi/contact-sensor';
 import { XiaomiLightIntensitySensor } from './accessories/xiaomi/light-intensity-sensor';
 import { XiaomiOutlet } from './accessories/xiaomi/xiaomi-outlet';
@@ -28,6 +27,7 @@ import { XiaomiVibrationSensor } from './accessories/xiaomi/vibration-sensor';
 import { LonsonhoDoubleSwitch } from './accessories/lonsonho/lonsonho-double-switch';
 import { XiaomiLeakSensor } from './accessories/xiaomi/leak-sensor';
 import { XiaomiMotionSensor } from './accessories/xiaomi/motion-sensor';
+import { XiaomiWirelessSwitch } from './accessories/xiaomi/xiaomi-wireless-switch';
 
 function registerSupportedDevices(): void {
   registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
@@ -134,6 +134,7 @@ function registerSupportedDevices(): void {
     XiaomiContactSensor
   );
   registerAccessoryClass('Xiaomi', ['GZCGQ01LM'], XiaomiLightIntensitySensor);
+  registerAccessoryClass('Xiaomi', ['WXKG11LM', 'WXKG03LM', 'WXKG12LM'], XiaomiWirelessSwitch);
   registerAccessoryClass(
     'LUMI',
     ['lumi.weather', 'lumi.sensor_ht.agl02', 'lumi.sensor_ht'],
@@ -147,7 +148,13 @@ function registerSupportedDevices(): void {
   registerAccessoryClass('LUMI', ['lumi.sen_ill.mgl01'], XiaomiLightIntensitySensor);
   registerAccessoryClass(
     'LUMI',
-    ['lumi.sensor_switch.aq2', 'lumi.sensor_switch'],
+    [
+      'lumi.sensor_switch.aq2',
+      'lumi.sensor_switch',
+      'lumi.remote.b1acn01',
+      'lumi.sensor_86sw1',
+      'lumi.remote.b186acn01',
+    ],
     XiaomiWirelessSwitch
   );
   registerAccessoryClass('LUMI', ['lumi.sensor_motion.aq2'], XiaomiMotionSensor);
