@@ -37,7 +37,7 @@ You should end up with a new `dist/` folder containing the compiled version of t
 ## WEB UI
 
 From version 1.0.8 you can see which device is paired through the [WEB UI exposed on port 9000](http://homebridge.local:9000).
-To change the default port, set `httpPort: false` in the configuration.
+To change the default port, set `httpPort: YOUR_PORT_NUMBER` in the configuration.
 To completely disable http UI, set `disableHttpServer: true` in the configuration.
 
 ## License
