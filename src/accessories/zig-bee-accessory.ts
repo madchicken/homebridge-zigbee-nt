@@ -11,6 +11,7 @@ import {
   MIN_POLL_INTERVAL,
 } from '../utils/router-polling';
 import retry from 'async-retry';
+import { attributeKeyValue } from 'zigbee-herdsman/dist/controller/helpers/zclFrameConverter';
 
 export interface ZigBeeAccessoryCtor {
   new (
@@ -29,6 +30,9 @@ export abstract class ZigBeeAccessory {
   protected readonly client: ZigBeeClient;
   protected state: DeviceState;
   protected readonly entity: ZigBeeEntity;
+  private missedPing = 0;
+  private isConfiguring = false;
+  private interval: number;
 
   constructor(
     platform: ZigbeeNTHomebridgePlatform,
@@ -88,14 +92,11 @@ export abstract class ZigBeeAccessory {
       this.platform.config.disableRoutingPolling !== true
     ) {
       this.log.info(`Device ${this.name} is a router, install ping`);
-      let interval = this.platform.config.routerPollingInterval * 1000 || DEFAULT_POLL_INTERVAL;
-      if (interval < MIN_POLL_INTERVAL || interval > MAX_POLL_INTERVAL) {
-        interval = DEFAULT_POLL_INTERVAL;
+      this.interval = this.platform.config.routerPollingInterval * 1000 || DEFAULT_POLL_INTERVAL;
+      if (this.interval < MIN_POLL_INTERVAL || this.interval > MAX_POLL_INTERVAL) {
+        this.interval = DEFAULT_POLL_INTERVAL;
       }
       await this.ping();
-      setInterval(() => {
-        this.ping();
-      }, interval);
     } else {
       await this.configureDevice();
     }
@@ -106,8 +107,19 @@ export abstract class ZigBeeAccessory {
       await this.zigBeeDeviceDescriptor.ping();
       await this.configureDevice();
       this.zigBeeDeviceDescriptor.updateLastSeen();
+      this.missedPing = 0;
+      setTimeout(this.ping, this.interval);
     } catch (e) {
       this.log.warn(`No response from ${this.zigBeeDefinition.description}. Is it online?`);
+      this.missedPing++;
+      if (this.missedPing > 3) {
+        this.log.error(
+          `Device is not responding after ${this.missedPing} ping, sending it offline...`
+        );
+        this.isConfigured = false;
+      } else {
+        setTimeout(this.ping, this.interval);
+      }
     }
   }
 
@@ -115,18 +127,28 @@ export abstract class ZigBeeAccessory {
     if (
       this.zigBeeDefinition.configure &&
       !this.isConfigured &&
-      !this.zigBeeDefinition.interviewing
+      !this.zigBeeDefinition.interviewing &&
+      !this.isConfiguring
     ) {
+      this.isConfiguring = true;
       const coordinatorEndpoint = this.client.getCoodinator().getEndpoint(1);
       this.isConfigured = await retry<boolean>(
-        async () => {
+        async (bail: (e: Error) => void, attempt: number) => {
           await this.zigBeeDefinition.configure(this.zigBeeDeviceDescriptor, coordinatorEndpoint);
           this.zigBeeDeviceDescriptor.updateLastSeen();
           this.zigBeeDeviceDescriptor.save();
-          this.log.info(`Device ${this.name} successfully configured!`);
+          this.log.info(`Device ${this.name} successfully configured on attempt ${attempt}!`);
           return true;
         },
-        { retries: 3 }
+        {
+          retries: 3,
+          onRetry: (e: Error, attempt: number) => {
+            if (attempt === 3) {
+              this.isConfiguring = false;
+              this.isConfigured = false;
+            }
+          },
+        }
       );
     }
   }

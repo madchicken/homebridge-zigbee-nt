@@ -178,7 +178,6 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     }
   }
 
-  // TODO: I need to move everything into the client
   async handleZigBeeReady() {
     const info: Device = this.zigBeeClient.getCoodinator();
     this.log.info(`ZigBee platform initialized @ ${info.ieeeAddr}`);
@@ -226,7 +225,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     }
   }
 
-  public async onDeviceAnnounce(ieeeAddr: string): Promise<void> {
+  private async mountDevice(ieeeAddr: string): Promise<void> {
     try {
       const UUID = this.generateUUID(ieeeAddr);
       const zigBeeAccessory = this.homekitAccessories.get(UUID);
@@ -304,7 +303,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       // Wait a little bit for a database sync
       await sleep(1500);
       this.initDevice(message.device);
-      await this.onDeviceAnnounce(ieeeAddr);
+      await this.mountDevice(ieeeAddr);
     } else {
       this.log.warn(`Not initializing device ${ieeeAddr}: already mapped in Homebridge`);
       await this.homekitAccessories.get(this.getAccessoryByIeeeAddr(ieeeAddr).UUID).onDeviceMount();
