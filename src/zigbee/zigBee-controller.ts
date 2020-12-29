@@ -60,7 +60,7 @@ export const endpointNames = [
 const keyEndpointByNumber = new RegExp(`.*/([0-9]*)$`);
 
 /* eslint-disable no-underscore-dangle */
-export class ZigBee {
+export class ZigBeeController {
   private herdsman: Controller;
   private readonly log: Logger;
 

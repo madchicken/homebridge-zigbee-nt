@@ -1,6 +1,6 @@
 {
   "name": "homebridge-zigbee-nt",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "ZigBee New Technology Platform plugin for HomeBridge",
   "main": "dist/index.js",
   "scripts": {

@@ -209,31 +209,34 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     return this.homekitAccessories.get(this.generateUUID(ieeeAddr));
   }
 
-  private async initDevice(device: Device) {
-    try {
-      this.log.info(`Found ZigBee device: `, device);
-      const model = parseModelName(device.modelID);
-      const manufacturer = device.manufacturerName;
-      const ieeeAddr = device.ieeeAddr;
-      const ZigBeeAccessory: ZigBeeAccessoryCtor = getAccessoryClass(manufacturer, model);
+  private initDevice(device: Device): void {
+    this.log.info(`Found ZigBee device: `, device);
+    const model = parseModelName(device.modelID);
+    const manufacturer = device.manufacturerName;
+    const ieeeAddr = device.ieeeAddr;
+    const ZigBeeAccessory: ZigBeeAccessoryCtor = getAccessoryClass(manufacturer, model);
 
-      if (!ZigBeeAccessory) {
-        return this.log.info('Unrecognized device:', ieeeAddr, manufacturer, model);
-      }
-
+    if (!ZigBeeAccessory) {
+      this.log.info('Unrecognized device:', ieeeAddr, manufacturer, model);
+    } else {
       const accessory = this.createHapAccessory(ieeeAddr);
       const homeKitAccessory = new ZigBeeAccessory(this, accessory, this.client, device);
       this.log.info('Registered device:', ieeeAddr, manufacturer, model);
       this.homekitAccessories.set(accessory.UUID, homeKitAccessory);
-      return await homeKitAccessory.onDeviceMount();
+    }
+  }
+
+  public async onDeviceAnnounce(ieeeAddr: string): Promise<void> {
+    try {
+      const UUID = this.generateUUID(ieeeAddr);
+      const zigBeeAccessory = this.homekitAccessories.get(UUID);
+      return await zigBeeAccessory.onDeviceMount();
     } catch (error) {
       this.log.info(
-        `Unable to initialize device ${device && device.ieeeAddr}, ` +
-          'try to remove it and add it again.\n'
+        `Unable to initialize device ${ieeeAddr}, ` + 'try to remove it and add it again.\n'
       );
       this.log.info('Reason:', error);
     }
-    return null;
   }
 
   private initPermitJoinAccessory() {
@@ -300,7 +303,8 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     if (!this.getAccessoryByIeeeAddr(ieeeAddr)) {
       // Wait a little bit for a database sync
       await sleep(1500);
-      await this.initDevice(message.device);
+      this.initDevice(message.device);
+      await this.onDeviceAnnounce(ieeeAddr);
     } else {
       this.log.warn(`Not initializing device ${ieeeAddr}: already mapped in Homebridge`);
       await this.homekitAccessories.get(this.getAccessoryByIeeeAddr(ieeeAddr).UUID).onDeviceMount();

@@ -1,4 +1,4 @@
-import { ZigBee } from './zigbee';
+import { ZigBeeController } from './zigBee-controller';
 import { Logger } from 'homebridge';
 import { sleep } from '../utils/sleep';
 import { MessagePayload } from 'zigbee-herdsman/dist/controller/events';
@@ -17,12 +17,12 @@ export interface ZigBeeClientConfig {
 }
 
 export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
-  private readonly zigBee: ZigBee;
+  private readonly zigBee: ZigBeeController;
   private readonly log: Logger;
 
   constructor(log: Logger) {
     super();
-    this.zigBee = new ZigBee(this.log);
+    this.zigBee = new ZigBeeController(this.log);
     this.log = log;
     this.setTimeout(5000);
   }
