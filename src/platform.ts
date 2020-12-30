@@ -236,7 +236,9 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     try {
       const UUID = this.generateUUID(ieeeAddr);
       const zigBeeAccessory = this.homekitAccessories.get(UUID);
-      return await zigBeeAccessory.onDeviceMount();
+      if (zigBeeAccessory) {
+        return await zigBeeAccessory.onDeviceMount();
+      }
     } catch (error) {
       this.log.info(
         `Unable to initialize device ${ieeeAddr}, ` + 'try to remove it and add it again.\n'

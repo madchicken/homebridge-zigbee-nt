@@ -79,9 +79,7 @@ export abstract class ZigBeeAccessory {
   }
 
   public get zigBeeDefinition(): ZigBeeDefinition {
-    return this.entity
-      ? this.entity.definition
-      : (findByDevice(this.zigBeeDeviceDescriptor) as ZigBeeDefinition);
+    return findByDevice(this.zigBeeDeviceDescriptor) as ZigBeeDefinition;
   }
 
   public get name() {
