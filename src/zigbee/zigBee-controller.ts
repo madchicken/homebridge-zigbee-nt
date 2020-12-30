@@ -141,9 +141,11 @@ export class ZigBeeController {
   }
 
   async permitJoin(permit: boolean): Promise<void> {
-    permit === true
-      ? this.log.info('Zigbee: allowing new devices to join.')
-      : this.log.info('Zigbee: disabling joining new devices.');
+    if (permit === true) {
+      this.log.info('Zigbee: allowing new devices to join.');
+    } else {
+      this.log.info('Zigbee: disabling joining new devices.');
+    }
 
     await this.herdsman.permitJoin(permit);
   }
@@ -225,6 +227,7 @@ export class ZigBeeController {
           device: coordinator,
           endpoint: coordinator.getEndpoint(1),
           name: 'Coordinator',
+          settings: { friendlyName: 'Coordinator' },
         };
       }
 
@@ -246,6 +249,7 @@ export class ZigBeeController {
         endpoint: key.endpoints[0],
         name: key.type === 'Coordinator' ? 'Coordinator' : key.ieeeAddr,
         definition: findByDevice(key) as ZigBeeDefinition,
+        settings: { friendlyName: key.ieeeAddr },
       };
     } else {
       // Group
@@ -253,6 +257,7 @@ export class ZigBeeController {
         type: 'group',
         group: key,
         name: 'Group',
+        settings: {},
       };
     }
   }

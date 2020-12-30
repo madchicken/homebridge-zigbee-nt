@@ -16,6 +16,8 @@ export interface ZigBeeClientConfig {
   secondaryChannel?: string;
 }
 
+type StatePublisher = (ieeeAddr: string, state: DeviceState) => void;
+
 export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   private readonly zigBee: ZigBeeController;
   private readonly log: Logger;
@@ -100,9 +102,13 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     return resolvedEntity;
   }
 
-  public decodeMessage(message: MessagePayload, options: Options = {}): DeviceState {
-    const payload = {} as DeviceState;
-    const resolvedEntity = this.resolveEntity(message.device);
+  public decodeMessage(
+    message: MessagePayload,
+    callback: StatePublisher,
+    options: Options = {}
+  ): void {
+    const state = {} as DeviceState;
+    const resolvedEntity: ZigBeeEntity = this.resolveEntity(message.device);
     if (resolvedEntity) {
       const meta: Meta = { device: message.device };
       const converters = resolvedEntity.definition.fromZigbee.filter(c => {
@@ -115,16 +121,18 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
         const converted = converter.convert(
           resolvedEntity.definition,
           message,
-          () => {},
+          (state: DeviceState) => {
+            callback(message.device.ieeeAddr, state);
+          },
           options,
           meta
         );
         if (converted) {
-          Object.assign(payload, converted);
+          Object.assign(state, converted);
         }
       });
     }
-    return payload;
+    callback(message.device.ieeeAddr, state);
   }
 
   private async readDeviceState(device: Device, state: DeviceState): Promise<DeviceState> {
@@ -162,9 +170,10 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     const responses = await Promise.all<MessagePayload>(promises);
     this.log.debug(`Got ${responses.length} messages for device ${device.modelID}`);
     responses.forEach(response => {
-      const s = this.decodeMessage(response);
-      this.log.debug(`Decoded message for ${response.device.modelID}`, s);
-      Object.assign(deviceState, s);
+      this.decodeMessage(response, (ieeeAddr, state) => {
+        this.log.debug(`Decoded message for ${response.device.modelID}`, state);
+        Object.assign(deviceState, state);
+      });
     });
 
     this.log.info(`Device state (${device.modelID}): `, deviceState);

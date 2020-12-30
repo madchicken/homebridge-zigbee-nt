@@ -6,7 +6,6 @@ import {
   Service,
 } from 'homebridge';
 import { DeviceState } from '../../zigbee/types';
-import { Device } from 'zigbee-herdsman/dist/controller/model';
 
 export class TuyaOnoffDoubleSwitch extends ZigBeeAccessory {
   protected switchServiceButtonLeft: Service;
@@ -90,8 +89,8 @@ export class TuyaOnoffDoubleSwitch extends ZigBeeAccessory {
     return [this.switchServiceButtonLeft, this.switchServiceButtonRight];
   }
 
-  update(device: Device, state: DeviceState) {
-    super.update(device, state);
+  update(state: DeviceState) {
+    super.update(state);
     const Characteristic = this.platform.api.hap.Characteristic;
     switch (state.state_left) {
       case 'ON':

@@ -168,4 +168,5 @@ export interface ZigBeeEntity {
   endpoint?: Endpoint;
   definition?: ZigBeeDefinition;
   name: string;
+  settings: any;
 }

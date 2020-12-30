@@ -1,6 +1,5 @@
 import { ZigBeeAccessory } from '../zig-bee-accessory';
 import { Callback, CharacteristicEventTypes, Service } from 'homebridge';
-import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { DeviceState } from '../../zigbee/types';
 
 export class XiaomiLightIntensitySensor extends ZigBeeAccessory {
@@ -59,14 +58,14 @@ export class XiaomiLightIntensitySensor extends ZigBeeAccessory {
     return [this.illuminanceService, this.batteryService];
   }
 
-  update(device: Device, state: DeviceState) {
+  update(state: DeviceState) {
     const Characteristic = this.platform.Characteristic;
     this.log.debug(
       `XiaomiLightIntensitySensor update ContactSensorState for ${this.accessory.displayName}`,
       this.state
     );
 
-    super.update(device, state);
+    super.update(state);
     this.illuminanceService
       .getCharacteristic(Characteristic.CurrentAmbientLightLevel)
       .setValue(this.state.illuminance_lux);

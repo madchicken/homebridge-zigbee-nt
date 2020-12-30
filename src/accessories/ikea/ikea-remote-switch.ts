@@ -1,7 +1,6 @@
 import { ZigBeeAccessory } from '../zig-bee-accessory';
 import { Service } from 'homebridge';
 import { DeviceState } from '../../zigbee/types';
-import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { ProgrammableSwitchServiceBuilder } from '../../builders/programmable-switch-service-builder';
 
 export class IkeaRemoteSwitch extends ZigBeeAccessory {
@@ -60,9 +59,9 @@ export class IkeaRemoteSwitch extends ZigBeeAccessory {
     ];
   }
 
-  update(device: Device, state: DeviceState) {
+  update(state: DeviceState) {
     const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
-    super.update(device, state);
+    super.update(state);
     switch (state.action) {
       case 'brightness_up_click':
         this.switchServiceBrightUp

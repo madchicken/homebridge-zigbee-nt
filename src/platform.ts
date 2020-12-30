@@ -27,6 +27,7 @@ import {
 } from 'zigbee-herdsman/dist/controller/events';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { HttpServer } from './web/api/http-server';
+import { DeviceState } from './zigbee/types';
 
 const PERMIT_JOIN_ACCESSORY_NAME = 'zigbee:permit-join';
 const TOUCH_LINK_ACCESSORY_NAME = 'zigbee:touchlink';
@@ -157,7 +158,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       return true;
     } else {
       this.log.debug(`Not initializing device ${device.ieeeAddr}: already mapped in Homebridge`);
-      accessory.update(device, {});
+      accessory.update({});
     }
     return false;
   }
@@ -206,6 +207,10 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
 
   private getHomekitAccessoryByIeeeAddr(ieeeAddr: string): ZigBeeAccessory {
     return this.homekitAccessories.get(this.generateUUID(ieeeAddr));
+  }
+
+  private homekitAccessoryExists(ieeeAddr: string): boolean {
+    return this.homekitAccessories.has(this.generateUUID(ieeeAddr));
   }
 
   private initDevice(device: Device): void {
@@ -316,11 +321,12 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       // only process messages that we wait for
       this.client.processQueue(message);
     } else {
-      const zigBeeAccessory = this.getHomekitAccessoryByIeeeAddr(message.device.ieeeAddr);
-      if (zigBeeAccessory) {
-        const state = this.client.decodeMessage(message);
-        this.log.debug(`Decoded state from incoming message`, state);
-        zigBeeAccessory.update(message.device, state);
+      if (this.homekitAccessoryExists(message.device.ieeeAddr)) {
+        this.client.decodeMessage(message, (ieeeAddr: string, state: DeviceState) => {
+          const zigBeeAccessory = this.getHomekitAccessoryByIeeeAddr(ieeeAddr);
+          this.log.debug(`Decoded state from incoming message`, state);
+          zigBeeAccessory.update(state);
+        }); // if the message is decoded, it will call the statePublisher function
       } else {
         this.log.warn(`No device found from message`, message);
       }

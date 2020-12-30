@@ -24,8 +24,8 @@ export class XiaomiOutlet extends ZigBeeAccessory {
     return [this.service];
   }
 
-  update(device: Device, state: DeviceState) {
-    super.update(device, state);
+  update(state: DeviceState) {
+    super.update(state);
     this.service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
   }
 }

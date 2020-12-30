@@ -11,7 +11,6 @@ import {
   MIN_POLL_INTERVAL,
 } from '../utils/router-polling';
 import retry from 'async-retry';
-import { attributeKeyValue } from 'zigbee-herdsman/dist/controller/helpers/zclFrameConverter';
 
 export interface ZigBeeAccessoryCtor {
   new (
@@ -162,10 +161,9 @@ export abstract class ZigBeeAccessory {
     return !this.isConfigured && !this.zigBeeDefinition.interviewing && !this.isConfiguring;
   }
 
-  update(device: Device, state: DeviceState) {
+  update(state: DeviceState) {
     this.log.debug(`Updating state of device ${this.name}: `, state);
-    Object.assign(this.accessory.context, { ...device });
-    Object.assign(this.state, state);
+    this.state = { ...this.state, ...state };
     this.zigBeeDeviceDescriptor.updateLastSeen();
     this.configureDevice().then(configured =>
       configured ? this.log.debug(`${this.name} configured after state update`) : null
