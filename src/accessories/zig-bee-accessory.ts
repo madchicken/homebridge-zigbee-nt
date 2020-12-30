@@ -170,7 +170,9 @@ export abstract class ZigBeeAccessory {
     );
   }
 
-  supports(property: string) {
-    return this.entity.definition.supports?.includes(property);
+  supports(property: string): boolean {
+    return (
+      this.entity.definition.exposes?.find(capability => capability.name === property) !== null
+    );
   }
 }

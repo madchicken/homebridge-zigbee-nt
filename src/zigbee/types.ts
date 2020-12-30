@@ -36,7 +36,9 @@ export interface DeviceState {
     | 'on'
     | 'off'
     | 'brightness_down'
+    | 'brightness_move_down'
     | 'brightness_up'
+    | 'brightness_move_up'
     | 'brightness_stop'
     | 'play_pause'
     | 'single'
@@ -138,6 +140,11 @@ export interface FromConverter {
   ) => Partial<DeviceState>;
 }
 
+interface Capability {
+  type: string;
+  name: string;
+}
+
 export interface ZigBeeDefinition {
   zigbeeModel: string[];
   model: string;
@@ -157,6 +164,7 @@ export interface ZigBeeDefinition {
   configure?: (device: Device, coordinatorEndpoint: Endpoint) => Promise<void>;
   fromZigbee: FromConverter[];
   toZigbee: ToConverter[];
+  exposes: Capability[];
 
   [key: string]: any;
 }

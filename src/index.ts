@@ -28,6 +28,7 @@ import { LonsonhoDoubleSwitch } from './accessories/lonsonho/lonsonho-double-swi
 import { XiaomiLeakSensor } from './accessories/xiaomi/leak-sensor';
 import { XiaomiMotionSensor } from './accessories/xiaomi/motion-sensor';
 import { XiaomiWirelessSwitch } from './accessories/xiaomi/xiaomi-wireless-switch';
+import { IkeaShurtcutSwitch } from './accessories/ikea/ikea-shurtcut-switch';
 
 function registerSupportedDevices(): void {
   registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
@@ -93,6 +94,7 @@ function registerSupportedDevices(): void {
   registerAccessoryClass('IKEA of Sweden', ['E1603/E1702'], IkeaTadfriOutlet);
   registerAccessoryClass('IKEA of Sweden', ['LED1624G9'], IkeaTadfriDimColor);
   registerAccessoryClass('IKEA of Sweden', ['E1743'], IkeaOnoffSwitch);
+  registerAccessoryClass('IKEA of Sweden', ['E1812'], IkeaShurtcutSwitch);
   registerAccessoryClass('IKEA of Sweden', ['E1524/E1810'], IkeaRemoteSwitch);
   registerAccessoryClass(
     'IKEA of Sweden',
