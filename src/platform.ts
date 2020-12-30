@@ -189,7 +189,9 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     // Init switch to reset devices through Touchlink feature
     this.initTouchlinkAccessory();
     // Init devices
-    await Promise.all(this.zigBeeClient.getAllPairedDevices().map(data => this.initDevice(data)));
+    await Promise.all(
+      this.zigBeeClient.getAllPairedDevices().map(device => this.initDevice(device))
+    );
 
     if (this.config.disableHttpServer !== true) {
       this.httpServer = new HttpServer(this.config.httpPort);
