@@ -113,7 +113,7 @@ export abstract class ZigBeeAccessory {
       await this.configureDevice();
       this.zigBeeDeviceDescriptor.updateLastSeen();
       this.missedPing = 0;
-      setTimeout(this.ping, this.interval);
+      setTimeout(() => this.ping(), this.interval);
     } catch (e) {
       this.log.warn(`No response from ${this.zigBeeDefinition.description}. Is it online?`);
       this.missedPing++;
@@ -125,7 +125,7 @@ export abstract class ZigBeeAccessory {
         this.isConfigured = false;
         this.zigBeeDeviceDescriptor.save();
       } else {
-        setTimeout(this.ping, this.interval);
+        setTimeout(() => this.ping(), this.interval);
       }
     }
   }
