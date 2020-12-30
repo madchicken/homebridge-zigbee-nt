@@ -152,7 +152,7 @@ export interface ZigBeeDefinition {
     enhancedHue?: boolean;
     multiEndpoint?: boolean;
     timeout?: number;
-    configured?: boolean;
+    configured?: number;
   };
   configure?: (device: Device, coordinatorEndpoint: Endpoint) => Promise<void>;
   fromZigbee: FromConverter[];

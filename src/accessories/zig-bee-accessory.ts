@@ -22,6 +22,8 @@ export interface ZigBeeAccessoryCtor {
   ): ZigBeeAccessory;
 }
 
+const MAX_PING_ATTEMPTS = 3;
+
 export abstract class ZigBeeAccessory {
   public readonly ieeeAddr: string;
   protected platform: ZigbeeNTHomebridgePlatform;
@@ -62,11 +64,15 @@ export abstract class ZigBeeAccessory {
   handleAccessoryIdentify() {}
 
   private get isConfigured() {
-    return this.zigBeeDefinition.meta.configured === true;
+    return !!this.zigBeeDefinition.meta?.configured;
   }
 
   private set isConfigured(val: boolean) {
-    this.zigBeeDefinition.meta.configured = val;
+    if (val === true) {
+      this.zigBeeDefinition.meta.configured = this.zigBeeDefinition.meta.configureKey;
+    } else {
+      delete this.zigBeeDefinition.meta.configured;
+    }
   }
 
   public get zigBeeDeviceDescriptor(): Device {
@@ -112,45 +118,48 @@ export abstract class ZigBeeAccessory {
     } catch (e) {
       this.log.warn(`No response from ${this.zigBeeDefinition.description}. Is it online?`);
       this.missedPing++;
-      if (this.missedPing > 3) {
+      if (this.missedPing > MAX_PING_ATTEMPTS) {
         this.log.error(
           `Device is not responding after ${this.missedPing} ping, sending it offline...`
         );
+        this.isConfiguring = false;
         this.isConfigured = false;
+        this.zigBeeDeviceDescriptor.save();
       } else {
         setTimeout(this.ping, this.interval);
       }
     }
   }
 
-  public async configureDevice() {
-    if (
-      this.zigBeeDefinition.configure &&
-      !this.isConfigured &&
-      !this.zigBeeDefinition.interviewing &&
-      !this.isConfiguring
-    ) {
+  public async configureDevice(): Promise<boolean> {
+    if (this.shouldConfigure()) {
       this.isConfiguring = true;
       const coordinatorEndpoint = this.client.getCoodinator().getEndpoint(1);
-      this.isConfigured = await retry<boolean>(
+      return await retry<boolean>(
         async (bail: (e: Error) => void, attempt: number) => {
           await this.zigBeeDefinition.configure(this.zigBeeDeviceDescriptor, coordinatorEndpoint);
-          this.zigBeeDeviceDescriptor.updateLastSeen();
+          this.isConfigured = true;
           this.zigBeeDeviceDescriptor.save();
           this.log.info(`Device ${this.name} successfully configured on attempt ${attempt}!`);
           return true;
         },
         {
-          retries: 3,
+          retries: MAX_PING_ATTEMPTS,
           onRetry: (e: Error, attempt: number) => {
-            if (attempt === 3) {
+            if (attempt === MAX_PING_ATTEMPTS) {
               this.isConfiguring = false;
               this.isConfigured = false;
+              this.zigBeeDeviceDescriptor.save();
             }
           },
         }
       );
     }
+    return false;
+  }
+
+  private shouldConfigure() {
+    return !this.isConfigured && !this.zigBeeDefinition.interviewing && !this.isConfiguring;
   }
 
   update(device: Device, state: DeviceState) {
@@ -158,7 +167,9 @@ export abstract class ZigBeeAccessory {
     Object.assign(this.accessory.context, { ...device });
     Object.assign(this.state, state);
     this.zigBeeDeviceDescriptor.updateLastSeen();
-    this.configureDevice().then(() => this.log.info(`${this.name} configured`));
+    this.configureDevice().then(configured =>
+      configured ? this.log.debug(`${this.name} configured after state update`) : null
+    );
   }
 
   supports(property: string) {
