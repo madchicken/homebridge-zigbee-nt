@@ -67,8 +67,8 @@
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "serialport": "^9.0.2",
-    "zigbee-herdsman": "^0.13.41",
-    "zigbee-herdsman-converters": "^13.0.35"
+    "zigbee-herdsman": "^0.13.46",
+    "zigbee-herdsman-converters": "^13.0.38"
   },
   "devDependencies": {
     "@emotion/eslint-plugin": "^11.0.0",
