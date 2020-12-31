@@ -79,7 +79,9 @@ export abstract class ZigBeeAccessory {
   }
 
   public get zigBeeDefinition(): ZigBeeDefinition {
-    return findByDevice(this.zigBeeDeviceDescriptor) as ZigBeeDefinition;
+    return this.entity
+      ? this.entity.definition
+      : (findByDevice(this.zigBeeDeviceDescriptor) as ZigBeeDefinition);
   }
 
   public get name() {
@@ -156,7 +158,12 @@ export abstract class ZigBeeAccessory {
   }
 
   private shouldConfigure() {
-    return !this.isConfigured && !this.zigBeeDefinition.interviewing && !this.isConfiguring;
+    return (
+      !!this.zigBeeDefinition.configure && // it must have the configure function defined
+      !this.isConfigured &&
+      !this.zigBeeDefinition.interviewing &&
+      !this.isConfiguring
+    );
   }
 
   update(state: DeviceState) {

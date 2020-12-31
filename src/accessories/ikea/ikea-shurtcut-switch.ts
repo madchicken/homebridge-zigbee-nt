@@ -30,7 +30,7 @@ export class IkeaShurtcutSwitch extends ZigBeeAccessory {
   update(state: DeviceState) {
     const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
     super.update(state);
-    switch (state.click) {
+    switch (state.action) {
       case 'brightness_move_up':
       case 'brightness_move_down':
         this.switchServiceOn

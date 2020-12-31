@@ -36,10 +36,7 @@ export interface DeviceState {
     | 'on'
     | 'off'
     | 'brightness_down'
-    | 'brightness_move_down'
     | 'brightness_up'
-    | 'brightness_move_up'
-    | 'brightness_stop'
     | 'play_pause'
     | 'single'
     | 'double'
@@ -53,6 +50,7 @@ export interface DeviceState {
   illuminance_lux?: number;
   contact?: boolean;
   action?:
+    | 'on'
     | 'toggle'
     | 'toggle_hold'
     | 'toggle_release'
@@ -68,6 +66,9 @@ export interface DeviceState {
     | 'brightness_down_click'
     | 'brightness_down_hold'
     | 'brightness_down_release'
+    | 'brightness_move_down'
+    | 'brightness_move_up'
+    | 'brightness_stop'
     | 'vibration'
     | 'tilt'
     | 'drop';
