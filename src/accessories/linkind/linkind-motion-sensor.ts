@@ -1,6 +1,5 @@
 import { ZigBeeAccessory } from '../zig-bee-accessory';
 import { Callback, CharacteristicEventTypes, Service } from 'homebridge';
-import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { DeviceState } from '../../zigbee/types';
 
 export class LinkindMotionSensor extends ZigBeeAccessory {
@@ -42,8 +41,8 @@ export class LinkindMotionSensor extends ZigBeeAccessory {
     return [this.sensorService];
   }
 
-  update(device: Device, state: DeviceState) {
-    super.update(device, state);
+  update(state: DeviceState) {
+    super.update(state);
 
     const Characteristic = this.platform.api.hap.Characteristic;
 

@@ -1,7 +1,6 @@
 import { ZigBeeAccessory } from '../zig-bee-accessory';
 import { Service } from 'homebridge';
 import { DeviceState } from '../../zigbee/types';
-import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { ProgrammableSwitchServiceBuilder } from '../../builders/programmable-switch-service-builder';
 
 export class LonsonhoDoubleSwitch extends ZigBeeAccessory {
@@ -39,9 +38,9 @@ export class LonsonhoDoubleSwitch extends ZigBeeAccessory {
     ];
   }
 
-  update(device: Device, state: DeviceState) {
+  update(state: DeviceState) {
     const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
-    super.update(device, state);
+    super.update(state);
     switch (state.state_l1) {
       case 'ON':
         this.switch1ServiceOn

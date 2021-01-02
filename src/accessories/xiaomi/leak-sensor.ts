@@ -1,6 +1,5 @@
 import { ZigBeeAccessory } from '../zig-bee-accessory';
 import { Callback, CharacteristicEventTypes, Service } from 'homebridge';
-import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { DeviceState } from '../../zigbee/types';
 
 export class XiaomiLeakSensor extends ZigBeeAccessory {
@@ -46,9 +45,9 @@ export class XiaomiLeakSensor extends ZigBeeAccessory {
     return [this.leakService];
   }
 
-  update(device: Device, state: DeviceState) {
+  update(state: DeviceState) {
     const Characteristic = this.platform.Characteristic;
-    super.update(device, state);
+    super.update(state);
 
     const leakDetected = state.water_leak === true;
     this.leakService
