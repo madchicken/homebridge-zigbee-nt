@@ -42,7 +42,8 @@
     "xiaomi",
     "aqara",
     "philips",
-    "hue"
+    "hue",
+    "sonoff"
   ],
   "author": {
     "name": "Pierpaolo Follia",
