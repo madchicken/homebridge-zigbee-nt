@@ -55,7 +55,10 @@ export abstract class ZigBeeAccessory {
       .setCharacteristic(Characteristic.Manufacturer, device.manufacturerName)
       .setCharacteristic(Characteristic.Model, device.modelID)
       .setCharacteristic(Characteristic.SerialNumber, device.ieeeAddr)
-      .setCharacteristic(Characteristic.Name, this.zigBeeDefinition.description);
+      .setCharacteristic(
+        Characteristic.Name,
+        `${this.zigBeeDefinition.description}-${device.ieeeAddr}`
+      );
     this.getAvailableServices();
     this.accessory.on('identify', () => this.handleAccessoryIdentify());
   }
