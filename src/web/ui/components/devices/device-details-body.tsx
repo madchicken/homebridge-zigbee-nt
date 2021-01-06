@@ -12,6 +12,7 @@ import {
   UnorderedList,
 } from 'evergreen-ui';
 import { DeviceModel } from '../../actions/devices';
+import ReactJson from 'react-json-view';
 
 const TABS = ['Info', 'Endpoints'];
 
@@ -50,20 +51,7 @@ function renderEndpoints(device: DeviceModel) {
       justifyContent="stretch"
       flexDirection="column"
     >
-      {device.endpoints.map(e => (
-        <Paragraph key={e.ID}>
-          <UnorderedList icon={ForkIcon} iconColor="success" key={e.ID}>
-            <ListItem key={e.ID}>ID: {e.ID}</ListItem>
-            <UnorderedList key={e.ID} icon={InfoSignIcon} iconColor="muted">
-              {Object.keys(e.clusters).map(c => (
-                <ListItem key={c}>
-                  Cluster: {c} (values: {JSON.stringify(e.clusters[c])})
-                </ListItem>
-              ))}
-            </UnorderedList>
-          </UnorderedList>
-        </Paragraph>
-      ))}
+      <ReactJson src={device} onAdd={false} onDelete={false} onEdit={false} />
     </Card>
   );
 }

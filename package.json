@@ -1,6 +1,6 @@
 {
   "name": "homebridge-zigbee-nt",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "ZigBee New Technology Platform plugin for HomeBridge",
   "main": "dist/index.js",
   "scripts": {
@@ -66,6 +66,7 @@
     "react-query": "^3.2.0",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
+    "react-json-view": "^1.19.1",
     "serialport": "^9.0.2",
     "zigbee-herdsman": "^0.13.46",
     "zigbee-herdsman-converters": "^13.0.38"
