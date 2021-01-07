@@ -58,22 +58,21 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
   public withBrightness(): LighbulbServiceBuilder {
     const Characteristic = this.platform.Characteristic;
 
-    this.service
-      .getCharacteristic(Characteristic.Brightness)
-      .on(
-        CharacteristicEventTypes.SET,
-        async (brightness_percent: number, callback: CharacteristicSetCallback) => {
-          try {
-            Object.assign(
-              this.state,
-              await this.client.setBrightnessPercent(this.device, brightness_percent)
-            );
-            callback();
-          } catch (e) {
-            callback(e);
-          }
+    this.service.getCharacteristic(Characteristic.Brightness).on(
+      CharacteristicEventTypes.SET,
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      async (brightness_percent: number, callback: CharacteristicSetCallback) => {
+        try {
+          Object.assign(
+            this.state,
+            await this.client.setBrightnessPercent(this.device, brightness_percent)
+          );
+          callback();
+        } catch (e) {
+          callback(e);
         }
-      );
+      }
+    );
     this.service
       .getCharacteristic(Characteristic.Brightness)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {

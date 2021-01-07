@@ -34,6 +34,7 @@ export abstract class ZigBeeAccessory {
   private missedPing = 0;
   private isConfiguring = false;
   private interval: number;
+  private mappedServices: Service[];
 
   constructor(
     platform: ZigbeeNTHomebridgePlatform,
@@ -59,7 +60,7 @@ export abstract class ZigBeeAccessory {
         Characteristic.Name,
         `${this.zigBeeDefinition.description}-${device.ieeeAddr}`
       );
-    this.getAvailableServices();
+    this.mappedServices = this.getAvailableServices();
     this.accessory.on('identify', () => this.handleAccessoryIdentify());
   }
 
@@ -169,13 +170,107 @@ export abstract class ZigBeeAccessory {
     );
   }
 
-  update(state: DeviceState) {
-    this.log.debug(`Updating state of device ${this.name}: `, state);
+  internalUpdate(state: DeviceState) {
+    this.log.debug(`Updating state of device ${this.name} with `, state);
     this.state = { ...this.state, ...state };
+    this.log.debug(`Updated state for device ${this.name} is now `, this.state);
     this.zigBeeDeviceDescriptor.updateLastSeen();
     this.configureDevice().then(configured =>
       configured ? this.log.debug(`${this.name} configured after state update`) : null
     );
+    this.update(this.state);
+  }
+
+  /**
+   * This function handles most of the characteristics update you need.
+   * Override this function only if you need some specific update feature for your accessory
+   * @param state DeviceState Current device state
+   */
+  update(state: DeviceState) {
+    const Service = this.platform.Service;
+    const Characteristic = this.platform.Characteristic;
+    this.mappedServices.forEach(service => {
+      if (this.supports('battery_low')) {
+        service.updateCharacteristic(
+          Characteristic.StatusLowBattery,
+          state.battery_low
+            ? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW
+            : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL
+        );
+      }
+
+      switch (service.UUID) {
+        case Service.BatteryService.UUID:
+          service.updateCharacteristic(Characteristic.BatteryLevel, state.battery || 0);
+          service.updateCharacteristic(
+            Characteristic.StatusLowBattery,
+            state.battery && state.battery < 10
+          );
+          break;
+        case Service.ContactSensor.UUID:
+          service.updateCharacteristic(
+            Characteristic.ContactSensorState,
+            state.contact
+              ? Characteristic.ContactSensorState.CONTACT_DETECTED
+              : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED
+          );
+          break;
+        case Service.LeakSensor.UUID:
+          service
+            .getCharacteristic(Characteristic.ContactSensorState)
+            .setValue(
+              state.water_leak === true
+                ? Characteristic.LeakDetected.LEAK_DETECTED
+                : Characteristic.LeakDetected.LEAK_NOT_DETECTED
+            );
+          break;
+        case Service.Switch.UUID:
+          service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
+          break;
+        case Service.Lightbulb.UUID:
+          service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
+          if (this.supports('brightness')) {
+            service.updateCharacteristic(
+              this.platform.Characteristic.Brightness,
+              state.brightness_percent
+            );
+          }
+          if (this.supports('color_temp')) {
+            service.updateCharacteristic(
+              this.platform.Characteristic.ColorTemperature,
+              state.color_temp
+            );
+          }
+          break;
+        case Service.LightSensor.UUID:
+          service.updateCharacteristic(
+            Characteristic.CurrentAmbientLightLevel,
+            state.illuminance_lux
+          );
+          break;
+        case Service.MotionSensor.UUID:
+          service.updateCharacteristic(
+            this.platform.Characteristic.MotionDetected,
+            state.occupancy === true
+          );
+          break;
+        case Service.Outlet.UUID:
+          service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
+          break;
+        case Service.TemperatureSensor.UUID:
+          service.updateCharacteristic(
+            this.platform.Characteristic.CurrentTemperature,
+            state.temperature
+          );
+          break;
+        case Service.HumiditySensor.UUID:
+          service.updateCharacteristic(
+            this.platform.Characteristic.CurrentRelativeHumidity,
+            state.humidity
+          );
+          break;
+      }
+    });
   }
 
   supports(property: string): boolean {

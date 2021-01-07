@@ -71,13 +71,7 @@ export class XiaomiVibrationSensor extends ZigBeeAccessory {
 
   update(state: DeviceState) {
     const Characteristic = this.platform.Characteristic;
-    this.log.debug(
-      `XiaomiVibrationSensor update state for ${this.accessory.displayName}`,
-      this.state
-    );
-
     const vibrationDetected = state.strength || state.action;
-    super.update(state);
     this.contactService
       .getCharacteristic(Characteristic.ContactSensorState)
       .setValue(
@@ -90,6 +84,9 @@ export class XiaomiVibrationSensor extends ZigBeeAccessory {
       this.batteryService
         .getCharacteristic(Characteristic.BatteryLevel)
         .setValue(this.state.battery);
+      this.batteryService
+        .getCharacteristic(Characteristic.StatusLowBattery)
+        .setValue(this.state.battery < 10);
     }
   }
 }

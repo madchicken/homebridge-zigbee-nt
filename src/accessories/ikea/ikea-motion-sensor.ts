@@ -1,6 +1,5 @@
 import { ZigBeeAccessory } from '../zig-bee-accessory';
 import { Callback, CharacteristicEventTypes, Service } from 'homebridge';
-import { DeviceState } from '../../zigbee/types';
 
 export class IkeaMotionSensor extends ZigBeeAccessory {
   private sensorService: Service;
@@ -39,25 +38,5 @@ export class IkeaMotionSensor extends ZigBeeAccessory {
       this.accessory.addService(Service.BatteryService);
 
     return [this.sensorService, this.batteryService];
-  }
-
-  update(state: DeviceState) {
-    super.update(state);
-
-    const Characteristic = this.platform.api.hap.Characteristic;
-    this.sensorService.updateCharacteristic(
-      this.platform.Characteristic.MotionDetected,
-      state.occupancy === true
-    );
-    this.sensorService.updateCharacteristic(
-      this.platform.Characteristic.StatusLowBattery,
-      state.battery && state.battery <= 10
-        ? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW
-        : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL
-    );
-    this.batteryService.updateCharacteristic(
-      this.platform.Characteristic.BatteryLevel,
-      state.battery
-    );
   }
 }
