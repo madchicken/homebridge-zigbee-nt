@@ -277,7 +277,10 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
 
   async setBrightnessPercent(device: Device, brightnessPercent: number) {
     const brightness = Math.round(Number(brightnessPercent) * 2.55);
-    return this.writeDeviceState(device, { brightness });
+    return this.writeDeviceState(device, {
+      hue_power_on_brightness: brightness,
+      brightness,
+    });
   }
 
   async getColorCapabilities(device: Device, force = false): Promise<ColorCapabilities> {
@@ -355,7 +358,10 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   }
 
   async setColorTemperature(device: Device, colorTemperature: number) {
-    return this.writeDeviceState(device, { color_temp: colorTemperature });
+    return this.writeDeviceState(device, {
+      color_temp: colorTemperature,
+      hue_power_on_color_temperature: colorTemperature,
+    });
   }
 
   setLeftButtonOn(device: Device, on: boolean) {

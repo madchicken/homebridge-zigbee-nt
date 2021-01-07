@@ -79,6 +79,10 @@ export interface DeviceState {
   linkquality?: number;
   sensitivity?: 'low' | 'medium' | 'high';
   water_leak?: boolean;
+  // Philips HUE specifics
+  hue_power_on_brightness?: number;
+  hue_power_on_color_temperature?: number;
+  hue_power_on_color?: string;
 }
 
 export interface ColorCapabilities {
