@@ -1,74 +1,32 @@
 import { ZigBeeAccessory } from '../zig-bee-accessory';
-import { Callback, CharacteristicEventTypes, Service } from 'homebridge';
-import { DeviceState } from '../../zigbee/types';
+import { Service } from 'homebridge';
+import { MotionSensorServiceBuilder } from '../../builders/motion-sensor-service-builder';
+import { BatteryServiceBuilder } from '../../builders/battery-service-builder';
 
 export class XiaomiMotionSensor extends ZigBeeAccessory {
   private sensorService: Service;
   private batteryService: Service;
 
   getAvailableServices(): Service[] {
-    const Service = this.platform.api.hap.Service;
-    const Characteristic = this.platform.api.hap.Characteristic;
+    this.sensorService = new MotionSensorServiceBuilder(
+      this.platform,
+      this.accessory,
+      this.client,
+      this.state
+    )
+      .withOccupancy()
+      .build();
 
-    this.sensorService =
-      this.accessory.getService(Service.MotionSensor) ||
-      this.accessory.addService(Service.MotionSensor);
-    this.sensorService.setCharacteristic(Characteristic.Name, this.name);
-    this.sensorService
-      .getCharacteristic(Characteristic.MotionDetected)
-      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        if (this.state.occupancy) {
-          this.log.debug(`Motion detected for sensor ${this.name}`);
-        }
-        callback(null, this.state.occupancy);
-      });
-
-    this.sensorService
-      .getCharacteristic(Characteristic.StatusLowBattery)
-      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        callback(
-          null,
-          this.state.battery && this.state.battery <= 10
-            ? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW
-            : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL
-        );
-      });
-
-    this.batteryService =
-      this.accessory.getService(this.platform.Service.BatteryService) ||
-      this.accessory.addService(this.platform.Service.BatteryService);
-
-    this.batteryService
-      .getCharacteristic(Characteristic.BatteryLevel)
-      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        this.log.debug(
-          `XiaomiMotionSensor get BatteryLevel for ${this.accessory.displayName}`,
-          this.state
-        );
-
-        callback(null, this.state.battery || 100);
-      });
+    this.batteryService = new BatteryServiceBuilder(
+      this.platform,
+      this.accessory,
+      this.client,
+      this.state
+    )
+      .withBattery()
+      .andLowBattery()
+      .build();
 
     return [this.sensorService, this.batteryService];
-  }
-
-  update(state: DeviceState) {
-    super.update(state);
-
-    const Characteristic = this.platform.api.hap.Characteristic;
-    this.sensorService.updateCharacteristic(
-      this.platform.Characteristic.MotionDetected,
-      state.occupancy
-    );
-    this.sensorService.updateCharacteristic(
-      this.platform.Characteristic.StatusLowBattery,
-      state.battery && state.battery <= 10
-        ? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW
-        : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL
-    );
-    this.batteryService.updateCharacteristic(
-      this.platform.Characteristic.BatteryLevel,
-      state.battery || 100
-    );
   }
 }

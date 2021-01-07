@@ -158,7 +158,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       return true;
     } else {
       this.log.debug(`Not initializing device ${device.ieeeAddr}: already mapped in Homebridge`);
-      accessory.update({});
+      accessory.internalUpdate({});
     }
     return false;
   }
@@ -329,7 +329,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
         this.client.decodeMessage(message, (ieeeAddr: string, state: DeviceState) => {
           const zigBeeAccessory = this.getHomekitAccessoryByIeeeAddr(ieeeAddr);
           this.log.debug(`Decoded state from incoming message`, state);
-          zigBeeAccessory.update(state);
+          zigBeeAccessory.internalUpdate(state);
         }); // if the message is decoded, it will call the statePublisher function
       } else {
         this.log.warn(`No device found from message`, message);

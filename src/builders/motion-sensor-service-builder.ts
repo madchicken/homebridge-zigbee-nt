@@ -9,7 +9,7 @@ import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { ServiceBuilder } from './service-builder';
 import { DeviceState } from '../zigbee/types';
 
-export class HumiditySensorServiceBuilder extends ServiceBuilder {
+export class MotionSensorServiceBuilder extends ServiceBuilder {
   constructor(
     platform: ZigbeeNTHomebridgePlatform,
     accessory: PlatformAccessory,
@@ -18,17 +18,20 @@ export class HumiditySensorServiceBuilder extends ServiceBuilder {
   ) {
     super(platform, accessory, client, state);
     this.service =
-      this.accessory.getService(platform.Service.HumiditySensor) ||
-      this.accessory.addService(platform.Service.HumiditySensor);
+      this.accessory.getService(platform.Service.MotionSensor) ||
+      this.accessory.addService(platform.Service.MotionSensor);
   }
 
-  public withHumidity(): HumiditySensorServiceBuilder {
+  public withOccupancy(): MotionSensorServiceBuilder {
     const Characteristic = this.platform.Characteristic;
 
     this.service
-      .getCharacteristic(Characteristic.CurrentRelativeHumidity)
+      .getCharacteristic(Characteristic.MotionDetected)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
-        callback(null, Math.round(this.state.humidity || 0));
+        if (this.state.occupancy) {
+          this.log.debug(`Motion detected for sensor ${this.accessory.displayName}`);
+        }
+        callback(null, this.state.occupancy);
       });
 
     return this;

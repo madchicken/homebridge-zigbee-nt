@@ -1,9 +1,10 @@
 import { ZigBeeAccessory } from '../zig-bee-accessory';
 import { Callback, CharacteristicEventTypes, Service } from 'homebridge';
-import { DeviceState } from '../../zigbee/types';
+import { BatteryServiceBuilder } from '../../builders/battery-service-builder';
 
 export class XiaomiLeakSensor extends ZigBeeAccessory {
   private leakService: Service;
+  private batteryService: Service;
 
   getAvailableServices() {
     const Characteristic = this.platform.Characteristic;
@@ -26,44 +27,16 @@ export class XiaomiLeakSensor extends ZigBeeAccessory {
         );
       });
 
-    this.leakService
-      .getCharacteristic(Characteristic.StatusLowBattery)
-      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        this.log.debug(
-          `XiaomiLeakSensor get StatusLowBattery for ${this.accessory.displayName}`,
-          this.state
-        );
+    this.batteryService = new BatteryServiceBuilder(
+      this.platform,
+      this.accessory,
+      this.client,
+      this.state
+    )
+      .withBattery()
+      .andLowBattery()
+      .build();
 
-        callback(
-          null,
-          this.state.battery_low === true
-            ? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW
-            : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL
-        );
-      });
-
-    return [this.leakService];
-  }
-
-  update(state: DeviceState) {
-    const Characteristic = this.platform.Characteristic;
-    super.update(state);
-
-    const leakDetected = state.water_leak === true;
-    this.leakService
-      .getCharacteristic(Characteristic.ContactSensorState)
-      .setValue(
-        leakDetected
-          ? Characteristic.LeakDetected.LEAK_DETECTED
-          : Characteristic.LeakDetected.LEAK_NOT_DETECTED
-      );
-
-    this.leakService
-      .getCharacteristic(Characteristic.BatteryLevel)
-      .setValue(
-        state.battery_low === true
-          ? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW
-          : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL
-      );
+    return [this.leakService, this.batteryService];
   }
 }

@@ -6,10 +6,10 @@ import { registerAccessoryClass } from './registry';
 import { PhilipsHueWhite } from './accessories/philips/philips-hue-white';
 import { PhilipsHueWhiteTemperature } from './accessories/philips/philips-hue-white-temperature';
 import { PhilipsHueWhiteAndColor } from './accessories/philips/philips-hue-white-and-color';
-import { IkeaTadfriDimColortemp } from './accessories/ikea/ikea-tadfri-dim-colortemp';
-import { IkeaTadfriDim } from './accessories/ikea/ikea-tadfri-dim';
-import { IkeaTadfriOutlet } from './accessories/ikea/ikea-tadfri-outlet';
-import { IkeaTadfriDimColor } from './accessories/ikea/ikea-tadfri-dim-color';
+import { IkeaTradfriDimColortemp } from './accessories/ikea/ikea-tradfri-dim-colortemp';
+import { IkeaTradfriDim } from './accessories/ikea/ikea-tradfri-dim';
+import { IkeaTradfriOutlet } from './accessories/ikea/ikea-tradfri-outlet';
+import { IkeaTradfriDimColor } from './accessories/ikea/ikea-tradfri-dim-color';
 import { IkeaOnoffSwitch } from './accessories/ikea/ikea-onoff-switch';
 import { InnrWhiteTemperature } from './accessories/innr/innr-white-temperature';
 import { TempHumiSensor } from './accessories/xiaomi/temp-humi-sensor';
@@ -30,6 +30,7 @@ import { XiaomiMotionSensor } from './accessories/xiaomi/motion-sensor';
 import { XiaomiWirelessSwitch } from './accessories/xiaomi/xiaomi-wireless-switch';
 import { SonoffContactSensor } from './accessories/sonoff/contact-sensor';
 import { IkeaShurtcutSwitch } from './accessories/ikea/ikea-shurtcut-switch';
+import { MotionIlluminanceSensor } from './accessories/xiaomi/motion-illuminance-sensor';
 
 function registerSupportedDevices(): void {
   registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
@@ -75,7 +76,7 @@ function registerSupportedDevices(): void {
       'LED1732G11',
       'LED1736G9',
     ],
-    IkeaTadfriDimColortemp
+    IkeaTradfriDimColortemp
   );
   registerAccessoryClass(
     'IKEA of Sweden',
@@ -90,10 +91,10 @@ function registerSupportedDevices(): void {
       'ICPSHC24-10EU-IL-1',
       'ICPSHC24-30EU-IL-1',
     ],
-    IkeaTadfriDim
+    IkeaTradfriDim
   );
-  registerAccessoryClass('IKEA of Sweden', ['E1603/E1702'], IkeaTadfriOutlet);
-  registerAccessoryClass('IKEA of Sweden', ['LED1624G9'], IkeaTadfriDimColor);
+  registerAccessoryClass('IKEA of Sweden', ['E1603/E1702'], IkeaTradfriOutlet);
+  registerAccessoryClass('IKEA of Sweden', ['LED1624G9'], IkeaTradfriDimColor);
   registerAccessoryClass('IKEA of Sweden', ['E1743'], IkeaOnoffSwitch);
   registerAccessoryClass('IKEA of Sweden', ['E1812'], IkeaShurtcutSwitch);
   registerAccessoryClass('IKEA of Sweden', ['E1524/E1810'], IkeaRemoteSwitch);
@@ -160,7 +161,10 @@ function registerSupportedDevices(): void {
     ],
     XiaomiWirelessSwitch
   );
-  registerAccessoryClass('LUMI', ['lumi.sensor_motion.aq2'], XiaomiMotionSensor);
+  registerAccessoryClass('LUMI', ['lumi.sensor_motion'], XiaomiMotionSensor);
+  registerAccessoryClass('Xiaomi', ['lumi.sensor_motion'], XiaomiMotionSensor);
+  registerAccessoryClass('LUMI', ['lumi.sensor_motion.aq2'], MotionIlluminanceSensor);
+  registerAccessoryClass('Xiaomi', ['lumi.sensor_motion.aq2'], MotionIlluminanceSensor);
   registerAccessoryClass('LUMI', ['lumi.sensor_wleak.aq1'], XiaomiLeakSensor);
   registerAccessoryClass('TuYa', ['GDKES-02TZXD'], TuyaOnoffDoubleSwitch);
   registerAccessoryClass('TuYa', ['TS0012'], LonsonhoDoubleSwitch);

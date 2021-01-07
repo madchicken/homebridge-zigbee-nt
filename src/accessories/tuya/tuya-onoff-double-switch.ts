@@ -90,7 +90,6 @@ export class TuyaOnoffDoubleSwitch extends ZigBeeAccessory {
   }
 
   update(state: DeviceState) {
-    super.update(state);
     const Characteristic = this.platform.api.hap.Characteristic;
     switch (state.state_left) {
       case 'ON':
