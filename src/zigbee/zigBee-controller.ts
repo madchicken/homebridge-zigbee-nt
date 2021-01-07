@@ -60,7 +60,7 @@ export const endpointNames = [
 const keyEndpointByNumber = new RegExp(`.*/([0-9]*)$`);
 
 /* eslint-disable no-underscore-dangle */
-export class ZigBee {
+export class ZigBeeController {
   private herdsman: Controller;
   private readonly log: Logger;
 
@@ -141,9 +141,11 @@ export class ZigBee {
   }
 
   async permitJoin(permit: boolean): Promise<void> {
-    permit === true
-      ? this.log.info('Zigbee: allowing new devices to join.')
-      : this.log.info('Zigbee: disabling joining new devices.');
+    if (permit === true) {
+      this.log.info('Zigbee: allowing new devices to join.');
+    } else {
+      this.log.info('Zigbee: disabling joining new devices.');
+    }
 
     await this.herdsman.permitJoin(permit);
   }
@@ -225,6 +227,7 @@ export class ZigBee {
           device: coordinator,
           endpoint: coordinator.getEndpoint(1),
           name: 'Coordinator',
+          settings: { friendlyName: 'Coordinator' },
         };
       }
 
@@ -246,6 +249,7 @@ export class ZigBee {
         endpoint: key.endpoints[0],
         name: key.type === 'Coordinator' ? 'Coordinator' : key.ieeeAddr,
         definition: findByDevice(key) as ZigBeeDefinition,
+        settings: { friendlyName: key.ieeeAddr },
       };
     } else {
       // Group
@@ -253,6 +257,7 @@ export class ZigBee {
         type: 'group',
         group: key,
         name: 'Group',
+        settings: {},
       };
     }
   }

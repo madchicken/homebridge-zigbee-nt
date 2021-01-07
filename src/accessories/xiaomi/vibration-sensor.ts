@@ -1,6 +1,5 @@
 import { ZigBeeAccessory } from '../zig-bee-accessory';
 import { Callback, CharacteristicEventTypes, CharacteristicGetCallback, Service } from 'homebridge';
-import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { DeviceState } from '../../zigbee/types';
 
 export class XiaomiVibrationSensor extends ZigBeeAccessory {
@@ -70,7 +69,7 @@ export class XiaomiVibrationSensor extends ZigBeeAccessory {
     return supportedServices;
   }
 
-  update(device: Device, state: DeviceState) {
+  update(state: DeviceState) {
     const Characteristic = this.platform.Characteristic;
     this.log.debug(
       `XiaomiVibrationSensor update state for ${this.accessory.displayName}`,
@@ -78,7 +77,7 @@ export class XiaomiVibrationSensor extends ZigBeeAccessory {
     );
 
     const vibrationDetected = state.strength || state.action;
-    super.update(device, state);
+    super.update(state);
     this.contactService
       .getCharacteristic(Characteristic.ContactSensorState)
       .setValue(

@@ -27,6 +27,7 @@ import {
 } from 'zigbee-herdsman/dist/controller/events';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { HttpServer } from './web/api/http-server';
+import { DeviceState } from './zigbee/types';
 
 const PERMIT_JOIN_ACCESSORY_NAME = 'zigbee:permit-join';
 const TOUCH_LINK_ACCESSORY_NAME = 'zigbee:touchlink';
@@ -157,7 +158,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       return true;
     } else {
       this.log.debug(`Not initializing device ${device.ieeeAddr}: already mapped in Homebridge`);
-      accessory.update(device, {});
+      accessory.update({});
     }
     return false;
   }
@@ -178,7 +179,6 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     }
   }
 
-  // TODO: I need to move everything into the client
   async handleZigBeeReady() {
     const info: Device = this.zigBeeClient.getCoodinator();
     this.log.info(`ZigBee platform initialized @ ${info.ieeeAddr}`);
@@ -189,7 +189,9 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     // Init switch to reset devices through Touchlink feature
     this.initTouchlinkAccessory();
     // Init devices
-    await Promise.all(this.zigBeeClient.getAllPairedDevices().map(data => this.initDevice(data)));
+    await Promise.all(
+      this.zigBeeClient.getAllPairedDevices().map(device => this.initDevice(device))
+    );
 
     if (this.config.disableHttpServer !== true) {
       this.httpServer = new HttpServer(this.config.httpPort);
@@ -209,31 +211,40 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     return this.homekitAccessories.get(this.generateUUID(ieeeAddr));
   }
 
-  private async initDevice(device: Device) {
-    try {
-      this.log.info(`Found ZigBee device: `, device);
-      const model = parseModelName(device.modelID);
-      const manufacturer = device.manufacturerName;
-      const ieeeAddr = device.ieeeAddr;
-      const ZigBeeAccessory: ZigBeeAccessoryCtor = getAccessoryClass(manufacturer, model);
+  private homekitAccessoryExists(ieeeAddr: string): boolean {
+    return this.homekitAccessories.has(this.generateUUID(ieeeAddr));
+  }
 
-      if (!ZigBeeAccessory) {
-        return this.log.info('Unrecognized device:', ieeeAddr, manufacturer, model);
-      }
+  private initDevice(device: Device): void {
+    this.log.info(`Found ZigBee device: `, device);
+    const model = parseModelName(device.modelID);
+    const manufacturer = device.manufacturerName;
+    const ieeeAddr = device.ieeeAddr;
+    const ZigBeeAccessory: ZigBeeAccessoryCtor = getAccessoryClass(manufacturer, model);
 
+    if (!ZigBeeAccessory) {
+      this.log.info('Unrecognized device:', ieeeAddr, manufacturer, model);
+    } else {
       const accessory = this.createHapAccessory(ieeeAddr);
       const homeKitAccessory = new ZigBeeAccessory(this, accessory, this.client, device);
       this.log.info('Registered device:', ieeeAddr, manufacturer, model);
       this.homekitAccessories.set(accessory.UUID, homeKitAccessory);
-      return await homeKitAccessory.onDeviceMount();
+    }
+  }
+
+  private async mountDevice(ieeeAddr: string): Promise<void> {
+    try {
+      const UUID = this.generateUUID(ieeeAddr);
+      const zigBeeAccessory = this.homekitAccessories.get(UUID);
+      if (zigBeeAccessory) {
+        return await zigBeeAccessory.onDeviceMount();
+      }
     } catch (error) {
       this.log.info(
-        `Unable to initialize device ${device && device.ieeeAddr}, ` +
-          'try to remove it and add it again.\n'
+        `Unable to initialize device ${ieeeAddr}, ` + 'try to remove it and add it again.\n'
       );
       this.log.info('Reason:', error);
     }
-    return null;
   }
 
   private initPermitJoinAccessory() {
@@ -300,7 +311,8 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     if (!this.getAccessoryByIeeeAddr(ieeeAddr)) {
       // Wait a little bit for a database sync
       await sleep(1500);
-      await this.initDevice(message.device);
+      this.initDevice(message.device);
+      await this.mountDevice(ieeeAddr);
     } else {
       this.log.warn(`Not initializing device ${ieeeAddr}: already mapped in Homebridge`);
       await this.homekitAccessories.get(this.getAccessoryByIeeeAddr(ieeeAddr).UUID).onDeviceMount();
@@ -313,11 +325,12 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       // only process messages that we wait for
       this.client.processQueue(message);
     } else {
-      const zigBeeAccessory = this.getHomekitAccessoryByIeeeAddr(message.device.ieeeAddr);
-      if (zigBeeAccessory) {
-        const state = this.client.decodeMessage(message);
-        this.log.debug(`Decoded state from incoming message`, state);
-        zigBeeAccessory.update(message.device, state);
+      if (this.homekitAccessoryExists(message.device.ieeeAddr)) {
+        this.client.decodeMessage(message, (ieeeAddr: string, state: DeviceState) => {
+          const zigBeeAccessory = this.getHomekitAccessoryByIeeeAddr(ieeeAddr);
+          this.log.debug(`Decoded state from incoming message`, state);
+          zigBeeAccessory.update(state);
+        }); // if the message is decoded, it will call the statePublisher function
       } else {
         this.log.warn(`No device found from message`, message);
       }

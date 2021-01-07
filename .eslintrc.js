@@ -40,5 +40,6 @@ module.exports = {
     '@typescript-eslint/no-inferrable-types': 'warn',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-empty-function': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
   },
 };

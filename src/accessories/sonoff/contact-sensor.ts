@@ -1,6 +1,5 @@
 import { ZigBeeAccessory } from '../zig-bee-accessory';
 import { Service, CharacteristicEventTypes, Callback } from 'homebridge';
-import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { DeviceState } from '../../zigbee/types';
 
 export class SonoffContactSensor extends ZigBeeAccessory {
@@ -64,14 +63,14 @@ export class SonoffContactSensor extends ZigBeeAccessory {
     return [this.contactService, this.batteryService];
   }
 
-  update(device: Device, state: DeviceState) {
+  update(state: DeviceState) {
     const Characteristic = this.platform.Characteristic;
     this.log.debug(
       `SonoffContactSensor update ContactSensorState for ${this.accessory.displayName}`,
       this.state
     );
 
-    super.update(device, state);
+    super.update(state);
     this.contactService
       .getCharacteristic(Characteristic.ContactSensorState)
       .setValue(
