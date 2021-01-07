@@ -33,8 +33,8 @@ export class IkeaOnoffSwitch extends ZigBeeAccessory {
   }
 
   update(state: DeviceState) {
-    const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
     super.update(state);
+    const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
     switch (state.click) {
       case 'brightness_up':
         this.switchServiceOn
@@ -56,11 +56,6 @@ export class IkeaOnoffSwitch extends ZigBeeAccessory {
           .getCharacteristic(ProgrammableSwitchEvent)
           .setValue(ProgrammableSwitchEvent.SINGLE_PRESS);
         break;
-    }
-    if (this.supports('battery')) {
-      this.batteryService
-        .getCharacteristic(this.platform.Characteristic.BatteryLevel)
-        .setValue(this.state.battery || 100);
     }
   }
 }

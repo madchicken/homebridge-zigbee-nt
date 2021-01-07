@@ -1,6 +1,6 @@
 import { ZigBeeAccessory } from '../zig-bee-accessory';
 import { Service, CharacteristicEventTypes, Callback } from 'homebridge';
-import { DeviceState } from '../../zigbee/types';
+import { BatteryServiceBuilder } from '../../builders/battery-service-builder';
 
 export class XiaomiContactSensor extends ZigBeeAccessory {
   private contactService: Service;
@@ -16,11 +16,6 @@ export class XiaomiContactSensor extends ZigBeeAccessory {
     this.contactService
       .getCharacteristic(Characteristic.ContactSensorState)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        this.log.debug(
-          `XiaomiContactSensor get ContactSensorState for ${this.accessory.displayName}`,
-          this.state
-        );
-
         callback(
           null,
           this.state.contact
@@ -29,54 +24,16 @@ export class XiaomiContactSensor extends ZigBeeAccessory {
         );
       });
 
-    this.contactService
-      .getCharacteristic(Characteristic.StatusLowBattery)
-      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        this.log.debug(
-          `XiaomiContactSensor get StatusLowBattery for ${this.accessory.displayName}`,
-          this.state
-        );
-
-        callback(
-          null,
-          this.state.battery && this.state.battery <= 10
-            ? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW
-            : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL
-        );
-      });
-
-    this.batteryService =
-      this.accessory.getService(this.platform.Service.BatteryService) ||
-      this.accessory.addService(this.platform.Service.BatteryService);
-
-    this.batteryService
-      .getCharacteristic(Characteristic.BatteryLevel)
-      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        this.log.debug(
-          `XiaomiContactSensor get BatteryLevel for ${this.accessory.displayName}`,
-          this.state
-        );
-
-        callback(null, this.state.battery || 100);
-      });
+    this.batteryService = new BatteryServiceBuilder(
+      this.platform,
+      this.accessory,
+      this.client,
+      this.state
+    )
+      .withBattery()
+      .andLowBattery()
+      .build();
 
     return [this.contactService, this.batteryService];
-  }
-
-  update(state: DeviceState) {
-    const Characteristic = this.platform.Characteristic;
-    this.log.debug(
-      `XiaomiContactSensor update ContactSensorState for ${this.accessory.displayName}`,
-      this.state
-    );
-
-    super.update(state);
-    this.contactService
-      .getCharacteristic(Characteristic.ContactSensorState)
-      .setValue(
-        state.contact
-          ? Characteristic.ContactSensorState.CONTACT_DETECTED
-          : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED
-      );
   }
 }

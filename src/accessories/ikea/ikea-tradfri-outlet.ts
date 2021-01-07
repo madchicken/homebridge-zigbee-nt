@@ -4,9 +4,8 @@ import { PlatformAccessory, Service } from 'homebridge';
 import { ZigbeeNTHomebridgePlatform } from '../../platform';
 import { ZigBeeClient } from '../../zigbee/zig-bee-client';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
-import { DeviceState } from '../../zigbee/types';
 
-export class IkeaTadfriOutlet extends ZigBeeAccessory {
+export class IkeaTradfriOutlet extends ZigBeeAccessory {
   private service: Service;
   constructor(
     platform: ZigbeeNTHomebridgePlatform,
@@ -22,10 +21,5 @@ export class IkeaTadfriOutlet extends ZigBeeAccessory {
       .withOnOff()
       .build();
     return [this.service];
-  }
-
-  update(state: DeviceState) {
-    super.update(state);
-    this.service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
   }
 }

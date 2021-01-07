@@ -29,23 +29,6 @@ export class TemperatureSensorServiceBuilder extends ServiceBuilder {
     return this;
   }
 
-  public andBattery(): TemperatureSensorServiceBuilder {
-    const Characteristic = this.platform.Characteristic;
-
-    this.service
-      .getCharacteristic(Characteristic.StatusLowBattery)
-      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        callback(
-          null,
-          this.state.battery && this.state.battery <= 10
-            ? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW
-            : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL
-        );
-      });
-
-    return this;
-  }
-
   public build(): Service {
     return this.service;
   }
