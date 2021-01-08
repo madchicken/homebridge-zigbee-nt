@@ -278,7 +278,6 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   async setBrightnessPercent(device: Device, brightnessPercent: number) {
     const brightness = Math.round(Number(brightnessPercent) * 2.55);
     return this.writeDeviceState(device, {
-      hue_power_on_brightness: brightness,
       brightness,
     });
   }
@@ -360,7 +359,6 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   async setColorTemperature(device: Device, colorTemperature: number) {
     return this.writeDeviceState(device, {
       color_temp: colorTemperature,
-      hue_power_on_color_temperature: colorTemperature,
     });
   }
 
@@ -424,5 +422,9 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
 
   async ping(ieeeAddr: string) {
     return this.zigBee.ping(ieeeAddr);
+  }
+
+  async setCustomState(device: Device, state: DeviceState) {
+    return this.writeDeviceState(device, state);
   }
 }
