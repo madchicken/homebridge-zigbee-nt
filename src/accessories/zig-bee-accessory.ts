@@ -190,7 +190,7 @@ export abstract class ZigBeeAccessory {
     const Service = this.platform.Service;
     const Characteristic = this.platform.Characteristic;
     this.mappedServices.forEach(service => {
-      this.log.debug(`Updating service ${service.name} (UUID: ${service.UUID})`);
+      this.log.debug(`Updating service ${service.displayName} (UUID: ${service.UUID})`);
       if (this.supports('battery_low')) {
         service.updateCharacteristic(
           Characteristic.StatusLowBattery,
@@ -200,15 +200,15 @@ export abstract class ZigBeeAccessory {
         );
       }
 
-      switch (service.name) {
-        case Service.BatteryService.name:
+      switch (service.UUID) {
+        case Service.BatteryService.UUID:
           service.updateCharacteristic(Characteristic.BatteryLevel, state.battery || 0);
           service.updateCharacteristic(
             Characteristic.StatusLowBattery,
             state.battery && state.battery < 10
           );
           break;
-        case Service.ContactSensor.name:
+        case Service.ContactSensor.UUID:
           service.updateCharacteristic(
             Characteristic.ContactSensorState,
             state.contact
@@ -216,7 +216,7 @@ export abstract class ZigBeeAccessory {
               : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED
           );
           break;
-        case Service.LeakSensor.name:
+        case Service.LeakSensor.UUID:
           service
             .getCharacteristic(Characteristic.ContactSensorState)
             .setValue(
@@ -225,10 +225,10 @@ export abstract class ZigBeeAccessory {
                 : Characteristic.LeakDetected.LEAK_NOT_DETECTED
             );
           break;
-        case Service.Switch.name:
+        case Service.Switch.UUID:
           service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
           break;
-        case Service.Lightbulb.name:
+        case Service.Lightbulb.UUID:
           service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
           if (this.supports('brightness')) {
             service.updateCharacteristic(
@@ -243,28 +243,28 @@ export abstract class ZigBeeAccessory {
             );
           }
           break;
-        case Service.LightSensor.name:
+        case Service.LightSensor.UUID:
           service.updateCharacteristic(
             Characteristic.CurrentAmbientLightLevel,
             state.illuminance_lux
           );
           break;
-        case Service.MotionSensor.name:
+        case Service.MotionSensor.UUID:
           service.updateCharacteristic(
             this.platform.Characteristic.MotionDetected,
             state.occupancy === true
           );
           break;
-        case Service.Outlet.name:
+        case Service.Outlet.UUID:
           service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
           break;
-        case Service.TemperatureSensor.name:
+        case Service.TemperatureSensor.UUID:
           service.updateCharacteristic(
             this.platform.Characteristic.CurrentTemperature,
             state.temperature
           );
           break;
-        case Service.HumiditySensor.name:
+        case Service.HumiditySensor.UUID:
           service.updateCharacteristic(
             this.platform.Characteristic.CurrentRelativeHumidity,
             state.humidity
