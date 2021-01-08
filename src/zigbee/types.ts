@@ -81,6 +81,9 @@ export interface DeviceState {
   water_leak?: boolean;
   // Philips HUE specifics
   hue_power_on_behavior?: 'default' | 'on' | 'off' | 'recover';
+  hue_power_on_brightness?: number;
+  hue_power_on_color_temperature?: number;
+  hue_power_on_color?: string;
 }
 
 export interface ColorCapabilities {
