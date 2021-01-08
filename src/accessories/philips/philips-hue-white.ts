@@ -20,4 +20,11 @@ export class PhilipsHueWhite extends ZigBeeAccessory {
   async handleAccessoryIdentify() {
     await this.client.identify(this.zigBeeDeviceDescriptor);
   }
+
+  async onDeviceMount(): Promise<void> {
+    await super.onDeviceMount();
+    await this.client.setCustomState(this.zigBeeDeviceDescriptor, {
+      hue_power_on_behavior: 'recover',
+    });
+  }
 }
