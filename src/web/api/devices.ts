@@ -30,4 +30,30 @@ export function mapDevicesRoutes(express: Express, platform: ZigbeeNTHomebridgeP
       res.end();
     }
   });
+
+  express.post('/api/devices/:ieeeAddr/set', async (req, res) => {
+    const device: Device = platform.zigBeeClient.getDevice(req.params.ieeeAddr);
+    if (device) {
+      const state = await platform.zigBeeClient.setCustomState(device, req.body);
+      res.status(constants.HTTP_STATUS_OK);
+      res.contentType('application/json');
+      res.end(JSON.stringify({ state }));
+    } else {
+      res.status(constants.HTTP_STATUS_NOT_FOUND);
+      res.end();
+    }
+  });
+
+  express.post('/api/devices/:ieeeAddr/get', async (req, res) => {
+    const device: Device = platform.zigBeeClient.getDevice(req.params.ieeeAddr);
+    if (device) {
+      const state = await platform.zigBeeClient.getState(device, req.body);
+      res.status(constants.HTTP_STATUS_OK);
+      res.contentType('application/json');
+      res.end(JSON.stringify({ state }));
+    } else {
+      res.status(constants.HTTP_STATUS_NOT_FOUND);
+      res.end();
+    }
+  });
 }

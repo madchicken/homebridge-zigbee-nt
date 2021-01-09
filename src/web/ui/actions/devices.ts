@@ -1,4 +1,5 @@
 import { handleError } from './utils';
+import { DeviceState } from '../../../zigbee/types';
 
 export interface BaseResponse {
   result: 'success' | 'error';
@@ -42,6 +43,10 @@ export interface DeviceResponse extends BaseResponse {
   total?: number;
 }
 
+export interface StateResponse extends BaseResponse {
+  state?: DeviceState;
+}
+
 export function normalizeDeviceModel(d): DeviceModel {
   return {
     type: d._type,
@@ -77,9 +82,9 @@ export class DevicesService {
     }
   }
 
-  static async fetchDevice(ieeAddr: string): Promise<DeviceResponse> {
+  static async fetchDevice(ieeeAddr: string): Promise<DeviceResponse> {
     try {
-      const response = await fetch(`/api/devices/${ieeAddr}`);
+      const response = await fetch(`/api/devices/${ieeeAddr}`);
       if (response.ok) {
         const json = await response.json();
         return {
@@ -94,9 +99,9 @@ export class DevicesService {
     }
   }
 
-  static async deleteDevice(ieeAddr: string): Promise<DeviceResponse> {
+  static async deleteDevice(ieeeAddr: string): Promise<DeviceResponse> {
     try {
-      const response = await fetch(`/api/devices/${ieeAddr}`, {
+      const response = await fetch(`/api/devices/${ieeeAddr}`, {
         method: 'DELETE',
       });
       if (response.ok) {
@@ -104,6 +109,46 @@ export class DevicesService {
         return {
           result: 'success',
           device: normalizeDeviceModel(json.device),
+        };
+      } else {
+        return handleError(await response.text());
+      }
+    } catch (e) {
+      return handleError(e.message);
+    }
+  }
+
+  static async getDeviceState(ieeeAddr: string, state: DeviceState): Promise<StateResponse> {
+    try {
+      const response = await fetch(`/api/devices/${ieeeAddr}/get`, {
+        method: 'POST',
+        body: JSON.stringify(state),
+      });
+      if (response.ok) {
+        const json = await response.json();
+        return {
+          result: 'success',
+          state: json.state,
+        };
+      } else {
+        return handleError(await response.text());
+      }
+    } catch (e) {
+      return handleError(e.message);
+    }
+  }
+
+  static async setDeviceState(ieeeAddr: string, state: DeviceState): Promise<StateResponse> {
+    try {
+      const response = await fetch(`/api/devices/${ieeeAddr}/set`, {
+        method: 'POST',
+        body: JSON.stringify(state),
+      });
+      if (response.ok) {
+        const json = await response.json();
+        return {
+          result: 'success',
+          state: json.state,
         };
       } else {
         return handleError(await response.text());

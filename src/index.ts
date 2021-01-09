@@ -15,7 +15,7 @@ import { InnrWhiteTemperature } from './accessories/innr/innr-white-temperature'
 import { TempHumiSensor } from './accessories/xiaomi/temp-humi-sensor';
 import { GledoptoDim } from './accessories/gledopto/gledopto-dim';
 import { TuyaOnoffDoubleSwitch } from './accessories/tuya/tuya-onoff-double-switch';
-import { XiaomiContactSensor } from './accessories/xiaomi/contact-sensor';
+import { XiaomiContactSensor } from './accessories/xiaomi/xiaomi-contact-sensor';
 import { XiaomiLightIntensitySensor } from './accessories/xiaomi/light-intensity-sensor';
 import { XiaomiOutlet } from './accessories/xiaomi/xiaomi-outlet';
 import { IkeaRemoteSwitch } from './accessories/ikea/ikea-remote-switch';
@@ -23,14 +23,14 @@ import { IkeaMotionSensor } from './accessories/ikea/ikea-motion-sensor';
 import { LinkindMotionSensor } from './accessories/linkind/linkind-motion-sensor';
 import { NamronDimmer } from './accessories/namron/namron-dimmer';
 import { NamronSwitch } from './accessories/namron/namron-switch';
-import { XiaomiVibrationSensor } from './accessories/xiaomi/vibration-sensor';
+import { XiaomiVibrationSensor } from './accessories/xiaomi/xiaomi-vibration-sensor';
 import { LonsonhoDoubleSwitch } from './accessories/lonsonho/lonsonho-double-switch';
 import { XiaomiLeakSensor } from './accessories/xiaomi/leak-sensor';
 import { XiaomiMotionSensor } from './accessories/xiaomi/motion-sensor';
 import { XiaomiWirelessSwitch } from './accessories/xiaomi/xiaomi-wireless-switch';
 import { SonoffContactSensor } from './accessories/sonoff/contact-sensor';
 import { IkeaShurtcutSwitch } from './accessories/ikea/ikea-shurtcut-switch';
-import { MotionIlluminanceSensor } from './accessories/xiaomi/motion-illuminance-sensor';
+import { XiaomiMotionIlluminanceSensor } from './accessories/xiaomi/xiaomi-motion-illuminance-sensor';
 import { NanoleafIvy } from './accessories/nanoleaf/nanoleaf-ivy';
 
 function registerSupportedDevices(): void {
@@ -164,8 +164,8 @@ function registerSupportedDevices(): void {
   );
   registerAccessoryClass('LUMI', ['lumi.sensor_motion'], XiaomiMotionSensor);
   registerAccessoryClass('Xiaomi', ['lumi.sensor_motion'], XiaomiMotionSensor);
-  registerAccessoryClass('LUMI', ['lumi.sensor_motion.aq2'], MotionIlluminanceSensor);
-  registerAccessoryClass('Xiaomi', ['lumi.sensor_motion.aq2'], MotionIlluminanceSensor);
+  registerAccessoryClass('LUMI', ['lumi.sensor_motion.aq2'], XiaomiMotionIlluminanceSensor);
+  registerAccessoryClass('Xiaomi', ['lumi.sensor_motion.aq2'], XiaomiMotionIlluminanceSensor);
   registerAccessoryClass('LUMI', ['lumi.sensor_wleak.aq1'], XiaomiLeakSensor);
   registerAccessoryClass('TuYa', ['GDKES-02TZXD'], TuyaOnoffDoubleSwitch);
   registerAccessoryClass('TuYa', ['TS0012'], LonsonhoDoubleSwitch);
