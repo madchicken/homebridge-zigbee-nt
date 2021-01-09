@@ -1,17 +1,12 @@
 import React, { useState } from 'react';
-import {
-  Button,
-  Card,
-  Heading,
-  Label,
-  Pane,
-  Paragraph,
-  Tab,
-  Tablist,
-  Textarea,
-} from 'evergreen-ui';
+import { Card, Heading, Pane, Paragraph, Tab, TabNavigation } from 'evergreen-ui';
 import { DeviceModel } from '../../actions/devices';
 import ReactJson from 'react-json-view';
+import { DeviceStateManagement } from './device-state-management';
+import { sizes } from '../constants';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(relativeTime);
 
 const TABS = ['Info', 'Endpoints', 'State'];
 
@@ -21,84 +16,79 @@ interface Props {
 
 interface State {
   selectedTab: string;
+  isLoadingState: boolean;
 }
 
 function renderInfo(device: DeviceModel) {
   return (
-    <Card backgroundColor="white" elevation={0} display="flex" flexDirection="column" padding={2}>
-      <Pane padding={4}>
+    <>
+      <Pane padding={sizes.padding.small}>
         <Heading size={400}>Manufacturer: {device.manufacturerName}</Heading>
       </Pane>
-      <Pane padding={4}>
+      <Pane padding={sizes.padding.small}>
         <Heading size={400}>Manufacturer ID: {device.manufacturerID}</Heading>
       </Pane>
-      <Pane padding={4}>
+      <Pane padding={sizes.padding.small}>
         <Heading size={400}>IEEE Address: {device.ieeeAddr}</Heading>
       </Pane>
-    </Card>
+      <Pane padding={sizes.padding.small}>
+        <Heading size={400}>Last seen: {dayjs(device.lastSeen).fromNow(false)}</Heading>
+      </Pane>
+    </>
   );
 }
 
 function renderEndpoints(device: DeviceModel) {
+  const endpoints = device.endpoints;
   return (
-    <Card
-      backgroundColor="white"
-      elevation={0}
-      height={500}
-      display="flex"
-      alignItems="top"
-      justifyContent="stretch"
-      flexDirection="column"
-    >
-      <ReactJson src={device} onAdd={false} onDelete={false} onEdit={false} />
-    </Card>
+    <ReactJson
+      src={endpoints}
+      onAdd={false}
+      onDelete={false}
+      onEdit={false}
+      enableClipboard={false}
+    />
   );
 }
 
-function renderCustomState(_device: DeviceModel) {
-  const placeholder = `{
-    "brightness": 128
-  }`;
-  return (
-    <Card
-      backgroundColor="white"
-      elevation={0}
-      height={400}
-      display="flex"
-      alignItems="top"
-      justifyContent="stretch"
-      flexDirection="column"
-    >
-      <Pane>
-        <Label htmlFor="textarea-2" marginBottom={4} display="block">
-          Set custom state
-        </Label>
-        <Textarea id="textarea-2" placeholder={placeholder} />
-        <Button appearance="primary" onClick={() => {}}>
-          Send
-        </Button>
-      </Pane>
-    </Card>
-  );
+function renderCustomState(device: DeviceModel) {
+  return <DeviceStateManagement device={device} />;
 }
 
 function renderSelectedTab(selectedTab: string, device: DeviceModel) {
+  let content = null;
   switch (selectedTab) {
     case 'Info':
-      return renderInfo(device);
+      content = renderInfo(device);
+      break;
     case 'Endpoints':
-      return renderEndpoints(device);
+      content = renderEndpoints(device);
+      break;
     case 'State':
-      return renderCustomState(device);
+      content = renderCustomState(device);
+      break;
   }
+
+  return (
+    <Card
+      backgroundColor="white"
+      elevation={2}
+      display="flex"
+      flexDirection="column"
+      padding={sizes.padding.small}
+      height="100%"
+    >
+      {content}
+    </Card>
+  );
 }
 
 export function DeviceDetailsBody(props: Props) {
   const { device } = props;
-  const [state, setState] = useState<State>({ selectedTab: TABS[0] });
+  const [state, setState] = useState<State>({ selectedTab: TABS[0], isLoadingState: false });
   return (
-    <React.Fragment>
-      <Pane padding={16} borderBottom="muted">
+    <Pane height="100%">
+      <Pane padding={sizes.padding.large} borderBottom="muted" height={`${sizes.header.medium}px`}>
         <Heading size={600}>
           {device.manufacturerName} {device.modelID}
         </Heading>
@@ -106,8 +96,13 @@ export function DeviceDetailsBody(props: Props) {
           Type: {device.type}
         </Paragraph>
       </Pane>
-      <Pane display="flex" padding={8} flexDirection="column">
-        <Tablist>
+      <Pane
+        display="flex"
+        padding={sizes.padding.large}
+        flexDirection="column"
+        height={`calc(100% - ${sizes.header.medium}px)`}
+      >
+        <TabNavigation marginBottom={sizes.margin.medium}>
           {TABS.map(tab => (
             <Tab
               key={tab}
@@ -117,11 +112,9 @@ export function DeviceDetailsBody(props: Props) {
               {tab}
             </Tab>
           ))}
-        </Tablist>
-        <Pane flex="1" overflowY="scroll" background="tint1" padding={4} flexDirection="column">
-          {renderSelectedTab(state.selectedTab, device)}
-        </Pane>
+        </TabNavigation>
+        {renderSelectedTab(state.selectedTab, device)}
       </Pane>
-    </React.Fragment>
+    </Pane>
   );
 }

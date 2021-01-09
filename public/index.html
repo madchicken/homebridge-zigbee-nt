@@ -8,8 +8,12 @@
     <style type="text/css">
       @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;500&display=swap');
       @import url('https://fonts.googleapis.com/css2?family=Roboto&family=Roboto+Mono&display=swap');
-      html,
-      body {
+      html {
+        min-height: 100%; /* make sure it is at least as tall as the viewport */
+        position: relative;
+      }
+      body,
+      #react-app {
         margin: 0;
         padding: 0;
         border: 0;
@@ -17,6 +21,7 @@
         font-family: 'Roboto', sans-serif;
         font-size: 13px;
         font-weight: 300;
+        height: 100vh;
       }
       /* HTML5 display-role reset for older browsers */
       article,

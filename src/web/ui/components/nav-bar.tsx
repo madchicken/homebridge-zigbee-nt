@@ -1,6 +1,7 @@
-import { Card, SegmentedControl, SidebarTab, Tablist } from 'evergreen-ui';
+import { SidebarTab, Tablist } from 'evergreen-ui';
 import * as React from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
+import { sizes } from './constants';
 
 enum Page {
   HOME = 'home',
@@ -27,7 +28,7 @@ export function NavBar() {
   const history = useHistory();
   const location = useLocation();
   return (
-    <Tablist marginBottom={16} flexBasis={240} marginRight={24}>
+    <Tablist marginBottom={sizes.margin.large} marginRight={sizes.margin.large} flexBasis={240}>
       {CONFIGURED_PAGES.map(tab => (
         <SidebarTab
           key={tab.label}
