@@ -5,6 +5,7 @@ import { DeviceModel, DeviceResponse, DevicesService } from '../../actions/devic
 import { Error } from '../error';
 import { useHistory } from 'react-router-dom';
 import dayjs from 'dayjs';
+import { sizes } from '../constants';
 
 function renderTable(devices: DeviceModel[], history) {
   return (
@@ -45,13 +46,24 @@ export default function DeviceTable(): ReactElement {
   if (isError) {
     return <Error message={error as string} />;
   }
+  const size = 600;
   return (
     <React.Fragment>
-      <Pane display="flex" flexDirection="column" justifyContent="stretch" width="100%">
-        <Pane padding={16} borderBottom="muted">
-          <Heading size={600}>Paired devices</Heading>
+      <Pane
+        display="flex"
+        flexDirection="column"
+        justifyContent="stretch"
+        width="100%"
+        height="100%"
+      >
+        <Pane
+          padding={sizes.padding.large}
+          borderBottom="muted"
+          height={`${sizes.header.medium}px`}
+        >
+          <Heading size={size}>Paired devices</Heading>
         </Pane>
-        <Table>
+        <Table height={`calc(100% - ${sizes.header.medium}px)`}>
           <Table.Head>
             <Table.TextHeaderCell>Model ID</Table.TextHeaderCell>
             <Table.TextHeaderCell>Manufacturer</Table.TextHeaderCell>
@@ -59,7 +71,7 @@ export default function DeviceTable(): ReactElement {
             <Table.TextHeaderCell>Power source</Table.TextHeaderCell>
             <Table.TextHeaderCell>Last seen</Table.TextHeaderCell>
           </Table.Head>
-          <Table.Body height={240}>
+          <Table.Body height="100%">
             {isLoading ? renderSpinner() : renderTable(data?.devices || [], history)}
           </Table.Body>
         </Table>

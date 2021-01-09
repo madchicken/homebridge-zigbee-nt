@@ -103,6 +103,9 @@ export class DevicesService {
     try {
       const response = await fetch(`/api/devices/${ieeeAddr}`, {
         method: 'DELETE',
+        headers: {
+          'content-type': 'application/json',
+        },
       });
       if (response.ok) {
         const json = await response.json();
@@ -123,6 +126,9 @@ export class DevicesService {
       const response = await fetch(`/api/devices/${ieeeAddr}/get`, {
         method: 'POST',
         body: JSON.stringify(state),
+        headers: {
+          'content-type': 'application/json',
+        },
       });
       if (response.ok) {
         const json = await response.json();
@@ -143,6 +149,9 @@ export class DevicesService {
       const response = await fetch(`/api/devices/${ieeeAddr}/set`, {
         method: 'POST',
         body: JSON.stringify(state),
+        headers: {
+          'content-type': 'application/json',
+        },
       });
       if (response.ok) {
         const json = await response.json();
