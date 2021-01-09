@@ -3,7 +3,7 @@ import { ContactSensorServiceBuilder } from '../../builders/contact-sensor-servi
 import { BatteryServiceBuilder } from '../../builders/battery-service-builder';
 import { ZigBeeAccessory } from '../zig-bee-accessory';
 
-export class SonoffContactSensor extends ZigBeeAccessory {
+export class XiaomiContactSensor extends ZigBeeAccessory {
   private contactService: Service;
   private batteryService: Service;
 

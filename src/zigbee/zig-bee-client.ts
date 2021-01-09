@@ -223,7 +223,9 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
         }
         Object.assign(deviceState, result.state);
       } catch (error) {
-        const message = `Writing '${key}' to '${resolvedEntity.name}' failed: '${error}'`;
+        const message = `Writing '${key}' to '${
+          resolvedEntity.name
+        }' failed with converter ${converter.key.join(', ')}: '${error}'`;
         this.log.error(message);
         this.log.debug(error.stack);
       }
@@ -277,13 +279,6 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
 
   async setBrightnessPercent(device: Device, brightnessPercent: number) {
     const brightness = Math.round(Number(brightnessPercent) * 2.55);
-    if (device.manufacturerName.includes('Philips')) {
-      //Special case for Philips HUE bulbs
-      await this.setCustomState(device, {
-        hue_power_on_behavior: 'recover',
-        hue_power_on_brightness: brightness,
-      });
-    }
     return this.writeDeviceState(device, {
       brightness,
     });
@@ -364,13 +359,6 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   }
 
   async setColorTemperature(device: Device, colorTemperature: number) {
-    if (device.manufacturerName.includes('Philips')) {
-      //Special case for Philips HUE bulbs
-      await this.setCustomState(device, {
-        hue_power_on_behavior: 'recover',
-        hue_power_on_color_temperature: colorTemperature,
-      });
-    }
     return this.writeDeviceState(device, {
       color_temp: colorTemperature,
     });
@@ -440,5 +428,9 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
 
   async setCustomState(device: Device, state: DeviceState) {
     return this.writeDeviceState(device, state);
+  }
+
+  async getState(device: Device, state: DeviceState) {
+    return this.readDeviceState(device, state);
   }
 }

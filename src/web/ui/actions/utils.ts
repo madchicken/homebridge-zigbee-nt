@@ -1,9 +1,8 @@
-import { DeviceResponse } from './devices';
+import { BaseResponse } from './devices';
 
-export function handleError(message: string): DeviceResponse {
+export function handleError(message: string): BaseResponse {
   return {
     result: 'error',
     error: message,
-    devices: null,
   };
 }
