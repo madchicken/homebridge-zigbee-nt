@@ -1,6 +1,7 @@
 import { ZigBeeAccessory } from '../zig-bee-accessory';
-import { Callback, CharacteristicEventTypes, CharacteristicGetCallback, Service } from 'homebridge';
+import { Callback, CharacteristicEventTypes, Service } from 'homebridge';
 import { DeviceState } from '../../zigbee/types';
+import { BatteryServiceBuilder } from '../../builders/battery-service-builder';
 
 export class XiaomiVibrationSensor extends ZigBeeAccessory {
   private contactService: Service;
@@ -32,36 +33,15 @@ export class XiaomiVibrationSensor extends ZigBeeAccessory {
 
     const supportedServices = [this.contactService];
     if (this.supports('battery')) {
-      this.contactService
-        .getCharacteristic(Characteristic.StatusLowBattery)
-        .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-          this.log.debug(
-            `XiaomiVibrationSensor get StatusLowBattery for ${this.accessory.displayName}`,
-            this.state
-          );
-
-          callback(
-            null,
-            this.state.battery && this.state.battery <= 10
-              ? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW
-              : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL
-          );
-        });
-
-      this.batteryService =
-        this.accessory.getService(this.platform.Service.BatteryService) ||
-        this.accessory.addService(this.platform.Service.BatteryService);
-
-      this.batteryService
-        .getCharacteristic(Characteristic.BatteryLevel)
-        .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
-          this.log.debug(
-            `XiaomiVibrationSensor get BatteryLevel for ${this.accessory.displayName}`,
-            this.state
-          );
-
-          callback(null, this.state.battery || 100);
-        });
+      this.batteryService = new BatteryServiceBuilder(
+        this.platform,
+        this.accessory,
+        this.client,
+        this.state
+      )
+        .withBattery()
+        .andLowBattery()
+        .build();
 
       supportedServices.push(this.batteryService);
     }
@@ -79,14 +59,10 @@ export class XiaomiVibrationSensor extends ZigBeeAccessory {
           ? Characteristic.ContactSensorState.CONTACT_DETECTED
           : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED
       );
-
-    if (this.supports('battery')) {
-      this.batteryService
-        .getCharacteristic(Characteristic.BatteryLevel)
-        .setValue(this.state.battery);
-      this.batteryService
-        .getCharacteristic(Characteristic.StatusLowBattery)
-        .setValue(this.state.battery < 10);
-    }
+    this.batteryService.updateCharacteristic(Characteristic.BatteryLevel, state.battery || 0);
+    this.batteryService.updateCharacteristic(
+      Characteristic.StatusLowBattery,
+      state.battery && state.battery < 10
+    );
   }
 }

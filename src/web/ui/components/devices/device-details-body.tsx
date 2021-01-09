@@ -1,20 +1,19 @@
 import React, { useState } from 'react';
 import {
+  Button,
   Card,
-  ForkIcon,
   Heading,
-  InfoSignIcon,
-  ListItem,
+  Label,
   Pane,
   Paragraph,
   Tab,
   Tablist,
-  UnorderedList,
+  Textarea,
 } from 'evergreen-ui';
 import { DeviceModel } from '../../actions/devices';
 import ReactJson from 'react-json-view';
 
-const TABS = ['Info', 'Endpoints'];
+const TABS = ['Info', 'Endpoints', 'State'];
 
 interface Props {
   device: DeviceModel;
@@ -45,7 +44,7 @@ function renderEndpoints(device: DeviceModel) {
     <Card
       backgroundColor="white"
       elevation={0}
-      height={240}
+      height={500}
       display="flex"
       alignItems="top"
       justifyContent="stretch"
@@ -56,12 +55,41 @@ function renderEndpoints(device: DeviceModel) {
   );
 }
 
+function renderCustomState(_device: DeviceModel) {
+  const placeholder = `{
+    "brightness": 128
+  }`;
+  return (
+    <Card
+      backgroundColor="white"
+      elevation={0}
+      height={400}
+      display="flex"
+      alignItems="top"
+      justifyContent="stretch"
+      flexDirection="column"
+    >
+      <Pane>
+        <Label htmlFor="textarea-2" marginBottom={4} display="block">
+          Set custom state
+        </Label>
+        <Textarea id="textarea-2" placeholder={placeholder} />
+        <Button appearance="primary" onClick={() => {}}>
+          Send
+        </Button>
+      </Pane>
+    </Card>
+  );
+}
+
 function renderSelectedTab(selectedTab: string, device: DeviceModel) {
   switch (selectedTab) {
     case 'Info':
       return renderInfo(device);
     case 'Endpoints':
       return renderEndpoints(device);
+    case 'State':
+      return renderCustomState(device);
   }
 }
 
