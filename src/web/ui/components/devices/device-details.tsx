@@ -1,6 +1,6 @@
 import { Dialog, IconButton, Pane, Paragraph, SideSheet, Spinner, TrashIcon } from 'evergreen-ui';
 import React, { ReactElement, useState } from 'react';
-import { DeviceModel, DeviceResponse, DevicesService } from '../../actions/devices';
+import { DeviceResponse, DevicesService } from '../../actions/devices';
 import { useQuery, useQueryClient } from 'react-query';
 import { Error } from '../error';
 import { useHistory } from 'react-router-dom';
@@ -8,6 +8,7 @@ import * as H from 'history';
 import { DeviceDetailsBody } from './device-details-body';
 import { DEVICES_QUERY_KEY } from './device-table';
 import { sizes } from '../constants';
+import { DeviceModel } from '../../../common/types';
 
 interface State {
   isDeleteConfirmationShown: boolean;

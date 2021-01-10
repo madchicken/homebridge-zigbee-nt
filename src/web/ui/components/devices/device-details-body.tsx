@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Card, Heading, Pane, Paragraph, Tab, TabNavigation } from 'evergreen-ui';
-import { DeviceModel } from '../../actions/devices';
 import ReactJson from 'react-json-view';
 import { DeviceStateManagement } from './device-state-management';
 import { sizes } from '../constants';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { DeviceModel } from '../../../common/types';
 dayjs.extend(relativeTime);
 
 const TABS = ['Info', 'Endpoints', 'State'];
+const COORDINATOR_TABS = ['Info', 'Endpoints'];
 
 interface Props {
   device: DeviceModel;
@@ -17,6 +18,10 @@ interface Props {
 interface State {
   selectedTab: string;
   isLoadingState: boolean;
+}
+
+function isCoordinator(device: DeviceModel) {
+  return device.type === 'Coordinator';
 }
 
 function renderInfo(device: DeviceModel) {
@@ -32,7 +37,23 @@ function renderInfo(device: DeviceModel) {
         <Heading size={400}>IEEE Address: {device.ieeeAddr}</Heading>
       </Pane>
       <Pane padding={sizes.padding.small}>
+        <Heading size={400}>Software build: {device.softwareBuildID}</Heading>
+      </Pane>
+      <Pane padding={sizes.padding.small}>
+        <Heading size={400}>Link quality: {device.linkquality}</Heading>
+      </Pane>
+      <Pane padding={sizes.padding.small}>
         <Heading size={400}>Last seen: {dayjs(device.lastSeen).fromNow(false)}</Heading>
+      </Pane>
+    </>
+  );
+}
+
+function renderCoordinatorInfo(device: DeviceModel) {
+  return (
+    <>
+      <Pane padding={sizes.padding.small}>
+        <Heading size={400}>IEEE Address: {device.ieeeAddr}</Heading>
       </Pane>
     </>
   );
@@ -59,7 +80,7 @@ function renderSelectedTab(selectedTab: string, device: DeviceModel) {
   let content = null;
   switch (selectedTab) {
     case 'Info':
-      content = renderInfo(device);
+      content = isCoordinator(device) ? renderCoordinatorInfo(device) : renderInfo(device);
       break;
     case 'Endpoints':
       content = renderEndpoints(device);
@@ -103,7 +124,7 @@ export function DeviceDetailsBody(props: Props) {
         height={`calc(100% - ${sizes.header.medium}px)`}
       >
         <TabNavigation marginBottom={sizes.margin.medium}>
-          {TABS.map(tab => (
+          {(isCoordinator(device) ? COORDINATOR_TABS : TABS).map(tab => (
             <Tab
               key={tab}
               isSelected={state.selectedTab === tab}

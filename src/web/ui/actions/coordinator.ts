@@ -1,5 +1,7 @@
-import { BaseResponse, DeviceModel, normalizeDeviceModel } from './devices';
+import { BaseResponse } from './devices';
 import { handleError } from './utils';
+import { DeviceModel } from '../../common/types';
+import { normalizeDeviceModel } from '../../common/utils';
 
 export interface CoordinatorResponse extends BaseResponse {
   coordinator?: DeviceModel;

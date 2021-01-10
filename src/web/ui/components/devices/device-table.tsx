@@ -1,11 +1,12 @@
 import React, { ReactElement } from 'react';
 import { Heading, Pane, Spinner, Table } from 'evergreen-ui';
 import { useQuery } from 'react-query';
-import { DeviceModel, DeviceResponse, DevicesService } from '../../actions/devices';
+import { DeviceResponse, DevicesService } from '../../actions/devices';
 import { Error } from '../error';
 import { useHistory } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { sizes } from '../constants';
+import { DeviceModel } from '../../../common/types';
 
 function renderTable(devices: DeviceModel[], history) {
   return (
