@@ -5,7 +5,7 @@ import { DeviceStateManagement } from './device-state-management';
 import { sizes } from '../constants';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { DeviceModel } from '../../../common/types';
+import { CoordinatorModel, DeviceModel } from '../../../common/types';
 dayjs.extend(relativeTime);
 
 const TABS = ['Info', 'Endpoints', 'State'];
@@ -21,6 +21,7 @@ interface State {
 }
 
 function isCoordinator(device: DeviceModel) {
+  console.log(device.type);
   return device.type === 'Coordinator';
 }
 
@@ -49,11 +50,21 @@ function renderInfo(device: DeviceModel) {
   );
 }
 
-function renderCoordinatorInfo(device: DeviceModel) {
+function renderCoordinatorInfo(device: CoordinatorModel) {
   return (
     <>
       <Pane padding={sizes.padding.small}>
         <Heading size={400}>IEEE Address: {device.ieeeAddr}</Heading>
+      </Pane>
+      <Pane padding={sizes.padding.small}>
+        <Heading size={400}>
+          Version: {device.meta.majorrel}.{device.meta.minorrel} (rev. {device.meta.revision})
+        </Heading>
+      </Pane>
+      <Pane padding={sizes.padding.small}>
+        <Heading size={400}>
+          Transport Version: {device.meta.maintrel} (rev. {device.meta.transportrev})
+        </Heading>
       </Pane>
     </>
   );
@@ -80,7 +91,9 @@ function renderSelectedTab(selectedTab: string, device: DeviceModel) {
   let content = null;
   switch (selectedTab) {
     case 'Info':
-      content = isCoordinator(device) ? renderCoordinatorInfo(device) : renderInfo(device);
+      content = isCoordinator(device)
+        ? renderCoordinatorInfo(device as CoordinatorModel)
+        : renderInfo(device);
       break;
     case 'Endpoints':
       content = renderEndpoints(device);
