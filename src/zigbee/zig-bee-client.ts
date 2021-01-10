@@ -433,4 +433,8 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   async getState(device: Device, state: DeviceState) {
     return this.readDeviceState(device, state);
   }
+
+  async getCoordinatorVersion() {
+    return this.zigBee.getCoordinatorVersion();
+  }
 }
