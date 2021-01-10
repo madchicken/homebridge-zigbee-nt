@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Button, Pane, TextareaField } from 'evergreen-ui';
-import { DeviceModel, DevicesService } from '../../actions/devices';
+import { DevicesService } from '../../actions/devices';
 import { DeviceState } from '../../../../zigbee/types';
 import { sizes } from '../constants';
 import ReactJson from 'react-json-view';
+import { DeviceModel } from '../../../common/types';
 
 interface Props {
   device: DeviceModel;
