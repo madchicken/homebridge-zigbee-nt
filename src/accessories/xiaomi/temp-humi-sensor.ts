@@ -18,6 +18,7 @@ export class TempHumiSensor extends ZigBeeAccessory {
     )
       .withTemperature()
       .build();
+
     this.humidityService = new HumiditySensorServiceBuilder(
       this.platform,
       this.accessory,
