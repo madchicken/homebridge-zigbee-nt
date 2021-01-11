@@ -40,6 +40,7 @@ export interface DeviceState {
     | 'play_pause'
     | 'single'
     | 'double'
+    | 'tripple'
     | 'hold'
     | 'release';
   state_l1?: 'ON' | 'OFF' | 'TOGGLE';
@@ -71,7 +72,28 @@ export interface DeviceState {
     | 'brightness_stop'
     | 'vibration'
     | 'tilt'
+    | 'button_1_hold'
+    | 'button_2_hold'
+    | 'button_3_hold'
+    | 'button_4_hold'
+    | 'button_1_release'
+    | 'button_2_release'
+    | 'button_3_release'
+    | 'button_4_release'
+    | 'button_1_single'
+    | 'button_2_single'
+    | 'button_3_single'
+    | 'button_4_single'
+    | 'button_1_double'
+    | 'button_2_double'
+    | 'button_3_double'
+    | 'button_4_double'
+    | 'button_1_tripple'  
+    | 'button_2_tripple'  
+    | 'button_3_tripple'  
+    | 'button_4_tripple'  
     | 'drop';
+
   occupancy?: boolean;
   tamper?: boolean;
   battery_low?: boolean;
