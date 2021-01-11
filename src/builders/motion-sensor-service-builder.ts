@@ -28,9 +28,6 @@ export class MotionSensorServiceBuilder extends ServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.MotionDetected)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
-        if (this.state.occupancy) {
-          this.log.debug(`Motion detected for sensor ${this.accessory.displayName}`);
-        }
         callback(null, this.state.occupancy);
       });
 
