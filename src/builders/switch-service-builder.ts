@@ -32,7 +32,6 @@ export class SwitchServiceBuilder extends ServiceBuilder {
         async (yes: boolean, callback: CharacteristicSetCallback) => {
           try {
             Object.assign(this.state, await this.client.setOn(this.device, yes));
-            this.log.info(`New state for ${this.accessory.displayName}`, this.state);
             callback();
           } catch (e) {
             callback(e);

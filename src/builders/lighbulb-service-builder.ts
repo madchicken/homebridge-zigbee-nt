@@ -33,7 +33,6 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
         async (yes: boolean, callback: CharacteristicSetCallback) => {
           try {
             Object.assign(this.state, await this.client.setOn(this.device, yes));
-            this.log.info(`New state for ${this.accessory.displayName}`, this.state);
             callback();
           } catch (e) {
             callback(e);
@@ -45,7 +44,6 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
           Object.assign(this.state, await this.client.getOnOffState(this.device));
-          this.log.debug(`Reporting On for ${this.accessory.displayName}`, this.state);
           callback(null, this.state.state === 'ON');
         } catch (e) {
           callback(e);
@@ -78,7 +76,6 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
           Object.assign(this.state, await this.client.getBrightnessPercent(this.device));
-          this.log.debug(`Reporting Brightness for ${this.accessory.displayName}`, this.state);
           callback(null, this.state.brightness_percent);
         } catch (e) {
           callback(e);
