@@ -137,7 +137,7 @@ function registerSupportedDevices(): void {
     XiaomiContactSensor
   );
   registerAccessoryClass('Xiaomi', ['GZCGQ01LM'], XiaomiLightIntensitySensor);
-  registerAccessoryClass('Xiaomi', ['WXKG11LM', 'WXKG03LM', 'WXKG12LM'], XiaomiWirelessSwitch);
+  registerAccessoryClass('Xiaomi', ['WXKG11LM', 'WXKG03LM', 'WXKG12LM', 'WXCJKG11LM', 'WXCJKG12LM', 'WXCJKG13LM'], XiaomiWirelessSwitch);
   registerAccessoryClass(
     'LUMI',
     ['lumi.weather', 'lumi.sensor_ht.agl02', 'lumi.sensor_ht'],
@@ -157,6 +157,9 @@ function registerSupportedDevices(): void {
       'lumi.remote.b1acn01',
       'lumi.sensor_86sw1',
       'lumi.remote.b186acn01',
+      'lumi.remote.b286opcn01',
+      'lumi.remote.b486opcn01',
+      'lumi.remote.b686opcn01',
     ],
     XiaomiWirelessSwitch
   );
