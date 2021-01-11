@@ -110,26 +110,26 @@ export class AqaraOppleSwitch extends ZigBeeAccessory {
           .setValue(ProgrammableSwitchEvent.DOUBLE_PRESS);
         break;
     // tripple press
-      case 'button_1_tripple':
-        this.switchServiceUpperLeft
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.TRIPPLE_PRESS);
-        break;
-      case 'button_2_tripple':
-        this.switchServiceUpperRight
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.TRIPPLE_PRESS);
-        break;
-      case 'button_3_tripple':
-        this.switchServiceBottomLeft
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.TRIPPLE_PRESS);
-        break;
-      case 'button_4_tripple':
-        this.switchServiceBottomRight
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.TRIPPLE_PRESS);
-        break;
+    //   case 'button_1_tripple':
+    //     this.switchServiceUpperLeft
+    //       .getCharacteristic(ProgrammableSwitchEvent)
+    //       .setValue(ProgrammableSwitchEvent.TRIPPLE_PRESS);
+    //     break;
+    //   case 'button_2_tripple':
+    //     this.switchServiceUpperRight
+    //       .getCharacteristic(ProgrammableSwitchEvent)
+    //       .setValue(ProgrammableSwitchEvent.TRIPPLE_PRESS);
+    //     break;
+    //   case 'button_3_tripple':
+    //     this.switchServiceBottomLeft
+    //       .getCharacteristic(ProgrammableSwitchEvent)
+    //       .setValue(ProgrammableSwitchEvent.TRIPPLE_PRESS);
+    //     break;
+    //   case 'button_4_tripple':
+    //     this.switchServiceBottomRight
+    //       .getCharacteristic(ProgrammableSwitchEvent)
+    //       .setValue(ProgrammableSwitchEvent.TRIPPLE_PRESS);
+    //     break;
     //long press
       case 'button_1_hold':
         this.switchServiceUpperLeft
