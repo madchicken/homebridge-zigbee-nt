@@ -176,7 +176,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
       });
     });
 
-    this.log.info(`Device state (${device.modelID}): `, deviceState);
+    this.log.debug(`Device state (${device.modelID}): `, deviceState);
     return deviceState;
   }
 

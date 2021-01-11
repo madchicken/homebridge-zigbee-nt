@@ -240,10 +240,10 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
         return await zigBeeAccessory.onDeviceMount();
       }
     } catch (error) {
-      this.log.info(
+      this.log.warn(
         `Unable to initialize device ${ieeeAddr}, ` + 'try to remove it and add it again.\n'
       );
-      this.log.info('Reason:', error);
+      this.log.warn('Reason:', error);
     }
   }
 

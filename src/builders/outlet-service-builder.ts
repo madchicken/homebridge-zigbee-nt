@@ -45,10 +45,6 @@ export class OutletServiceBuilder extends ServiceBuilder {
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
           const state = await this.client.getOnOffState(this.device);
-          this.log.info(
-            `Reporting state for ${this.accessory.displayName}: ${state.state} (${state.state ===
-              'ON'})`
-          );
           callback(null, state.state === 'ON');
         } catch (e) {
           callback(e);
