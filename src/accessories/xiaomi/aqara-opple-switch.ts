@@ -4,8 +4,8 @@ import { DeviceState } from '../../zigbee/types';
 import { ProgrammableSwitchServiceBuilder } from '../../builders/programmable-switch-service-builder';
 
 export class AqaraOppleSwitch extends ZigBeeAccessory {
-  protected switchServiceUpperLeft: Service;
-  protected switchServiceUpperRight: Service;
+  protected switchServiceTopLeft: Service;
+  protected switchServiceTopRight: Service;
   protected switchServiceBottomLeft: Service;
   protected switchServiceBottomRight: Service;
   protected batteryService: Service;
@@ -23,8 +23,8 @@ export class AqaraOppleSwitch extends ZigBeeAccessory {
     [   
         this.switchServiceBottomLeft, 
         this.switchServiceBottomRight,
-        this.switchServiceUpperLeft,
-        this.switchServiceUpperRight,
+        this.switchServiceTopLeft,
+        this.switchServiceTopRight,
         this.batteryService,
     ] = builder
       .withStatelessSwitch('button_1', 'top_left', 1, [
@@ -57,8 +57,8 @@ export class AqaraOppleSwitch extends ZigBeeAccessory {
     return [
         this.switchServiceBottomLeft, 
         this.switchServiceBottomRight,
-        this.switchServiceUpperLeft,
-        this.switchServiceUpperRight,
+        this.switchServiceTopLeft,
+        this.switchServiceTopRight,
         this.batteryService
     ];
   }
@@ -69,12 +69,12 @@ export class AqaraOppleSwitch extends ZigBeeAccessory {
     switch (state.action) {
     //single press
       case 'button_1_single':
-        this.switchServiceUpperLeft
+        this.switchServiceTopLeft
           .getCharacteristic(ProgrammableSwitchEvent)
           .setValue(ProgrammableSwitchEvent.SINGLE_PRESS);
         break;
       case 'button_2_single':
-        this.switchServiceUpperRight
+        this.switchServiceTopRight
           .getCharacteristic(ProgrammableSwitchEvent)
           .setValue(ProgrammableSwitchEvent.SINGLE_PRESS);
         break;
@@ -90,12 +90,12 @@ export class AqaraOppleSwitch extends ZigBeeAccessory {
         break;
     //double press
       case 'button_1_double':
-        this.switchServiceUpperLeft
+        this.switchServiceTopLeft
           .getCharacteristic(ProgrammableSwitchEvent)
           .setValue(ProgrammableSwitchEvent.DOUBLE_PRESS);
         break;
       case 'button_2_double':
-        this.switchServiceUpperRight
+        this.switchServiceTopRight
           .getCharacteristic(ProgrammableSwitchEvent)
           .setValue(ProgrammableSwitchEvent.DOUBLE_PRESS);
         break;
@@ -111,12 +111,12 @@ export class AqaraOppleSwitch extends ZigBeeAccessory {
         break;
     // tripple press
     //   case 'button_1_tripple':
-    //     this.switchServiceUpperLeft
+    //     this.switchServiceTopLeft
     //       .getCharacteristic(ProgrammableSwitchEvent)
     //       .setValue(ProgrammableSwitchEvent.TRIPPLE_PRESS);
     //     break;
     //   case 'button_2_tripple':
-    //     this.switchServiceUpperRight
+    //     this.switchServiceTopRight
     //       .getCharacteristic(ProgrammableSwitchEvent)
     //       .setValue(ProgrammableSwitchEvent.TRIPPLE_PRESS);
     //     break;
@@ -132,12 +132,12 @@ export class AqaraOppleSwitch extends ZigBeeAccessory {
     //     break;
     //long press
       case 'button_1_hold':
-        this.switchServiceUpperLeft
+        this.switchServiceTopLeft
           .getCharacteristic(ProgrammableSwitchEvent)
           .setValue(ProgrammableSwitchEvent.LONG_PRESS);
         break;
       case 'button_2_hold':
-        this.switchServiceUpperRight
+        this.switchServiceTopRight
           .getCharacteristic(ProgrammableSwitchEvent)
           .setValue(ProgrammableSwitchEvent.LONG_PRESS);
         break;
