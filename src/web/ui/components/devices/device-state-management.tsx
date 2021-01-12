@@ -27,7 +27,11 @@ export function DeviceStateManagement(props: Props) {
     try {
       const newState = JSON.parse(state.deviceState) as DeviceState;
       const res = await DevicesService.setDeviceState(device.ieeeAddr, newState);
-      response = res.state;
+      if (res.result === 'error') {
+        setState({ ...state, error: res.error });
+      } else {
+        response = res.state;
+      }
     } catch (e) {
       setState({ ...state, error: e.message });
     } finally {
@@ -42,9 +46,15 @@ export function DeviceStateManagement(props: Props) {
     try {
       const newState = JSON.parse(state.deviceState) as DeviceState;
       const res = await DevicesService.getDeviceState(device.ieeeAddr, newState);
-      response = res.state;
+      console.log(res);
+      if (res.result === 'error') {
+        setState({ ...state, error: res.error });
+      } else {
+        response = res.state;
+      }
     } catch (e) {
-      setState({ ...state, error: e.message });
+      console.log(e);
+      setState({ ...state, error: e.toString() });
     } finally {
       setState({ ...state, isWorking: false, stateResponse: response });
     }
@@ -56,7 +66,7 @@ export function DeviceStateManagement(props: Props) {
         label="Get or Set custom state"
         placeholder="Insert a valid json state here"
         value={state.deviceState}
-        hint={state.error || ''}
+        hint={state.error || 'test'}
         required
         onChange={e => setState({ ...state, deviceState: e.target.value })}
       />

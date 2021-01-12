@@ -1,5 +1,5 @@
 import { Service } from 'homebridge';
-import { XiaomiMotionSensor } from './motion-sensor';
+import { XiaomiMotionSensor } from './xiaomi-motion-sensor';
 import { AmbientLightServiceBuilder } from '../../builders/ambient-light-service-builder';
 
 export class XiaomiMotionIlluminanceSensor extends XiaomiMotionSensor {

@@ -12,11 +12,11 @@ import { IkeaTradfriOutlet } from './accessories/ikea/ikea-tradfri-outlet';
 import { IkeaTradfriDimColor } from './accessories/ikea/ikea-tradfri-dim-color';
 import { IkeaOnoffSwitch } from './accessories/ikea/ikea-onoff-switch';
 import { InnrWhiteTemperature } from './accessories/innr/innr-white-temperature';
-import { TempHumiSensor } from './accessories/xiaomi/temp-humi-sensor';
+import { XiaomiTempHumiSensor } from './accessories/xiaomi/xiaomi-temp-humi-sensor';
 import { GledoptoDim } from './accessories/gledopto/gledopto-dim';
 import { TuyaOnoffDoubleSwitch } from './accessories/tuya/tuya-onoff-double-switch';
 import { XiaomiContactSensor } from './accessories/xiaomi/xiaomi-contact-sensor';
-import { XiaomiLightIntensitySensor } from './accessories/xiaomi/light-intensity-sensor';
+import { XiaomiLightIntensitySensor } from './accessories/xiaomi/xiaomi-light-intensity-sensor';
 import { XiaomiOutlet } from './accessories/xiaomi/xiaomi-outlet';
 import { IkeaRemoteSwitch } from './accessories/ikea/ikea-remote-switch';
 import { IkeaMotionSensor } from './accessories/ikea/ikea-motion-sensor';
@@ -25,8 +25,8 @@ import { NamronDimmer } from './accessories/namron/namron-dimmer';
 import { NamronSwitch } from './accessories/namron/namron-switch';
 import { XiaomiVibrationSensor } from './accessories/xiaomi/xiaomi-vibration-sensor';
 import { LonsonhoDoubleSwitch } from './accessories/lonsonho/lonsonho-double-switch';
-import { XiaomiLeakSensor } from './accessories/xiaomi/leak-sensor';
-import { XiaomiMotionSensor } from './accessories/xiaomi/motion-sensor';
+import { XiaomiLeakSensor } from './accessories/xiaomi/xiaomi-leak-sensor';
+import { XiaomiMotionSensor } from './accessories/xiaomi/xiaomi-motion-sensor';
 import { XiaomiWirelessSwitch } from './accessories/xiaomi/xiaomi-wireless-switch';
 import { SonoffContactSensor } from './accessories/sonoff/contact-sensor';
 import { IkeaShurtcutSwitch } from './accessories/ikea/ikea-shurtcut-switch';
@@ -132,7 +132,7 @@ function registerSupportedDevices(): void {
 
   registerAccessoryClass('LUMI', ['DJT11LM', 'DJT12LM'], XiaomiVibrationSensor);
 
-  registerAccessoryClass('Xiaomi', ['WSDCGQ01LM', 'WSDCGQ11LM'], TempHumiSensor);
+  registerAccessoryClass('Xiaomi', ['WSDCGQ01LM', 'WSDCGQ11LM'], XiaomiTempHumiSensor);
   registerAccessoryClass(
     'Xiaomi',
     ['lumi.sensor_magnet', 'lumi.sensor_magnet.aq2'],
@@ -144,7 +144,7 @@ function registerSupportedDevices(): void {
   registerAccessoryClass(
     'LUMI',
     ['lumi.weather', 'lumi.sensor_ht.agl02', 'lumi.sensor_ht'],
-    TempHumiSensor
+    XiaomiTempHumiSensor
   );
   registerAccessoryClass(
     'LUMI',
