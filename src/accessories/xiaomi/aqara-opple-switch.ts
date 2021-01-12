@@ -27,22 +27,22 @@ export class AqaraOppleSwitch extends ZigBeeAccessory {
         this.switchServiceTopRight,
         this.batteryService,
     ] = builder
-      .withStatelessSwitch('button_1', 'top_left', 3, [
+      .withStatelessSwitch('button_1', 'top_left', 1, [
         ProgrammableSwitchEvent.SINGLE_PRESS,
         ProgrammableSwitchEvent.DOUBLE_PRESS,
         ProgrammableSwitchEvent.LONG_PRESS,
       ])
-      .withStatelessSwitch('button_2', 'top_right', 4, [
+      .withStatelessSwitch('button_2', 'top_right', 2, [
         ProgrammableSwitchEvent.SINGLE_PRESS,
         ProgrammableSwitchEvent.DOUBLE_PRESS,
         ProgrammableSwitchEvent.LONG_PRESS,
       ])
-      .withStatelessSwitch('button_3', 'bottom_left', 1, [
+      .withStatelessSwitch('button_3', 'bottom_left', 3, [
         ProgrammableSwitchEvent.SINGLE_PRESS,
         ProgrammableSwitchEvent.DOUBLE_PRESS,
         ProgrammableSwitchEvent.LONG_PRESS,
       ])
-      .withStatelessSwitch('button_4', 'bottom_right', 2, [
+      .withStatelessSwitch('button_4', 'bottom_right', 4, [
         ProgrammableSwitchEvent.SINGLE_PRESS,
         ProgrammableSwitchEvent.DOUBLE_PRESS,
         ProgrammableSwitchEvent.LONG_PRESS,
