@@ -4,7 +4,7 @@ import { TemperatureSensorServiceBuilder } from '../../builders/temperature-sens
 import { HumiditySensorServiceBuilder } from '../../builders/humidity-sensor-service-builder';
 import { BatteryServiceBuilder } from '../../builders/battery-service-builder';
 
-export class TempHumiSensor extends ZigBeeAccessory {
+export class XiaomiTempHumiSensor extends ZigBeeAccessory {
   private temperatureService: Service;
   private humidityService: Service;
   private batteryService: Service;

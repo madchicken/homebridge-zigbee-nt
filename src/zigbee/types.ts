@@ -95,8 +95,10 @@ export interface DeviceState {
     | 'button_4_double'
     | 'button_5_double'
     | 'button_6_double'
-    | 'drop';
-
+    | 'drop'
+    | 'single'
+    | 'hold'
+    | 'double';
   occupancy?: boolean;
   tamper?: boolean;
   battery_low?: boolean;
