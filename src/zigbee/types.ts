@@ -71,7 +71,32 @@ export interface DeviceState {
     | 'brightness_stop'
     | 'vibration'
     | 'tilt'
+    | 'button_1_hold'
+    | 'button_2_hold'
+    | 'button_3_hold'
+    | 'button_4_hold'
+    | 'button_5_hold'
+    | 'button_6_hold'
+    | 'button_1_release'
+    | 'button_2_release'
+    | 'button_3_release'
+    | 'button_4_release'
+    | 'button_5_release'
+    | 'button_6_release'
+    | 'button_1_single'
+    | 'button_2_single'
+    | 'button_3_single'
+    | 'button_4_single'
+    | 'button_5_single'
+    | 'button_6_single'
+    | 'button_1_double'
+    | 'button_2_double'
+    | 'button_3_double'
+    | 'button_4_double'
+    | 'button_5_double'
+    | 'button_6_double'
     | 'drop';
+
   occupancy?: boolean;
   tamper?: boolean;
   battery_low?: boolean;
