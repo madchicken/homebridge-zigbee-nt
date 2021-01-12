@@ -21,7 +21,6 @@ interface State {
 }
 
 function isCoordinator(device: DeviceModel) {
-  console.log(device.type);
   return device.type === 'Coordinator';
 }
 
