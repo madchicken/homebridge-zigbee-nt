@@ -1,6 +1,6 @@
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import Bundler from 'parcel-bundler';
-import express from 'express';
+import express, { Express } from 'express';
 
 const bundler = new Bundler('public/index.html', {
   cache: true,
@@ -9,7 +9,7 @@ const bundler = new Bundler('public/index.html', {
 // eslint-disable-next-line no-undef
 const PROXY = process.env.PROXY || 'http://homebridge.local:9000';
 
-const app = express();
+const app: Express = express();
 
 app.use(
   '/api',

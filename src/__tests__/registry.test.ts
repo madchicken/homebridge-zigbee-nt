@@ -4,6 +4,8 @@ import { XiaomiTempHumiSensor } from '../accessories/xiaomi/xiaomi-temp-humi-sen
 import Database from 'zigbee-herdsman/dist/controller/database';
 import { IkeaOnoffSwitch } from '../accessories/ikea/ikea-onoff-switch';
 import { GledoptoDim } from '../accessories/gledopto/gledopto-dim';
+import { PhilipsHueWhiteAndColor } from '../accessories/philips/philips-hue-white-and-color';
+import { PhilipsHueWhiteTemperature } from '../accessories/philips/philips-hue-white-temperature';
 
 describe('Device Registry', () => {
   it('should recognize Xiaomi temperature sensor', async () => {
@@ -31,5 +33,23 @@ describe('Device Registry', () => {
     const device: Device = Device.byIeeeAddr('0x00124b001f79d7f0');
     const ctor = getAccessoryClass(device.manufacturerName, device.modelID);
     expect(ctor).toBe(GledoptoDim);
+  });
+
+  it('should recognize Philips LCT015 bulb', () => {
+    registerAccessoryClass('Philips', ['LCT015'], PhilipsHueWhiteAndColor);
+    const db: Database = Database.open(`${__dirname}/test.db`);
+    Device.injectDatabase(db);
+    const device: Device = Device.byIeeeAddr('0x0017880106ef252d');
+    const ctor = getAccessoryClass(device.manufacturerName, device.modelID);
+    expect(ctor).toBe(PhilipsHueWhiteAndColor);
+  });
+
+  it('should recognize Philips LWA001 bulb', () => {
+    registerAccessoryClass('Philips', ['LWA001'], PhilipsHueWhiteTemperature);
+    const db: Database = Database.open(`${__dirname}/test.db`);
+    Device.injectDatabase(db);
+    const device: Device = Device.byIeeeAddr('0x0017880108206ff6');
+    const ctor = getAccessoryClass(device.manufacturerName, device.modelID);
+    expect(ctor).toBe(PhilipsHueWhiteTemperature);
   });
 });
