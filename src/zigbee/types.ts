@@ -40,7 +40,6 @@ export interface DeviceState {
     | 'play_pause'
     | 'single'
     | 'double'
-    | 'tripple'
     | 'hold'
     | 'release';
   state_l1?: 'ON' | 'OFF' | 'TOGGLE';
