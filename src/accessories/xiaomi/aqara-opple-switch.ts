@@ -27,28 +27,24 @@ export class AqaraOppleSwitch extends ZigBeeAccessory {
         this.switchServiceTopRight,
         this.batteryService,
     ] = builder
-      .withStatelessSwitch('button_1', 'top_left', 1, [
+      .withStatelessSwitch('button_1', 'top_left', 3, [
         ProgrammableSwitchEvent.SINGLE_PRESS,
         ProgrammableSwitchEvent.DOUBLE_PRESS,
-        //ProgrammableSwitchEvent.TRIPPLE_PRESS,
         ProgrammableSwitchEvent.LONG_PRESS,
       ])
-      .withStatelessSwitch('button_2', 'top_right', 2, [
+      .withStatelessSwitch('button_2', 'top_right', 4, [
         ProgrammableSwitchEvent.SINGLE_PRESS,
         ProgrammableSwitchEvent.DOUBLE_PRESS,
-        //ProgrammableSwitchEvent.TRIPPLE_PRESS,
         ProgrammableSwitchEvent.LONG_PRESS,
       ])
-      .withStatelessSwitch('button_3', 'bottom_left', 3, [
+      .withStatelessSwitch('button_3', 'bottom_left', 1, [
         ProgrammableSwitchEvent.SINGLE_PRESS,
         ProgrammableSwitchEvent.DOUBLE_PRESS,
-        //ProgrammableSwitchEvent.TRIPPLE_PRESS,
         ProgrammableSwitchEvent.LONG_PRESS,
       ])
-      .withStatelessSwitch('button_4', 'bottom_right', 4, [
+      .withStatelessSwitch('button_4', 'bottom_right', 2, [
         ProgrammableSwitchEvent.SINGLE_PRESS,
         ProgrammableSwitchEvent.DOUBLE_PRESS,
-        //ProgrammableSwitchEvent.TRIPPLE_PRESS,
         ProgrammableSwitchEvent.LONG_PRESS,
       ])
       .andBattery()
@@ -109,27 +105,6 @@ export class AqaraOppleSwitch extends ZigBeeAccessory {
           .getCharacteristic(ProgrammableSwitchEvent)
           .setValue(ProgrammableSwitchEvent.DOUBLE_PRESS);
         break;
-    // tripple press
-    //   case 'button_1_tripple':
-    //     this.switchServiceTopLeft
-    //       .getCharacteristic(ProgrammableSwitchEvent)
-    //       .setValue(ProgrammableSwitchEvent.TRIPPLE_PRESS);
-    //     break;
-    //   case 'button_2_tripple':
-    //     this.switchServiceTopRight
-    //       .getCharacteristic(ProgrammableSwitchEvent)
-    //       .setValue(ProgrammableSwitchEvent.TRIPPLE_PRESS);
-    //     break;
-    //   case 'button_3_tripple':
-    //     this.switchServiceBottomLeft
-    //       .getCharacteristic(ProgrammableSwitchEvent)
-    //       .setValue(ProgrammableSwitchEvent.TRIPPLE_PRESS);
-    //     break;
-    //   case 'button_4_tripple':
-    //     this.switchServiceBottomRight
-    //       .getCharacteristic(ProgrammableSwitchEvent)
-    //       .setValue(ProgrammableSwitchEvent.TRIPPLE_PRESS);
-    //     break;
     //long press
       case 'button_1_hold':
         this.switchServiceTopLeft
