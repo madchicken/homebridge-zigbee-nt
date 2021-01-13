@@ -28,6 +28,7 @@ import {
 import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { HttpServer } from './web/api/http-server';
 import { DeviceState } from './zigbee/types';
+import * as fs from 'fs';
 
 const PERMIT_JOIN_ACCESSORY_NAME = 'zigbee:permit-join';
 const TOUCH_LINK_ACCESSORY_NAME = 'zigbee:touchlink';
@@ -61,11 +62,16 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     public readonly config: ZigBeeNTPlatformConfig,
     public readonly api: API
   ) {
+    const packageJson = JSON.parse(
+      fs.readFileSync(`${path.resolve(__dirname, '../package.json')}`, 'utf-8')
+    );
     this.accessories = new Map<string, PlatformAccessory>();
     this.homekitAccessories = new Map<string, ZigBeeAccessory>();
     this.permitJoinAccessory = null;
     this.PlatformAccessory = this.api.platformAccessory;
-    this.log.info(`Initializing platform: ${this.config.name}`);
+    this.log.info(
+      `Initializing platform: ${this.config.name} - v${packageJson.version} (API v${api.version})`
+    );
     this.api.on(APIEvent.DID_FINISH_LAUNCHING, () => this.startZigBee());
     this.api.on(APIEvent.SHUTDOWN, () => this.stopZigbee());
   }
