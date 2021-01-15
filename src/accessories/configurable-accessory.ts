@@ -6,35 +6,20 @@ import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { ContactSensorServiceBuilder } from '../builders/contact-sensor-service-builder';
 import { MotionSensorServiceBuilder } from '../builders/motion-sensor-service-builder';
 import { LighbulbServiceBuilder } from '../builders/lighbulb-service-builder';
-
-type ServiceType = 'contact-sensor' | 'bulb' | 'motion-sensor';
-
-interface ExposedService {
-  type: ServiceType;
-  meta: {
-    colorTemp?: boolean;
-    batteryLow?: boolean;
-    colorXY?: boolean;
-    brightness?: boolean;
-  };
-}
-
-export interface AccessoryConfig {
-  exposedServices: ExposedService[];
-}
+import { DeviceConfig } from '../types';
 
 /**
  * Generic device accessory builder
  */
 export class ConfigurableAccessory extends ZigBeeAccessory {
-  private readonly accessoryConfig: AccessoryConfig;
+  private readonly accessoryConfig: DeviceConfig;
 
   constructor(
     platform: ZigbeeNTHomebridgePlatform,
     accessory: PlatformAccessory,
     client: ZigBeeClient,
     device: Device,
-    config: AccessoryConfig
+    config: DeviceConfig
   ) {
     super(platform, accessory, client, device);
     this.accessoryConfig = config;

@@ -5,7 +5,6 @@ import {
   DynamicPlatformPlugin,
   Logger,
   PlatformAccessory,
-  PlatformConfig,
   Service,
 } from 'homebridge';
 
@@ -14,8 +13,8 @@ import * as path from 'path';
 import { PermitJoinAccessory } from './accessories/permit-join-accessory';
 import { sleep } from './utils/sleep';
 import { parseModelName } from './utils/parse-model-name';
-import { ZigBeeAccessory, ZigBeeAccessoryCtor } from './accessories/zig-bee-accessory';
-import { getAccessoryClass } from './registry';
+import { ZigBeeAccessory } from './accessories/zig-bee-accessory';
+import { createAccessoryInstance, registerAccessoryFactory } from './registry';
 import { ZigBeeClient } from './zigbee/zig-bee-client';
 import { TouchlinkAccessory } from './accessories/touchlink-accessory';
 import {
@@ -29,22 +28,11 @@ import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { HttpServer } from './web/api/http-server';
 import { DeviceState } from './zigbee/types';
 import * as fs from 'fs';
+import { ZigBeeNTPlatformConfig } from './types';
+import { ConfigurableAccessory } from './accessories/configurable-accessory';
 
 const PERMIT_JOIN_ACCESSORY_NAME = 'zigbee:permit-join';
 const TOUCH_LINK_ACCESSORY_NAME = 'zigbee:touchlink';
-
-interface ZigBeeNTPlatformConfig extends PlatformConfig {
-  name: string;
-  port?: string;
-  panId?: number;
-  channel?: number;
-  secondaryChannel?: string;
-  database?: string;
-  httpPort?: number;
-  disableRoutingPolling?: boolean;
-  disableHttpServer?: boolean;
-  routerPollingInterval?: number;
-}
 
 export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service = this.api.hap.Service;
@@ -72,6 +60,25 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     this.log.info(
       `Initializing platform: ${this.config.name} - v${packageJson.version} (API v${api.version})`
     );
+    if (config.devices) {
+      config.devices.forEach(config => {
+        this.log.info(
+          `Registering custom configured device ${config.manufacturer} - ${config.models.join(
+            ', '
+          )}`
+        );
+        registerAccessoryFactory(
+          config.manufacturer,
+          config.models,
+          (
+            platform: ZigbeeNTHomebridgePlatform,
+            accessory: PlatformAccessory,
+            client: ZigBeeClient,
+            device: Device
+          ) => new ConfigurableAccessory(platform, accessory, client, device, config)
+        );
+      });
+    }
     this.api.on(APIEvent.DID_FINISH_LAUNCHING, () => this.startZigBee());
     this.api.on(APIEvent.SHUTDOWN, () => this.stopZigbee());
   }
@@ -226,13 +233,20 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     const model = parseModelName(device.modelID);
     const manufacturer = device.manufacturerName;
     const ieeeAddr = device.ieeeAddr;
-    const ZigBeeAccessory: ZigBeeAccessoryCtor = getAccessoryClass(manufacturer, model);
+    const accessory = this.createHapAccessory(ieeeAddr);
+    const homeKitAccessory = createAccessoryInstance(
+      manufacturer,
+      model,
+      this,
+      accessory,
+      this.client,
+      device
+    );
 
-    if (!ZigBeeAccessory) {
+    if (!homeKitAccessory) {
       this.log.info('Unrecognized device:', ieeeAddr, manufacturer, model);
+      this.removeAccessory(device.ieeeAddr);
     } else {
-      const accessory = this.createHapAccessory(ieeeAddr);
-      const homeKitAccessory = new ZigBeeAccessory(this, accessory, this.client, device);
       this.log.info('Registered device:', ieeeAddr, manufacturer, model);
       this.homekitAccessories.set(accessory.UUID, homeKitAccessory);
     }
