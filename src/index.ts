@@ -30,6 +30,7 @@ import { XiaomiMotionSensor } from './accessories/xiaomi/motion-sensor';
 import { XiaomiWirelessSwitch } from './accessories/xiaomi/xiaomi-wireless-switch';
 import { SonoffContactSensor } from './accessories/sonoff/contact-sensor';
 import { IkeaShurtcutSwitch } from './accessories/ikea/ikea-shurtcut-switch';
+import { TuyaThermostatControl } from './accessories/tuya/tuya-thermostat-control';
 
 function registerSupportedDevices(): void {
   registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
@@ -167,9 +168,13 @@ function registerSupportedDevices(): void {
   registerAccessoryClass('lk', ['ZB-MotionSensor-D0003'], LinkindMotionSensor);
   registerAccessoryClass('NAMRON AS', ['4512700', '1402755'], NamronDimmer);
   registerAccessoryClass('NAMRON AS', ['4512704'], NamronSwitch);
-}
 
-registerAccessoryClass('eWeLink', ['DS01'], SonoffContactSensor);
+  registerAccessoryClass('eWeLink', ['DS01'], SonoffContactSensor);
+  
+  registerAccessoryClass('TuYa', ['TS0601_thermostat'], TuyaThermostatControl);
+  registerAccessoryClass('Moes', ['HY369RT'], TuyaThermostatControl);
+  registerAccessoryClass('_TZE200_ckud7u2l', ['TS0601'], TuyaThermostatControl);
+}
 
 /**
  * This method registers the platform with Homebridge

@@ -4,7 +4,15 @@ import { sleep } from '../utils/sleep';
 import { MessagePayload } from 'zigbee-herdsman/dist/controller/events';
 import { DeferredMessage, PromiseBasedQueue } from '../utils/promise-queue';
 import Device from 'zigbee-herdsman/dist/controller/model/device';
-import { ColorCapabilities, DeviceState, Meta, Options, ToConverter, ZigBeeEntity } from './types';
+import {
+  ColorCapabilities,
+  DeviceState,
+  Meta,
+  Options,
+  ToConverter,
+  ZigBeeEntity,
+  SystemMode,
+} from './types';
 import { findSerialPort } from '../utils/find-serial-port';
 import retry from 'async-retry';
 
@@ -326,6 +334,26 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
 
   setColorRGB(device: Device, r: number, g: number, b: number): Promise<DeviceState> {
     return this.writeDeviceState(device, { color: { rgb: `${r},${g},${b}` } });
+  }
+
+  getLocalTemperature(device: Device): Promise<DeviceState> {
+    return this.readDeviceState(device, { local_temperature: 0 });
+  }
+
+  setCurrentHeatingSetpoint(device: Device, temperature: number): Promise<DeviceState> {
+    return this.writeDeviceState(device, { current_heating_setpoint: temperature });
+  }
+
+  getCurrentHeatingSetpoint(device: Device): Promise<DeviceState> {
+    return this.readDeviceState(device, { current_heating_setpoint: 0 });
+  }
+
+  setSystemMode(device: Device, state: SystemMode): Promise<DeviceState> {
+    return this.writeDeviceState(device, { system_mode: state });
+  }
+
+  getSystemMode(device: Device): Promise<DeviceState> {
+    return this.readDeviceState(device, { system_mode: 'off' });
   }
 
   getTemperature(device: Device): Promise<DeviceState> {
