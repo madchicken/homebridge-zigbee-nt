@@ -21,6 +21,13 @@ export interface ZigBeeAccessoryCtor {
   ): ZigBeeAccessory;
 }
 
+export type ZigBeeAccessoryFactory = (
+  platform: ZigbeeNTHomebridgePlatform,
+  accessory: PlatformAccessory,
+  client: ZigBeeClient,
+  data: Device
+) => ZigBeeAccessory;
+
 const MAX_PING_ATTEMPTS = 3;
 
 export abstract class ZigBeeAccessory {
