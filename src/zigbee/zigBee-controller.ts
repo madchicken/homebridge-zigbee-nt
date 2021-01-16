@@ -99,7 +99,7 @@ export class ZigBeeController {
           0x0c,
           0x0d,
         ],
-        panID: config.panID || 0xffff,
+        panID: config.panId || 0xffff,
         extendedPanID: [0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd],
         channelList: config.channels,
       },
