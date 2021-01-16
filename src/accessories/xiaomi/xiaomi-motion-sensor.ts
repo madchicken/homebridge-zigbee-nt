@@ -23,8 +23,7 @@ export class XiaomiMotionSensor extends ZigBeeAccessory {
       this.client,
       this.state
     )
-      .withBattery()
-      .andLowBattery()
+      .withBatteryPercentage()
       .build();
 
     return [this.sensorService, this.batteryService];

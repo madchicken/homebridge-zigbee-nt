@@ -1,21 +1,30 @@
 import { PlatformConfig } from 'homebridge';
 
-export type ServiceType = 'contact-sensor' | 'bulb' | 'motion-sensor';
+export type ServiceType =
+  | 'contact-sensor'
+  | 'bulb'
+  | 'motion-sensor'
+  | 'vibration-sensor'
+  | 'battery'
+  | 'humidity-sensor'
+  | 'temperature-sensor';
 
-export interface ExposedService {
+export interface ExposedServiceConfig {
   type: ServiceType;
   meta: {
     colorTemp?: boolean;
     batteryLow?: boolean;
     colorXY?: boolean;
     brightness?: boolean;
+    hue?: boolean;
+    saturation?: boolean;
   };
 }
 
 export interface DeviceConfig {
   manufacturer: string;
   models: string[];
-  exposedServices: ExposedService[];
+  exposedServices: ExposedServiceConfig[];
 }
 
 export interface ZigBeeNTPlatformConfig extends PlatformConfig {

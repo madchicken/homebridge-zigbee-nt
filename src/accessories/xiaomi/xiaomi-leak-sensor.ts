@@ -33,8 +33,7 @@ export class XiaomiLeakSensor extends ZigBeeAccessory {
       this.client,
       this.state
     )
-      .withBattery()
-      .andLowBattery()
+      .withBatteryPercentage()
       .build();
 
     return [this.leakService, this.batteryService];

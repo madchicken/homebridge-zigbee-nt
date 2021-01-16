@@ -1,5 +1,6 @@
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import {
+  Callback,
   CharacteristicEventTypes,
   CharacteristicGetCallback,
   PlatformAccessory,
@@ -34,6 +35,23 @@ export class HumiditySensorServiceBuilder extends ServiceBuilder {
         } catch (e) {
           callback(e);
         }
+      });
+
+    return this;
+  }
+
+  withBatteryLow() {
+    const Characteristic = this.platform.Characteristic;
+
+    this.service
+      .getCharacteristic(Characteristic.StatusLowBattery)
+      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
+        callback(
+          null,
+          this.state.battery_low
+            ? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW
+            : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL
+        );
       });
 
     return this;

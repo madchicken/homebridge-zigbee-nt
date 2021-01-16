@@ -34,8 +34,7 @@ export class XiaomiTempHumiSensor extends ZigBeeAccessory {
       this.client,
       this.state
     )
-      .withBattery()
-      .andLowBattery()
+      .withBatteryPercentage()
       .build();
 
     return [this.temperatureService, this.humidityService, this.batteryService];
