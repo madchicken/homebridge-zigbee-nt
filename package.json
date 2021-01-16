@@ -1,5 +1,5 @@
 {
-  "name": "homebridge-zigbee-nt",
+  "name": "homebridge-zigbee-nt-mytest",
   "version": "1.1.2",
   "description": "ZigBee New Technology Platform plugin for HomeBridge",
   "main": "dist/index.js",

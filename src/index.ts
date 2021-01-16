@@ -30,6 +30,7 @@ import { XiaomiMotionSensor } from './accessories/xiaomi/motion-sensor';
 import { XiaomiWirelessSwitch } from './accessories/xiaomi/xiaomi-wireless-switch';
 import { SonoffContactSensor } from './accessories/sonoff/contact-sensor';
 import { IkeaShurtcutSwitch } from './accessories/ikea/ikea-shurtcut-switch';
+import { NanoleafIvy } from './accessories/nanoleaf/nanoleaf-ivy';
 
 function registerSupportedDevices(): void {
   registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
@@ -170,6 +171,7 @@ function registerSupportedDevices(): void {
 }
 
 registerAccessoryClass('eWeLink', ['DS01'], SonoffContactSensor);
+registerAccessoryClass('Nanoleaf', ['NL08-0800'], NanoleafIvy);
 
 /**
  * This method registers the platform with Homebridge
