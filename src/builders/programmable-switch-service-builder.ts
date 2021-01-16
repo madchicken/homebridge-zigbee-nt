@@ -94,8 +94,7 @@ export class ProgrammableSwitchServiceBuilder {
       this.client,
       this.state
     )
-      .withBattery()
-      .andLowBattery()
+      .withBatteryPercentage()
       .build();
     this.services.push(service);
     return this;

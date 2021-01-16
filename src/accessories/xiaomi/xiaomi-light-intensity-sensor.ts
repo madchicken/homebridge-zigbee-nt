@@ -23,8 +23,7 @@ export class XiaomiLightIntensitySensor extends ZigBeeAccessory {
       this.client,
       this.state
     )
-      .withBattery()
-      .andLowBattery()
+      .withBatteryPercentage()
       .build();
 
     return [this.ambientLightService, this.batteryService];

@@ -23,8 +23,7 @@ export class SonoffContactSensor extends ZigBeeAccessory {
       this.client,
       this.state
     )
-      .withBattery()
-      .andLowBattery()
+      .withBatteryPercentage()
       .build();
 
     return [this.contactService, this.batteryService];

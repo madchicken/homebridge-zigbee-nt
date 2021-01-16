@@ -39,8 +39,7 @@ export class XiaomiVibrationSensor extends ZigBeeAccessory {
         this.client,
         this.state
       )
-        .withBattery()
-        .andLowBattery()
+        .withBatteryPercentage()
         .build();
 
       supportedServices.push(this.batteryService);

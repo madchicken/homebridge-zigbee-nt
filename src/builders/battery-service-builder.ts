@@ -4,7 +4,7 @@ import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import { DeviceState } from '../zigbee/types';
 
-const LOW_BATTERY_THRESHOLD = 10;
+export const LOW_BATTERY_THRESHOLD = 10;
 
 export class BatteryServiceBuilder extends ServiceBuilder {
   constructor(
@@ -19,7 +19,11 @@ export class BatteryServiceBuilder extends ServiceBuilder {
       this.accessory.addService(platform.Service.BatteryService);
   }
 
-  public withBattery(): BatteryServiceBuilder {
+  /**
+   * Expose a service with battery percentage and notification when the battery level
+   * goes under {@link LOW_BATTERY_THRESHOLD}
+   */
+  public withBatteryPercentage(): BatteryServiceBuilder {
     const Characteristic = this.platform.Characteristic;
 
     this.service
@@ -27,13 +31,6 @@ export class BatteryServiceBuilder extends ServiceBuilder {
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         callback(null, this.state.battery);
       });
-
-    return this;
-  }
-
-  public andLowBattery(): BatteryServiceBuilder {
-    const Characteristic = this.platform.Characteristic;
-
     this.service
       .getCharacteristic(Characteristic.StatusLowBattery)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
