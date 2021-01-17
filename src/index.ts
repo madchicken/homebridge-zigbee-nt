@@ -168,10 +168,9 @@ function registerSupportedDevices(): void {
   registerAccessoryClass('lk', ['ZB-MotionSensor-D0003'], LinkindMotionSensor);
   registerAccessoryClass('NAMRON AS', ['4512700', '1402755'], NamronDimmer);
   registerAccessoryClass('NAMRON AS', ['4512704'], NamronSwitch);
-}
-
-registerAccessoryClass('eWeLink', ['DS01'], SonoffContactSensor);
-registerAccessoryClass('Nanoleaf', ['NL08-0800'], NanoleafIvy);
+  registerAccessoryClass('eWeLink', ['DS01'], SonoffContactSensor);
+  registerAccessoryClass('Nanoleaf', ['NL08-0800'], NanoleafIvy);
+};
 
 /**
  * This method registers the platform with Homebridge
