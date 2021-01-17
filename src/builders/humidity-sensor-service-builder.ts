@@ -1,26 +1,17 @@
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
-import {
-  Callback,
-  CharacteristicEventTypes,
-  CharacteristicGetCallback,
-  PlatformAccessory,
-  Service,
-} from 'homebridge';
+import { CharacteristicEventTypes, CharacteristicGetCallback, PlatformAccessory } from 'homebridge';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
-import { ServiceBuilder } from './service-builder';
 import { DeviceState } from '../zigbee/types';
+import { SensorServiceBuilder } from './sensor-service-builder';
 
-export class HumiditySensorServiceBuilder extends ServiceBuilder {
+export class HumiditySensorServiceBuilder extends SensorServiceBuilder {
   constructor(
     platform: ZigbeeNTHomebridgePlatform,
     accessory: PlatformAccessory,
     client: ZigBeeClient,
     state: DeviceState
   ) {
-    super(platform, accessory, client, state);
-    this.service =
-      this.accessory.getService(platform.Service.HumiditySensor) ||
-      this.accessory.addService(platform.Service.HumiditySensor);
+    super(platform.Service.HumiditySensor, platform, accessory, client, state);
   }
 
   public withHumidity(): HumiditySensorServiceBuilder {
@@ -38,26 +29,5 @@ export class HumiditySensorServiceBuilder extends ServiceBuilder {
       });
 
     return this;
-  }
-
-  withBatteryLow() {
-    const Characteristic = this.platform.Characteristic;
-
-    this.service
-      .getCharacteristic(Characteristic.StatusLowBattery)
-      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        callback(
-          null,
-          this.state.battery_low
-            ? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW
-            : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL
-        );
-      });
-
-    return this;
-  }
-
-  public build(): Service {
-    return this.service;
   }
 }

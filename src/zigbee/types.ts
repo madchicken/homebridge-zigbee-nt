@@ -108,6 +108,8 @@ export interface DeviceState {
   linkquality?: number;
   sensitivity?: 'low' | 'medium' | 'high';
   water_leak?: boolean;
+  gas?: boolean;
+  smoke?: boolean;
   // Philips HUE specifics
   hue_power_on_behavior?: 'default' | 'on' | 'off' | 'recover';
   hue_power_on_brightness?: number;

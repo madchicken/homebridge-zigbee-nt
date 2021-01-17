@@ -214,6 +214,15 @@ export abstract class ZigBeeAccessory {
         );
       }
 
+      if (this.supports('tamper')) {
+        service.updateCharacteristic(
+          Characteristic.StatusTampered,
+          state.tamper
+            ? Characteristic.StatusTampered.TAMPERED
+            : Characteristic.StatusTampered.NOT_TAMPERED
+        );
+      }
+
       switch (service.UUID) {
         case Service.BatteryService.UUID:
           service.updateCharacteristic(Characteristic.BatteryLevel, state.battery || 0);
@@ -231,13 +240,24 @@ export abstract class ZigBeeAccessory {
           );
           break;
         case Service.LeakSensor.UUID:
-          service
-            .getCharacteristic(Characteristic.ContactSensorState)
-            .setValue(
-              state.water_leak === true
-                ? Characteristic.LeakDetected.LEAK_DETECTED
-                : Characteristic.LeakDetected.LEAK_NOT_DETECTED
-            );
+          if (this.supports('water_leak')) {
+            service
+              .getCharacteristic(Characteristic.ContactSensorState)
+              .setValue(
+                state.water_leak === true
+                  ? Characteristic.LeakDetected.LEAK_DETECTED
+                  : Characteristic.LeakDetected.LEAK_NOT_DETECTED
+              );
+          }
+          if (this.supports('gas')) {
+            service
+              .getCharacteristic(Characteristic.ContactSensorState)
+              .setValue(
+                state.gas === true
+                  ? Characteristic.LeakDetected.LEAK_DETECTED
+                  : Characteristic.LeakDetected.LEAK_NOT_DETECTED
+              );
+          }
           break;
         case Service.Switch.UUID:
           service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
@@ -271,6 +291,15 @@ export abstract class ZigBeeAccessory {
           break;
         case Service.Outlet.UUID:
           service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
+          if (this.supports('power')) {
+            service.updateCharacteristic(this.platform.Characteristic.InUse, state.power > 0);
+          }
+          if (this.supports('voltage')) {
+            service.updateCharacteristic(this.platform.Characteristic.InUse, state.voltage > 0);
+          }
+          if (this.supports('energy')) {
+            service.updateCharacteristic(this.platform.Characteristic.InUse, state.current > 0);
+          }
           break;
         case Service.TemperatureSensor.UUID:
           service.updateCharacteristic(
