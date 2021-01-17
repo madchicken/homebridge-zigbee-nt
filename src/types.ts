@@ -11,7 +11,7 @@ export type ServiceType =
   | 'temperature-sensor'
   | 'outlet';
 
-export interface ExposedServiceConfig {
+export interface ServiceConfig {
   type: ServiceType;
   meta?: {
     colorTemp?: boolean; // light temperature control
@@ -32,7 +32,7 @@ export interface ExposedServiceConfig {
 export interface DeviceConfig {
   manufacturer: string;
   models: string[];
-  exposedServices: ExposedServiceConfig[];
+  services: ServiceConfig[];
 }
 
 export interface ZigBeeNTPlatformConfig extends PlatformConfig {
