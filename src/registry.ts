@@ -16,6 +16,11 @@ function getKey(manufacturer: string, model: string) {
   return `${manufacturer}:${model}`;
 }
 
+export function clearRegistries() {
+  classRegistry.clear();
+  factoryRegistry.clear();
+}
+
 export function registerAccessoryClass(
   manufacturer: string,
   models: string[],

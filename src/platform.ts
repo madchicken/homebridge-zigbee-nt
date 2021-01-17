@@ -248,6 +248,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       this.removeAccessory(device.ieeeAddr);
     } else {
       this.log.info('Registered device:', ieeeAddr, manufacturer, model);
+      homeKitAccessory.initialize(); // init services
       this.homekitAccessories.set(accessory.UUID, homeKitAccessory);
     }
   }

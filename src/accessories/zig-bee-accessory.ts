@@ -67,23 +67,18 @@ export abstract class ZigBeeAccessory {
         Characteristic.Name,
         `${this.zigBeeDefinition.description}-${device.ieeeAddr}`
       );
-    this.mappedServices = this.getAvailableServices();
     this.accessory.on('identify', () => this.handleAccessoryIdentify());
   }
 
+  /**
+   * Perform initialization of the accessory. By default is creates services exposed by the
+   * accessory by invoking {@link ZigBeeAccessory.getAvailableServices}
+   */
+  public initialize(): void {
+    this.mappedServices = this.getAvailableServices();
+  }
+
   handleAccessoryIdentify() {}
-
-  private get isConfigured() {
-    return !!this.zigBeeDefinition.meta?.configured;
-  }
-
-  private set isConfigured(val: boolean) {
-    if (val === true) {
-      this.zigBeeDefinition.meta.configured = this.zigBeeDefinition.meta.configureKey;
-    } else {
-      delete this.zigBeeDefinition.meta.configured;
-    }
-  }
 
   public get zigBeeDeviceDescriptor(): Device {
     return this.accessory.context as Device;
@@ -168,6 +163,18 @@ export abstract class ZigBeeAccessory {
     return false;
   }
 
+  private get isConfigured() {
+    return !!this.zigBeeDefinition.meta?.configured;
+  }
+
+  private set isConfigured(val: boolean) {
+    if (val === true) {
+      this.zigBeeDefinition.meta.configured = this.zigBeeDefinition.meta.configureKey;
+    } else {
+      delete this.zigBeeDefinition.meta.configured;
+    }
+  }
+
   private shouldConfigure() {
     return (
       !!this.zigBeeDefinition.configure && // it must have the configure function defined
@@ -177,7 +184,7 @@ export abstract class ZigBeeAccessory {
     );
   }
 
-  internalUpdate(state: DeviceState) {
+  public internalUpdate(state: DeviceState) {
     this.log.debug(`Updating state of device ${this.name} with `, state);
     this.state = { ...this.state, ...state };
     this.log.debug(`Updated state for device ${this.name} is now `, this.state);
@@ -193,7 +200,7 @@ export abstract class ZigBeeAccessory {
    * Override this function only if you need some specific update feature for your accessory
    * @param state DeviceState Current device state
    */
-  update(state: DeviceState) {
+  public update(state: DeviceState) {
     const Service = this.platform.Service;
     const Characteristic = this.platform.Characteristic;
     this.mappedServices.forEach(service => {
@@ -281,7 +288,7 @@ export abstract class ZigBeeAccessory {
     });
   }
 
-  supports(property: string): boolean {
+  public supports(property: string): boolean {
     return (
       this.entity.definition.exposes?.find(capability => capability.name === property) !== null
     );
