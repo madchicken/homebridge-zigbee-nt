@@ -42,5 +42,6 @@ export interface ZigBeeNTPlatformConfig extends PlatformConfig {
   disableRoutingPolling?: boolean;
   disableHttpServer?: boolean;
   routerPollingInterval?: number;
+  enablePermitJoin?: boolean;
   devices?: DeviceConfig[];
 }

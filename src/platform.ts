@@ -268,11 +268,14 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     }
   }
 
-  private initPermitJoinAccessory() {
+  private async initPermitJoinAccessory() {
     try {
       const accessory = this.createHapAccessory(PERMIT_JOIN_ACCESSORY_NAME);
       this.permitJoinAccessory = new PermitJoinAccessory(this, accessory, this.zigBeeClient);
       this.log.info('PermitJoin accessory successfully registered');
+      if (this.config.enablePermitJoin === true) {
+        await this.client.permitJoin(true);
+      }
     } catch (e) {
       this.log.error('PermitJoin accessory not registered: ', e);
     }
