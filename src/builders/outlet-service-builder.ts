@@ -54,6 +54,57 @@ export class OutletServiceBuilder extends ServiceBuilder {
     return this;
   }
 
+  public withPower(): OutletServiceBuilder {
+    const Characteristic = this.platform.Characteristic;
+
+    this.service
+      .getCharacteristic(Characteristic.OutletInUse)
+      .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
+        try {
+          const state = await this.client.getPowerState(this.device);
+          callback(null, state.power > 0);
+        } catch (e) {
+          callback(e);
+        }
+      });
+
+    return this;
+  }
+
+  public withVoltage(): OutletServiceBuilder {
+    const Characteristic = this.platform.Characteristic;
+
+    this.service
+      .getCharacteristic(Characteristic.OutletInUse)
+      .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
+        try {
+          const state = await this.client.getVoltageState(this.device);
+          callback(null, state.voltage > 0);
+        } catch (e) {
+          callback(e);
+        }
+      });
+
+    return this;
+  }
+
+  public withCurrent(): OutletServiceBuilder {
+    const Characteristic = this.platform.Characteristic;
+
+    this.service
+      .getCharacteristic(Characteristic.OutletInUse)
+      .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
+        try {
+          const state = await this.client.getCurrentState(this.device);
+          callback(null, state.current > 0);
+        } catch (e) {
+          callback(e);
+        }
+      });
+
+    return this;
+  }
+
   public build(): Service {
     return this.service;
   }

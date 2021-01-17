@@ -267,6 +267,18 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     return this.readDeviceState(device, { state: 'ON' });
   }
 
+  getPowerState(device: Device): Promise<DeviceState> {
+    return this.readDeviceState(device, { power: 1 });
+  }
+
+  getCurrentState(device: Device): Promise<DeviceState> {
+    return this.readDeviceState(device, { current: 1 });
+  }
+
+  getVoltageState(device: Device): Promise<DeviceState> {
+    return this.readDeviceState(device, { voltage: 1 });
+  }
+
   getColorXY(device: Device): Promise<DeviceState> {
     return this.readDeviceState(device, { color: { x: 0, y: 0 } });
   }

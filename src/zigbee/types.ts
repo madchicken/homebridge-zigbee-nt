@@ -45,6 +45,8 @@ export interface DeviceState {
   state_l1?: 'ON' | 'OFF' | 'TOGGLE';
   state_l2?: 'ON' | 'OFF' | 'TOGGLE';
   battery?: number;
+  current?: number;
+  power?: number;
   voltage?: number;
   illuminance?: number;
   illuminance_lux?: number;

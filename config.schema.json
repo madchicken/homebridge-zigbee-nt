@@ -19,14 +19,14 @@
       },
       "panId": {
         "title": "PanId",
-        "description": "Identify the ZigBee PAN-ID. This id should be a value between 0 and 16383 (0x3FFF). You can also set it to 65535 (0xFFFF) to let ZigBee choose a random PAN-ID on its own.",
+        "description": "Identify the ZigBee PAN-ID. This id should be a value between 1 and 65534 (0xFFFE). You can also set it to 65534 (0xFFFE) to let ZigBee choose a random PAN-ID on its own.",
         "type": "number",
         "oneOf": [
           {
             "type": "number",
-            "default": 65535,
-            "minimum": 65535,
-            "maximum": 65535
+            "default": 65534,
+            "minimum": 0,
+            "maximum": 65534
           },
           {
             "type": "number",
@@ -35,7 +35,7 @@
             "maximum": 16383
           }
         ],
-        "default": 65535,
+        "default": 65534,
         "required": true
       },
       "channel": {

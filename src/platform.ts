@@ -95,7 +95,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       channel: this.config.channel,
       secondaryChannel: this.config.secondaryChannel,
       port: this.config.port,
-      panId: this.config.panId || 0xffff,
+      panId: this.config.panId || 0xfffe,
       database: this.config.database || path.join(this.api.user.storagePath(), './zigBee.db'),
     });
     this.zigBeeClient.on('deviceAnnounce', (message: DeviceAnnouncePayload) =>

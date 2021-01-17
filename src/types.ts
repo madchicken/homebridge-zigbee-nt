@@ -7,7 +7,8 @@ export type ServiceType =
   | 'vibration-sensor'
   | 'battery'
   | 'humidity-sensor'
-  | 'temperature-sensor';
+  | 'temperature-sensor'
+  | 'outlet';
 
 export interface ExposedServiceConfig {
   type: ServiceType;
@@ -18,6 +19,9 @@ export interface ExposedServiceConfig {
     brightness?: boolean;
     hue?: boolean;
     saturation?: boolean;
+    power?: boolean;
+    voltage?: boolean;
+    current?: boolean;
   };
 }
 
