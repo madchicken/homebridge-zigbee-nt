@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "ZigbeeHomebridgeNTPlatform",
+  "pluginAlias": "ZogBoo",
   "pluginType": "platform",
   "schema": {
     "type": "object",
