@@ -6,7 +6,7 @@ import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { ContactSensorServiceBuilder } from '../builders/contact-sensor-service-builder';
 import { MotionSensorServiceBuilder } from '../builders/motion-sensor-service-builder';
 import { LighbulbServiceBuilder } from '../builders/lighbulb-service-builder';
-import { DeviceConfig, ExposedServiceConfig } from '../types';
+import { ExposedServiceConfig } from '../types';
 import { BatteryServiceBuilder } from '../builders/battery-service-builder';
 import { HumiditySensorServiceBuilder } from '../builders/humidity-sensor-service-builder';
 import { TemperatureSensorServiceBuilder } from '../builders/temperature-sensor-service-builder';
@@ -25,19 +25,19 @@ function createLightBulbService(
     client,
     zigBeeDeviceDescriptor
   ).withOnOff();
-  if (serviceConfig.meta.brightness) {
+  if (serviceConfig.meta?.brightness) {
     builder.withBrightness();
   }
-  if (serviceConfig.meta.colorTemp) {
+  if (serviceConfig.meta?.colorTemp) {
     builder.withColorTemperature();
   }
-  if (serviceConfig.meta.colorXY) {
+  if (serviceConfig.meta?.colorXY) {
     builder.withColorXY();
   }
-  if (serviceConfig.meta.hue) {
+  if (serviceConfig.meta?.hue) {
     builder.withHue();
   }
-  if (serviceConfig.meta.saturation) {
+  if (serviceConfig.meta?.saturation) {
     builder.withSaturation();
   }
   return builder.build();
@@ -56,7 +56,7 @@ function createContactService(
     client,
     zigBeeDeviceDescriptor
   ).withContact();
-  if (serviceConfig.meta.batteryLow) {
+  if (serviceConfig.meta?.batteryLow) {
     contactSensorServiceBuilder.withBatteryLow();
   }
   return contactSensorServiceBuilder.build();
@@ -75,7 +75,7 @@ function createMotionSensorService(
     client,
     zigBeeDeviceDescriptor
   ).withOccupancy();
-  if (serviceConfig.meta.batteryLow) {
+  if (serviceConfig.meta?.batteryLow) {
     motionSensorServiceBuilder.withBatteryLow();
   }
   return motionSensorServiceBuilder.build();
@@ -94,7 +94,7 @@ function createHumiditySensorService(
     client,
     zigBeeDeviceDescriptor
   ).withHumidity();
-  if (serviceConfig.meta.batteryLow) {
+  if (serviceConfig.meta?.batteryLow) {
     humiditySensorServiceBuilder.withBatteryLow();
   }
   return humiditySensorServiceBuilder.build();
@@ -113,7 +113,7 @@ function createTemperatureSensorService(
     client,
     zigBeeDeviceDescriptor
   ).withTemperature();
-  if (serviceConfig.meta.batteryLow) {
+  if (serviceConfig.meta?.batteryLow) {
     temperatureSensorServiceBuilder.withBatteryLow();
   }
   return temperatureSensorServiceBuilder.build();
@@ -139,13 +139,13 @@ function createOutletService(
 ) {
   const builder = new OutletServiceBuilder(platform, accessory, client, zigBeeDeviceDescriptor);
   builder.withOnOff();
-  if (serviceConfig.meta.power) {
+  if (serviceConfig.meta?.power) {
     builder.withPower();
   }
-  if (serviceConfig.meta.current) {
+  if (serviceConfig.meta?.current) {
     builder.withCurrent();
   }
-  if (serviceConfig.meta.voltage) {
+  if (serviceConfig.meta?.voltage) {
     builder.withVoltage();
   }
   return builder.build();
@@ -155,14 +155,14 @@ function createOutletService(
  * Generic device accessory builder
  */
 export class ConfigurableAccessory extends ZigBeeAccessory {
-  private readonly accessoryConfig: DeviceConfig;
+  private readonly accessoryConfig: ExposedServiceConfig[];
 
   constructor(
     platform: ZigbeeNTHomebridgePlatform,
     accessory: PlatformAccessory,
     client: ZigBeeClient,
     device: Device,
-    config: DeviceConfig
+    config: ExposedServiceConfig[]
   ) {
     super(platform, accessory, client, device);
     this.accessoryConfig = config;
@@ -170,7 +170,7 @@ export class ConfigurableAccessory extends ZigBeeAccessory {
 
   getAvailableServices(): Service[] {
     const { platform, accessory, client, zigBeeDeviceDescriptor } = this;
-    return this.accessoryConfig.exposedServices.map(serviceConfig => {
+    return this.accessoryConfig.map(serviceConfig => {
       switch (serviceConfig.type) {
         case 'contact-sensor':
           return createContactService(

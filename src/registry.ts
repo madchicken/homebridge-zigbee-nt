@@ -46,7 +46,7 @@ export function createAccessoryInstance<T extends ZigBeeAccessory>(
   device: Device
 ): T {
   let key = getKey(manufacturer, model);
-  if (!classRegistry.has(key)) {
+  if (!classRegistry.has(key) && !factoryRegistry.has(key)) {
     const zm = findByZigbeeModel(model);
     if (zm) {
       key = getKey(manufacturer, zm.model);
