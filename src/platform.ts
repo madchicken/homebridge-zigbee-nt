@@ -75,7 +75,8 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
             accessory: PlatformAccessory,
             client: ZigBeeClient,
             device: Device
-          ) => new ConfigurableAccessory(platform, accessory, client, device, config)
+          ) =>
+            new ConfigurableAccessory(platform, accessory, client, device, config.exposedServices)
         );
       });
     }

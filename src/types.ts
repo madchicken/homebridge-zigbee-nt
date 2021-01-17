@@ -12,7 +12,7 @@ export type ServiceType =
 
 export interface ExposedServiceConfig {
   type: ServiceType;
-  meta: {
+  meta?: {
     colorTemp?: boolean;
     batteryLow?: boolean;
     colorXY?: boolean;

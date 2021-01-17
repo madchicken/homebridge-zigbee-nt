@@ -14,7 +14,7 @@ import { PhilipsHueWhiteTemperature } from '../accessories/philips/philips-hue-w
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import { HomebridgeAPI } from 'homebridge/lib/api';
-import { withPrefix } from 'homebridge/lib/logger';
+import { Logging, LogLevel } from 'homebridge/lib/logger';
 import { ZigBeeNTPlatformConfig } from '../types';
 import { ConfigurableAccessory } from '../accessories/configurable-accessory';
 import { PlatformAccessory } from 'homebridge';
@@ -22,7 +22,19 @@ import { PlatformAccessory } from 'homebridge';
 jest.mock('../zigbee/zig-bee-client');
 
 const API = new HomebridgeAPI();
-const log = withPrefix('test');
+const log: Logging = (() => {
+  const l = (_message: string, ..._parameters: any[]): void => {};
+
+  return Object.assign(l, {
+    prefix: 'none',
+    info: function(_message: string, ..._parameters: any[]): void {},
+    warn: function(_message: string, ..._parameters: any[]): void {},
+    error: function(_message: string, ..._parameters: any[]): void {},
+    debug: function(_message: string, ..._parameters: any[]): void {},
+    log: function(_level: LogLevel, _message: string, ..._parameters: any[]): void {},
+  }) as Logging;
+})();
+
 const config: ZigBeeNTPlatformConfig = {
   name: 'TEST',
   platform: 'TEST',
@@ -80,31 +92,57 @@ describe('Device Registry', () => {
     expect(ctor).toBeInstanceOf(PhilipsHueWhiteTemperature);
   });
 
+  it('should fail to recognize misconfigured device', () => {
+    registerAccessoryClass('Philipsss', ['LWA001'], PhilipsHueWhiteTemperature);
+    const ctor = getAccessoryInstance('0x0017880108206ff6');
+    expect(ctor).toBeNull();
+  });
+
   it('should recognize Philips LWA001 bulb registered as configurable device', () => {
     registerAccessoryFactory(
-      'IKEA of Sweden',
-      ['E1743'],
+      'Philips',
+      ['LWA001'],
       (
         platform: ZigbeeNTHomebridgePlatform,
         accessory: PlatformAccessory,
         client: ZigBeeClient,
         data: Device
       ) =>
-        new ConfigurableAccessory(platform, accessory, client, data, {
-          models: ['E1743'],
-          manufacturer: 'Philips',
-          exposedServices: [
-            {
-              type: 'bulb',
-              meta: {
-                colorTemp: true,
-                brightness: true,
-              },
+        new ConfigurableAccessory(platform, accessory, client, data, [
+          {
+            type: 'bulb',
+            meta: {
+              colorTemp: true,
+              brightness: true,
             },
-          ],
-        })
+          },
+        ])
     );
-    const ctor = getAccessoryInstance('0x14b457fffec8d738');
+    const ctor = getAccessoryInstance('0x0017880108206ff6');
+    expect(ctor).toBeInstanceOf(ConfigurableAccessory);
+    const availableServices = ctor.getAvailableServices();
+    expect(availableServices.length).toBe(1);
+    expect(availableServices[0].UUID).toBe(API.hap.Service.Lightbulb.UUID);
+  });
+
+  it('should give precedence to device configured manually', () => {
+    registerAccessoryClass('Philips', ['LWA001'], PhilipsHueWhiteTemperature);
+    registerAccessoryFactory(
+      'Philips',
+      ['LWA001'],
+      (
+        platform: ZigbeeNTHomebridgePlatform,
+        accessory: PlatformAccessory,
+        client: ZigBeeClient,
+        data: Device
+      ) =>
+        new ConfigurableAccessory(platform, accessory, client, data, [
+          {
+            type: 'bulb',
+          },
+        ])
+    );
+    const ctor = getAccessoryInstance('0x0017880108206ff6');
     expect(ctor).toBeInstanceOf(ConfigurableAccessory);
     const availableServices = ctor.getAvailableServices();
     expect(availableServices.length).toBe(1);
