@@ -52,13 +52,13 @@ export function createAccessoryInstance<T extends ZigBeeAccessory>(
       key = getKey(manufacturer, zm.model);
     }
   }
-  const Clazz = classRegistry.get(key);
-  if (Clazz) {
-    return new Clazz(platform, accessory, client, device) as T;
-  }
   const factory = factoryRegistry.get(key);
   if (factory) {
     return factory(platform, accessory, client, device) as T;
+  }
+  const Clazz = classRegistry.get(key);
+  if (Clazz) {
+    return new Clazz(platform, accessory, client, device) as T;
   }
   return null;
 }
