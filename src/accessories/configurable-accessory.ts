@@ -10,6 +10,7 @@ import { DeviceConfig, ExposedServiceConfig } from '../types';
 import { BatteryServiceBuilder } from '../builders/battery-service-builder';
 import { HumiditySensorServiceBuilder } from '../builders/humidity-sensor-service-builder';
 import { TemperatureSensorServiceBuilder } from '../builders/temperature-sensor-service-builder';
+import { OutletServiceBuilder } from '../builders/outlet-service-builder';
 
 function createLightBulbService(
   platform: ZigbeeNTHomebridgePlatform,
@@ -129,6 +130,27 @@ function createBatteryService(
     .build();
 }
 
+function createOutletService(
+  platform: ZigbeeNTHomebridgePlatform,
+  accessory: PlatformAccessory,
+  client: ZigBeeClient,
+  zigBeeDeviceDescriptor: Device,
+  serviceConfig: ExposedServiceConfig
+) {
+  const builder = new OutletServiceBuilder(platform, accessory, client, zigBeeDeviceDescriptor);
+  builder.withOnOff();
+  if (serviceConfig.meta.power) {
+    builder.withPower();
+  }
+  if (serviceConfig.meta.current) {
+    builder.withCurrent();
+  }
+  if (serviceConfig.meta.voltage) {
+    builder.withVoltage();
+  }
+  return builder.build();
+}
+
 /**
  * Generic device accessory builder
  */
@@ -185,6 +207,14 @@ export class ConfigurableAccessory extends ZigBeeAccessory {
           );
         case 'temperature-sensor':
           return createTemperatureSensorService(
+            platform,
+            accessory,
+            client,
+            zigBeeDeviceDescriptor,
+            serviceConfig
+          );
+        case 'outlet':
+          return createOutletService(
             platform,
             accessory,
             client,
