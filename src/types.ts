@@ -4,6 +4,7 @@ export type ServiceType =
   | 'contact-sensor'
   | 'bulb'
   | 'motion-sensor'
+  | 'leak-sensor' // to use with water, gas or smoke sensors
   | 'vibration-sensor'
   | 'battery'
   | 'humidity-sensor'
@@ -13,15 +14,18 @@ export type ServiceType =
 export interface ExposedServiceConfig {
   type: ServiceType;
   meta?: {
-    colorTemp?: boolean;
-    batteryLow?: boolean;
-    colorXY?: boolean;
-    brightness?: boolean;
-    hue?: boolean;
-    saturation?: boolean;
-    power?: boolean;
-    voltage?: boolean;
-    current?: boolean;
+    colorTemp?: boolean; // light temperature control
+    batteryLow?: boolean; // battery low warning
+    colorXY?: boolean; // XY light color control
+    brightness?: boolean; // brightness control
+    hue?: boolean; // hue control
+    saturation?: boolean; // saturation control
+    power?: boolean; // consumption information (Wh)
+    voltage?: boolean; // consumption information (a)
+    current?: boolean; // consumption information (mWh)
+    waterLeak?: boolean; // water leak detection
+    gasLeak?: boolean; // gas leak detection
+    smokeLeak?: boolean; // smoke leak detection
   };
 }
 

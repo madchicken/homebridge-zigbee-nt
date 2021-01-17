@@ -11,6 +11,7 @@ import { BatteryServiceBuilder } from '../builders/battery-service-builder';
 import { HumiditySensorServiceBuilder } from '../builders/humidity-sensor-service-builder';
 import { TemperatureSensorServiceBuilder } from '../builders/temperature-sensor-service-builder';
 import { OutletServiceBuilder } from '../builders/outlet-service-builder';
+import { LeakSensorServiceBuilder } from '../builders/leak-sensor-service-builder';
 
 function createLightBulbService(
   platform: ZigbeeNTHomebridgePlatform,
@@ -151,6 +152,26 @@ function createOutletService(
   return builder.build();
 }
 
+function createLeakSensorService(
+  platform: ZigbeeNTHomebridgePlatform,
+  accessory: PlatformAccessory,
+  client: ZigBeeClient,
+  zigBeeDeviceDescriptor: Device,
+  serviceConfig: ExposedServiceConfig
+) {
+  const builder = new LeakSensorServiceBuilder(platform, accessory, client, zigBeeDeviceDescriptor);
+  if (serviceConfig.meta.waterLeak) {
+    builder.withWaterLeak();
+  }
+  if (serviceConfig.meta.gasLeak) {
+    builder.withGasLeak();
+  }
+  if (serviceConfig.meta.smokeLeak) {
+    builder.withSmokeLeak();
+  }
+  return builder.build();
+}
+
 /**
  * Generic device accessory builder
  */
@@ -207,6 +228,14 @@ export class ConfigurableAccessory extends ZigBeeAccessory {
           );
         case 'temperature-sensor':
           return createTemperatureSensorService(
+            platform,
+            accessory,
+            client,
+            zigBeeDeviceDescriptor,
+            serviceConfig
+          );
+        case 'leak-sensor':
+          return createLeakSensorService(
             platform,
             accessory,
             client,
