@@ -6,7 +6,7 @@ import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { ContactSensorServiceBuilder } from '../builders/contact-sensor-service-builder';
 import { MotionSensorServiceBuilder } from '../builders/motion-sensor-service-builder';
 import { LighbulbServiceBuilder } from '../builders/lighbulb-service-builder';
-import { ExposedServiceConfig } from '../types';
+import { ServiceConfig } from '../types';
 import { BatteryServiceBuilder } from '../builders/battery-service-builder';
 import { HumiditySensorServiceBuilder } from '../builders/humidity-sensor-service-builder';
 import { TemperatureSensorServiceBuilder } from '../builders/temperature-sensor-service-builder';
@@ -18,7 +18,7 @@ function createLightBulbService(
   accessory: PlatformAccessory,
   client: ZigBeeClient,
   zigBeeDeviceDescriptor: Device,
-  serviceConfig: ExposedServiceConfig
+  serviceConfig: ServiceConfig
 ) {
   const builder = new LighbulbServiceBuilder(
     platform,
@@ -49,7 +49,7 @@ function createContactService(
   accessory: PlatformAccessory,
   client: ZigBeeClient,
   zigBeeDeviceDescriptor: Device,
-  serviceConfig: ExposedServiceConfig
+  serviceConfig: ServiceConfig
 ) {
   const contactSensorServiceBuilder = new ContactSensorServiceBuilder(
     platform,
@@ -68,7 +68,7 @@ function createMotionSensorService(
   accessory: PlatformAccessory,
   client: ZigBeeClient,
   zigBeeDeviceDescriptor: Device,
-  serviceConfig: ExposedServiceConfig
+  serviceConfig: ServiceConfig
 ) {
   const motionSensorServiceBuilder = new MotionSensorServiceBuilder(
     platform,
@@ -87,7 +87,7 @@ function createHumiditySensorService(
   accessory: PlatformAccessory,
   client: ZigBeeClient,
   zigBeeDeviceDescriptor: Device,
-  serviceConfig: ExposedServiceConfig
+  serviceConfig: ServiceConfig
 ) {
   const humiditySensorServiceBuilder = new HumiditySensorServiceBuilder(
     platform,
@@ -106,7 +106,7 @@ function createTemperatureSensorService(
   accessory: PlatformAccessory,
   client: ZigBeeClient,
   zigBeeDeviceDescriptor: Device,
-  serviceConfig: ExposedServiceConfig
+  serviceConfig: ServiceConfig
 ) {
   const temperatureSensorServiceBuilder = new TemperatureSensorServiceBuilder(
     platform,
@@ -136,7 +136,7 @@ function createOutletService(
   accessory: PlatformAccessory,
   client: ZigBeeClient,
   zigBeeDeviceDescriptor: Device,
-  serviceConfig: ExposedServiceConfig
+  serviceConfig: ServiceConfig
 ) {
   const builder = new OutletServiceBuilder(platform, accessory, client, zigBeeDeviceDescriptor);
   builder.withOnOff();
@@ -157,7 +157,7 @@ function createLeakSensorService(
   accessory: PlatformAccessory,
   client: ZigBeeClient,
   zigBeeDeviceDescriptor: Device,
-  serviceConfig: ExposedServiceConfig
+  serviceConfig: ServiceConfig
 ) {
   const builder = new LeakSensorServiceBuilder(platform, accessory, client, zigBeeDeviceDescriptor);
   if (serviceConfig.meta.waterLeak) {
@@ -176,14 +176,14 @@ function createLeakSensorService(
  * Generic device accessory builder
  */
 export class ConfigurableAccessory extends ZigBeeAccessory {
-  private readonly accessoryConfig: ExposedServiceConfig[];
+  private readonly accessoryConfig: ServiceConfig[];
 
   constructor(
     platform: ZigbeeNTHomebridgePlatform,
     accessory: PlatformAccessory,
     client: ZigBeeClient,
     device: Device,
-    config: ExposedServiceConfig[]
+    config: ServiceConfig[]
   ) {
     super(platform, accessory, client, device);
     this.accessoryConfig = config;

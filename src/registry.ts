@@ -37,6 +37,17 @@ export function registerAccessoryFactory(
   models.forEach(model => factoryRegistry.set(getKey(manufacturer, model), factory));
 }
 
+function findByManufacturerAndModel(manufacturer: string, model: string) {
+  let key = getKey(manufacturer, model);
+  if (!classRegistry.has(key) && !factoryRegistry.has(key)) {
+    const zm = findByZigbeeModel(model);
+    if (zm) {
+      key = getKey(manufacturer, zm.model);
+    }
+  }
+  return key;
+}
+
 export function createAccessoryInstance<T extends ZigBeeAccessory>(
   manufacturer: string,
   model: string,
@@ -45,13 +56,7 @@ export function createAccessoryInstance<T extends ZigBeeAccessory>(
   client: ZigBeeClient,
   device: Device
 ): T {
-  let key = getKey(manufacturer, model);
-  if (!classRegistry.has(key) && !factoryRegistry.has(key)) {
-    const zm = findByZigbeeModel(model);
-    if (zm) {
-      key = getKey(manufacturer, zm.model);
-    }
-  }
+  const key = findByManufacturerAndModel(manufacturer, model);
   const factory = factoryRegistry.get(key);
   if (factory) {
     return factory(platform, accessory, client, device) as T;
@@ -61,4 +66,9 @@ export function createAccessoryInstance<T extends ZigBeeAccessory>(
     return new Clazz(platform, accessory, client, device) as T;
   }
   return null;
+}
+
+export function isAccessorySupported(manufacturer: string, model: string): boolean {
+  const key = findByManufacturerAndModel(manufacturer, model);
+  return factoryRegistry.has(key) || classRegistry.has(key);
 }

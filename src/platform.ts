@@ -14,7 +14,11 @@ import { PermitJoinAccessory } from './accessories/permit-join-accessory';
 import { sleep } from './utils/sleep';
 import { parseModelName } from './utils/parse-model-name';
 import { ZigBeeAccessory } from './accessories/zig-bee-accessory';
-import { createAccessoryInstance, registerAccessoryFactory } from './registry';
+import {
+  createAccessoryInstance,
+  isAccessorySupported,
+  registerAccessoryFactory,
+} from './registry';
 import { ZigBeeClient } from './zigbee/zig-bee-client';
 import { TouchlinkAccessory } from './accessories/touchlink-accessory';
 import {
@@ -75,8 +79,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
             accessory: PlatformAccessory,
             client: ZigBeeClient,
             device: Device
-          ) =>
-            new ConfigurableAccessory(platform, accessory, client, device, config.exposedServices)
+          ) => new ConfigurableAccessory(platform, accessory, client, device, config.services)
         );
       });
     }
@@ -96,7 +99,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       channel: this.config.channel,
       secondaryChannel: this.config.secondaryChannel,
       port: this.config.port,
-      panId: this.config.panId || 0xfffe,
+      panId: this.config.panId || 0xffff,
       database: this.config.database || path.join(this.api.user.storagePath(), './zigBee.db'),
     });
     this.zigBeeClient.on('deviceAnnounce', (message: DeviceAnnouncePayload) =>
@@ -199,7 +202,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     // Set led indicator
     await this.zigBeeClient.toggleLed(!this.config.disableLed);
     // Init permit join accessory
-    this.initPermitJoinAccessory();
+    await this.initPermitJoinAccessory();
     // Init switch to reset devices through Touchlink feature
     this.initTouchlinkAccessory();
     // Init devices
@@ -234,20 +237,19 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     const model = parseModelName(device.modelID);
     const manufacturer = device.manufacturerName;
     const ieeeAddr = device.ieeeAddr;
-    const accessory = this.createHapAccessory(ieeeAddr);
-    const homeKitAccessory = createAccessoryInstance(
-      manufacturer,
-      model,
-      this,
-      accessory,
-      this.client,
-      device
-    );
 
-    if (!homeKitAccessory) {
+    if (!isAccessorySupported(manufacturer, model)) {
       this.log.info('Unrecognized device:', ieeeAddr, manufacturer, model);
-      this.removeAccessory(device.ieeeAddr);
     } else {
+      const accessory = this.createHapAccessory(ieeeAddr);
+      const homeKitAccessory = createAccessoryInstance(
+        manufacturer,
+        model,
+        this,
+        accessory,
+        this.client,
+        device
+      );
       this.log.info('Registered device:', ieeeAddr, manufacturer, model);
       homeKitAccessory.initialize(); // init services
       this.homekitAccessories.set(accessory.UUID, homeKitAccessory);
@@ -275,7 +277,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       this.permitJoinAccessory = new PermitJoinAccessory(this, accessory, this.zigBeeClient);
       this.log.info('PermitJoin accessory successfully registered');
       if (this.config.enablePermitJoin === true) {
-        await this.client.permitJoin(true);
+        await this.permitJoinAccessory.setPermitJoin(true);
       }
     } catch (e) {
       this.log.error('PermitJoin accessory not registered: ', e);
