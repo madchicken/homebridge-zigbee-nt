@@ -1,4 +1,9 @@
-import { createAccessoryInstance, registerAccessoryClass } from '../registry';
+import {
+  clearRegistries,
+  createAccessoryInstance,
+  registerAccessoryClass,
+  registerAccessoryFactory,
+} from '../registry';
 import Device from 'zigbee-herdsman/dist/controller/model/device';
 import { XiaomiTempHumiSensor } from '../accessories/xiaomi/xiaomi-temp-humi-sensor';
 import Database from 'zigbee-herdsman/dist/controller/database';
@@ -11,6 +16,8 @@ import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import { HomebridgeAPI } from 'homebridge/lib/api';
 import { withPrefix } from 'homebridge/lib/logger';
 import { ZigBeeNTPlatformConfig } from '../types';
+import { ConfigurableAccessory } from '../accessories/configurable-accessory';
+import { PlatformAccessory } from 'homebridge';
 
 jest.mock('../zigbee/zig-bee-client');
 
@@ -40,6 +47,7 @@ describe('Device Registry', () => {
     // Clear all instances and calls to constructor and all methods:
     // @ts-ignore
     ZigBeeClient.mockClear();
+    clearRegistries();
   });
 
   it('should recognize Xiaomi temperature sensor', async () => {
@@ -70,5 +78,36 @@ describe('Device Registry', () => {
     registerAccessoryClass('Philips', ['LWA001'], PhilipsHueWhiteTemperature);
     const ctor = getAccessoryInstance('0x0017880108206ff6');
     expect(ctor).toBeInstanceOf(PhilipsHueWhiteTemperature);
+  });
+
+  it('should recognize Philips LWA001 bulb registered as configurable device', () => {
+    registerAccessoryFactory(
+      'IKEA of Sweden',
+      ['E1743'],
+      (
+        platform: ZigbeeNTHomebridgePlatform,
+        accessory: PlatformAccessory,
+        client: ZigBeeClient,
+        data: Device
+      ) =>
+        new ConfigurableAccessory(platform, accessory, client, data, {
+          models: ['E1743'],
+          manufacturer: 'Philips',
+          exposedServices: [
+            {
+              type: 'bulb',
+              meta: {
+                colorTemp: true,
+                brightness: true,
+              },
+            },
+          ],
+        })
+    );
+    const ctor = getAccessoryInstance('0x14b457fffec8d738');
+    expect(ctor).toBeInstanceOf(ConfigurableAccessory);
+    const availableServices = ctor.getAvailableServices();
+    expect(availableServices.length).toBe(1);
+    expect(availableServices[0].UUID).toBe(API.hap.Service.Lightbulb.UUID);
   });
 });
