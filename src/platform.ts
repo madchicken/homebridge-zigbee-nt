@@ -34,6 +34,7 @@ import { DeviceState } from './zigbee/types';
 import * as fs from 'fs';
 import { ZigBeeNTPlatformConfig } from './types';
 import { ConfigurableAccessory } from './accessories/configurable-accessory';
+import { difference } from 'lodash';
 
 const PERMIT_JOIN_ACCESSORY_NAME = 'zigbee:permit-join';
 const TOUCH_LINK_ACCESSORY_NAME = 'zigbee:touchlink';
@@ -213,9 +214,18 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     // Init switch to reset devices through Touchlink feature
     this.initTouchlinkAccessory();
     // Init devices
-    await Promise.all(
+    const paired = await Promise.all(
       this.zigBeeClient.getAllPairedDevices().map(device => this.initDevice(device))
     );
+
+    const missing = difference([...this.accessories.keys()], paired);
+    missing.forEach(uuid => {
+      this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
+        this.accessories.get(uuid),
+      ]);
+      this.accessories.delete(uuid);
+      this.homekitAccessories.delete(uuid);
+    });
 
     if (this.config.disableHttpServer !== true) {
       this.httpServer = new HttpServer(this.config.httpPort);
