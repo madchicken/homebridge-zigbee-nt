@@ -48,7 +48,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     this.log.info(
       `Initializing ZigBee controller on port ${
         initConfig.port
-      } and channels ${initConfig.channels.join(', ')}`
+      } and channels ${initConfig.channels.join(', ')} (pan ID ${config.panId})`
     );
     this.zigBee.init(initConfig);
 
