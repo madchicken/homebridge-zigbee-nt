@@ -304,11 +304,11 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   }
 
   getColorXY(device: Device): Promise<DeviceState> {
-    return this.debouncedReadDeviceState(device, { color: { x: 0, y: 0 } });
+    return this.debouncedReadDeviceState(device, { color: { x: 1, y: 1 } });
   }
 
   async getBrightnessPercent(device: Device): Promise<DeviceState> {
-    const deviceState = await this.debouncedReadDeviceState(device, { brightness: 0 });
+    const deviceState = await this.debouncedReadDeviceState(device, { brightness: 1 });
     deviceState.brightness_percent = Math.round(Number(deviceState.brightness) / 2.55);
     return deviceState;
   }
@@ -349,11 +349,11 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   }
 
   getSaturation(device: Device): Promise<DeviceState> {
-    return this.debouncedReadDeviceState(device, { color: { s: 0 } });
+    return this.debouncedReadDeviceState(device, { color: { s: 1 } });
   }
 
   getHue(device: Device): Promise<DeviceState> {
-    return this.debouncedReadDeviceState(device, { color: { hue: 0 } });
+    return this.debouncedReadDeviceState(device, { color: { hue: 1 } });
   }
 
   setHue(device: Device, hue: number): Promise<DeviceState> {
@@ -369,11 +369,11 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   }
 
   getTemperature(device: Device): Promise<DeviceState> {
-    return this.debouncedReadDeviceState(device, { temperature: 0 });
+    return this.debouncedReadDeviceState(device, { temperature: 1 });
   }
 
   getHumidity(device: Device): Promise<Partial<DeviceState>> {
-    return this.debouncedReadDeviceState(device, { humidity: 0 });
+    return this.debouncedReadDeviceState(device, { humidity: 1 });
   }
 
   getCoodinator(): Device {
@@ -390,7 +390,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
 
   async getColorTemperature(device: Device) {
     return this.debouncedReadDeviceState(device, {
-      color_temp: 0,
+      color_temp: 1,
     });
   }
 
