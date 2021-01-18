@@ -51,6 +51,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   public readonly PlatformAccessory: typeof PlatformAccessory;
   private client: ZigBeeClient;
   private httpServer: HttpServer;
+  private touchLinkAccessory: TouchlinkAccessory;
 
   constructor(
     public readonly log: Logger,
@@ -212,12 +213,14 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     // Init permit join accessory
     await this.initPermitJoinAccessory();
     // Init switch to reset devices through Touchlink feature
-    this.initTouchlinkAccessory();
+    this.initTouchLinkAccessory();
     // Init devices
     const paired = await Promise.all(
       this.zigBeeClient.getAllPairedDevices().map(device => this.initDevice(device))
     );
 
+    paired.push(this.permitJoinAccessory.accessory.UUID);
+    paired.push(this.touchLinkAccessory.accessory.UUID);
     const missing = difference([...this.accessories.keys()], paired);
     missing.forEach(uuid => {
       this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
@@ -303,13 +306,13 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     }
   }
 
-  private initTouchlinkAccessory() {
+  private initTouchLinkAccessory() {
     try {
       const accessory = this.createHapAccessory(TOUCH_LINK_ACCESSORY_NAME);
-      new TouchlinkAccessory(this, accessory, this.zigBeeClient);
-      this.log.info('Touchlink accessory successfully registered');
+      this.touchLinkAccessory = new TouchlinkAccessory(this, accessory, this.zigBeeClient);
+      this.log.info('TouchLink accessory successfully registered');
     } catch (e) {
-      this.log.error('Touchlink accessory not registered: ', e);
+      this.log.error('TouchLink accessory not registered: ', e);
     }
   }
 
