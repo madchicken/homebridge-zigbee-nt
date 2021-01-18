@@ -16,6 +16,18 @@ function getKey(manufacturer: string, model: string) {
   return `${manufacturer}:${model}`;
 }
 
+function findByManufacturerAndModel(manufacturer: string, model: string) {
+  let key = getKey(manufacturer, model);
+  if (!classRegistry.has(key) && !factoryRegistry.has(key)) {
+    const zm = findByZigbeeModel(model);
+    if (zm) {
+      key = getKey(manufacturer, zm.model);
+    }
+  }
+  return key;
+}
+
+// Exported function
 export function clearRegistries() {
   classRegistry.clear();
   factoryRegistry.clear();
@@ -35,17 +47,6 @@ export function registerAccessoryFactory(
   factory: ZigBeeAccessoryFactory
 ) {
   models.forEach(model => factoryRegistry.set(getKey(manufacturer, model), factory));
-}
-
-function findByManufacturerAndModel(manufacturer: string, model: string) {
-  let key = getKey(manufacturer, model);
-  if (!classRegistry.has(key) && !factoryRegistry.has(key)) {
-    const zm = findByZigbeeModel(model);
-    if (zm) {
-      key = getKey(manufacturer, zm.model);
-    }
-  }
-  return key;
 }
 
 export function createAccessoryInstance<T extends ZigBeeAccessory>(
