@@ -4,7 +4,15 @@ import { sleep } from '../utils/sleep';
 import { MessagePayload } from 'zigbee-herdsman/dist/controller/events';
 import { DeferredMessage, PromiseBasedQueue } from '../utils/promise-queue';
 import Device from 'zigbee-herdsman/dist/controller/model/device';
-import { ColorCapabilities, DeviceState, Meta, Options, ToConverter, ZigBeeEntity } from './types';
+import {
+  ColorCapabilities,
+  DeviceState,
+  Meta,
+  Options,
+  ToConverter,
+  ZigBeeControllerConfig,
+  ZigBeeEntity,
+} from './types';
 import { findSerialPort } from '../utils/find-serial-port';
 import retry from 'async-retry';
 
@@ -14,6 +22,7 @@ export interface ZigBeeClientConfig {
   database: string;
   panId: number;
   secondaryChannel?: string;
+  adapter?: 'zstack' | 'deconz' | 'zigate';
 }
 
 type StatePublisher = (ieeeAddr: string, state: DeviceState) => void;
@@ -38,11 +47,12 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
 
     const port = config.port || (await findSerialPort());
     this.log.info(`Configured port for ZigBee dongle is ${port}`);
-    const initConfig = {
+    const initConfig: ZigBeeControllerConfig = {
       port,
-      db: config.database,
+      databasePath: config.database,
       panId: config.panId,
       channels,
+      adapter: config.adapter || 'zstack',
     };
 
     this.log.info(

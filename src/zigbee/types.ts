@@ -6,6 +6,14 @@ import { Logger } from 'homebridge';
 
 type State = 'ON' | 'OFF' | 'TOGGLE';
 
+export interface ZigBeeControllerConfig {
+  port?: string;
+  panId?: number;
+  channels: number[];
+  databasePath: string;
+  adapter: 'zstack' | 'deconz' | 'zigate';
+}
+
 export interface DeviceState {
   state?: State;
   state_left?: State;

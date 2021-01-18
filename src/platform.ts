@@ -99,8 +99,9 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       channel: this.config.channel,
       secondaryChannel: this.config.secondaryChannel,
       port: this.config.port,
-      panId: this.config.panId || 0xffff,
+      panId: this.config.panId || 0x1a62,
       database: this.config.database || path.join(this.api.user.storagePath(), './zigBee.db'),
+      adapter: this.config.adapter,
     });
     this.zigBeeClient.on('deviceAnnounce', (message: DeviceAnnouncePayload) =>
       this.handleDeviceAnnounce(message)
@@ -232,7 +233,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     return this.homekitAccessories.has(this.generateUUID(ieeeAddr));
   }
 
-  private initDevice(device: Device): void {
+  private initDevice(device: Device): string {
     this.log.info(`Found ZigBee device: `, device);
     const model = parseModelName(device.modelID);
     const manufacturer = device.manufacturerName;
@@ -240,6 +241,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
 
     if (!isAccessorySupported(manufacturer, model)) {
       this.log.info('Unrecognized device:', ieeeAddr, manufacturer, model);
+      return null;
     } else {
       const accessory = this.createHapAccessory(ieeeAddr);
       const homeKitAccessory = createAccessoryInstance(
@@ -253,6 +255,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       this.log.info('Registered device:', ieeeAddr, manufacturer, model);
       homeKitAccessory.initialize(); // init services
       this.homekitAccessories.set(accessory.UUID, homeKitAccessory);
+      return accessory.UUID;
     }
   }
 
@@ -335,14 +338,20 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     this.log.info(
       `Device announce: ${ieeeAddr} (${message.device.manufacturerName} - ${message.device.modelID})`
     );
-    if (!this.getAccessoryByIeeeAddr(ieeeAddr)) {
-      // Wait a little bit for a database sync
-      await sleep(1500);
-      this.initDevice(message.device);
-      await this.mountDevice(ieeeAddr);
+    if (message.device.interviewCompleted) {
+      if (!this.getAccessoryByIeeeAddr(ieeeAddr)) {
+        // Wait a little bit for a database sync
+        await sleep(1500);
+        this.initDevice(message.device);
+        await this.mountDevice(ieeeAddr);
+      } else {
+        this.log.warn(`Not initializing device ${ieeeAddr}: already mapped in Homebridge`);
+        await this.homekitAccessories
+          .get(this.getAccessoryByIeeeAddr(ieeeAddr).UUID)
+          .onDeviceMount();
+      }
     } else {
-      this.log.warn(`Not initializing device ${ieeeAddr}: already mapped in Homebridge`);
-      await this.homekitAccessories.get(this.getAccessoryByIeeeAddr(ieeeAddr).UUID).onDeviceMount();
+      this.log.warn(`Not initializing device ${ieeeAddr}: interview process still not completed`);
     }
   }
 
