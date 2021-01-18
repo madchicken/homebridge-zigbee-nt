@@ -38,6 +38,8 @@ import { ConfigurableAccessory } from './accessories/configurable-accessory';
 const PERMIT_JOIN_ACCESSORY_NAME = 'zigbee:permit-join';
 const TOUCH_LINK_ACCESSORY_NAME = 'zigbee:touchlink';
 
+const DEFAULT_PAN_ID = 0x1a62;
+
 export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service = this.api.hap.Service;
   public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
@@ -95,12 +97,16 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     // Create client
     this.client = new ZigBeeClient(this.log);
 
+    const panId =
+      this.config.panId && this.config.panId < 0xffff ? this.config.panId : DEFAULT_PAN_ID;
+    const database = this.config.database || path.join(this.api.user.storagePath(), './zigBee.db');
+    this.backupDatabase(database);
     await this.client.start({
       channel: this.config.channel,
       secondaryChannel: this.config.secondaryChannel,
       port: this.config.port,
-      panId: this.config.panId || 0x1a62,
-      database: this.config.database || path.join(this.api.user.storagePath(), './zigBee.db'),
+      panId,
+      database,
       adapter: this.config.adapter,
     });
     this.zigBeeClient.on('deviceAnnounce', (message: DeviceAnnouncePayload) =>
@@ -370,6 +376,13 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       } else {
         this.log.warn(`No device found from message`, message);
       }
+    }
+  }
+
+  private backupDatabase(database: string) {
+    if (fs.existsSync(database)) {
+      this.log.debug('Creating copy of existing database');
+      fs.copyFileSync(database, `${database}.${Date.now()}`);
     }
   }
 }
