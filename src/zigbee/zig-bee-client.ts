@@ -15,7 +15,6 @@ import {
 } from './types';
 import { findSerialPort } from '../utils/find-serial-port';
 import retry from 'async-retry';
-import { debounce } from 'lodash';
 
 export interface ZigBeeClientConfig {
   channel: number;
@@ -28,28 +27,15 @@ export interface ZigBeeClientConfig {
 
 type StatePublisher = (ieeeAddr: string, state: DeviceState) => void;
 
-const DEFAULT_DEBOUNCE = 500;
-
 export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   private readonly zigBee: ZigBeeController;
   private readonly log: Logger;
-  private readonly debouncedWriteDeviceState: (
-    device: Device,
-    state: DeviceState,
-    options?: Options
-  ) => Promise<DeviceState>;
-  private readonly debouncedReadDeviceState: (
-    device: Device,
-    state: DeviceState
-  ) => Promise<DeviceState>;
 
   constructor(log: Logger) {
     super();
     this.zigBee = new ZigBeeController(this.log);
     this.log = log;
     this.setTimeout(5000);
-    this.debouncedWriteDeviceState = debounce(this.writeDeviceState, DEFAULT_DEBOUNCE);
-    this.debouncedReadDeviceState = debounce(this.readDeviceState, DEFAULT_DEBOUNCE);
   }
 
   async start(config: ZigBeeClientConfig): Promise<boolean> {
@@ -284,38 +270,38 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   }
 
   setOn(device: Device, on: boolean): Promise<DeviceState> {
-    return this.debouncedWriteDeviceState(device, { state: on ? 'ON' : 'OFF' });
+    return this.writeDeviceState(device, { state: on ? 'ON' : 'OFF' });
   }
 
   getOnOffState(device: Device): Promise<DeviceState> {
-    return this.debouncedReadDeviceState(device, { state: 'ON' });
+    return this.readDeviceState(device, { state: 'ON' });
   }
 
   getPowerState(device: Device): Promise<DeviceState> {
-    return this.debouncedReadDeviceState(device, { power: 1 });
+    return this.readDeviceState(device, { power: 1 });
   }
 
   getCurrentState(device: Device): Promise<DeviceState> {
-    return this.debouncedReadDeviceState(device, { current: 1 });
+    return this.readDeviceState(device, { current: 1 });
   }
 
   getVoltageState(device: Device): Promise<DeviceState> {
-    return this.debouncedReadDeviceState(device, { voltage: 1 });
+    return this.readDeviceState(device, { voltage: 1 });
   }
 
   getColorXY(device: Device): Promise<DeviceState> {
-    return this.debouncedReadDeviceState(device, { color: { x: 1, y: 1 } });
+    return this.readDeviceState(device, { color: { x: 1, y: 1 } });
   }
 
   async getBrightnessPercent(device: Device): Promise<DeviceState> {
-    const deviceState = await this.debouncedReadDeviceState(device, { brightness: 1 });
+    const deviceState = await this.readDeviceState(device, { brightness: 1 });
     deviceState.brightness_percent = Math.round(Number(deviceState.brightness) / 2.55);
     return deviceState;
   }
 
   async setBrightnessPercent(device: Device, brightnessPercent: number) {
     const brightness = Math.round(Number(brightnessPercent) * 2.55);
-    return this.debouncedWriteDeviceState(device, {
+    return this.writeDeviceState(device, {
       brightness,
     });
   }
@@ -349,31 +335,31 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   }
 
   getSaturation(device: Device): Promise<DeviceState> {
-    return this.debouncedReadDeviceState(device, { color: { s: 1 } });
+    return this.readDeviceState(device, { color: { s: 1 } });
   }
 
   getHue(device: Device): Promise<DeviceState> {
-    return this.debouncedReadDeviceState(device, { color: { hue: 1 } });
+    return this.readDeviceState(device, { color: { hue: 1 } });
   }
 
   setHue(device: Device, hue: number): Promise<DeviceState> {
-    return this.debouncedWriteDeviceState(device, { color: { hue } });
+    return this.writeDeviceState(device, { color: { hue } });
   }
 
   setColorXY(device: Device, x: number, y: number): Promise<DeviceState> {
-    return this.debouncedWriteDeviceState(device, { color: { x, y } });
+    return this.writeDeviceState(device, { color: { x, y } });
   }
 
   setColorRGB(device: Device, r: number, g: number, b: number): Promise<DeviceState> {
-    return this.debouncedWriteDeviceState(device, { color: { rgb: `${r},${g},${b}` } });
+    return this.writeDeviceState(device, { color: { rgb: `${r},${g},${b}` } });
   }
 
   getTemperature(device: Device): Promise<DeviceState> {
-    return this.debouncedReadDeviceState(device, { temperature: 1 });
+    return this.readDeviceState(device, { temperature: 1 });
   }
 
   getHumidity(device: Device): Promise<Partial<DeviceState>> {
-    return this.debouncedReadDeviceState(device, { humidity: 1 });
+    return this.readDeviceState(device, { humidity: 1 });
   }
 
   getCoodinator(): Device {
@@ -381,31 +367,31 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   }
 
   async identify(device: Device) {
-    return this.debouncedWriteDeviceState(device, { alert: 'select' });
+    return this.writeDeviceState(device, { alert: 'select' });
   }
 
   async setSaturation(device: Device, saturation: number) {
-    return this.debouncedWriteDeviceState(device, { color: { s: saturation } });
+    return this.writeDeviceState(device, { color: { s: saturation } });
   }
 
   async getColorTemperature(device: Device) {
-    return this.debouncedReadDeviceState(device, {
+    return this.readDeviceState(device, {
       color_temp: 1,
     });
   }
 
   async setColorTemperature(device: Device, colorTemperature: number) {
-    return this.debouncedWriteDeviceState(device, {
+    return this.writeDeviceState(device, {
       color_temp: colorTemperature,
     });
   }
 
   setLeftButtonOn(device: Device, on: boolean) {
-    return this.debouncedWriteDeviceState(device, { state_left: on ? 'ON' : 'OFF' });
+    return this.writeDeviceState(device, { state_left: on ? 'ON' : 'OFF' });
   }
 
   setRightButtonOn(device: Device, on: boolean) {
-    return this.debouncedWriteDeviceState(device, { state_right: on ? 'ON' : 'OFF' });
+    return this.writeDeviceState(device, { state_right: on ? 'ON' : 'OFF' });
   }
 
   getAllPairedDevices(): Device[] {
@@ -463,11 +449,11 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   }
 
   async setCustomState(device: Device, state: DeviceState) {
-    return this.debouncedWriteDeviceState(device, state);
+    return this.writeDeviceState(device, state);
   }
 
   async getState(device: Device, state: DeviceState) {
-    return this.debouncedReadDeviceState(device, state);
+    return this.readDeviceState(device, state);
   }
 
   async getCoordinatorVersion() {
