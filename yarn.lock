@@ -3960,7 +3960,7 @@ eslint-visitor-keys@^2.0.0:
   resolved "https://registry.yarnpkg.com/eslint-visitor-keys/-/eslint-visitor-keys-2.0.0.tgz#21fdc8fbcd9c795cc0321f0563702095751511a8"
   integrity sha512-QudtT6av5WXels9WjIM7qz1XD1cWGvX4gGXvp/zBn9nXG02D0utdU3Em2m/QjTnrsk6bBjmCygl3rmj118msQQ==
 
-eslint@^6.4.0:
+eslint@^6.8.0:
   version "6.8.0"
   resolved "https://registry.yarnpkg.com/eslint/-/eslint-6.8.0.tgz#62262d6729739f9275723824302fb227c8c93ffb"
   integrity sha512-K+Iayyo2LtyYhDSYwz5D5QdWw0hCacNzyq1Y821Xna2xSJj7cijoLLYmLxTQgcgZ9mC61nryMy9S7GRbYpI5Ig==
@@ -10025,10 +10025,10 @@ yn@3.1.1:
   resolved "https://registry.yarnpkg.com/yn/-/yn-3.1.1.tgz#1e87401a09d767c1d5eab26a6e4c185182d2eb50"
   integrity sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==
 
-zigbee-herdsman-converters@^14.0.17:
-  version "14.0.17"
-  resolved "https://registry.yarnpkg.com/zigbee-herdsman-converters/-/zigbee-herdsman-converters-14.0.17.tgz#826ee825e83d51e4afad632ff47a47c2a3a51377"
-  integrity sha512-qD7c3/o6RMPcbjSBTjq9h6bFYrg8sD/3torN6VesR2wEebImMlc9TCRt9jvAqzkrv+YNLdnuZrau6iRPC6cPbA==
+zigbee-herdsman-converters@^14.0.24:
+  version "14.0.24"
+  resolved "https://registry.yarnpkg.com/zigbee-herdsman-converters/-/zigbee-herdsman-converters-14.0.24.tgz#5fe0ad3c147437dd3d67d57c36e6c5e1e74638f9"
+  integrity sha512-C1z7q+bUX6GJMeu68s7Yt9feuKO2BCOzR+7H1kXKGw1btrwQHOgYz+ENUI9S817VkuLE7ONq8SyDHaZ4cLq1iA==
   dependencies:
     axios "^0.21.1"
     buffer-crc32 "^0.2.13"
@@ -10036,10 +10036,22 @@ zigbee-herdsman-converters@^14.0.17:
     tar-stream "^2.2.0"
     zigbee-herdsman "^0.13.49"
 
-zigbee-herdsman@^0.13.49, zigbee-herdsman@^0.13.51:
+zigbee-herdsman@^0.13.49:
   version "0.13.51"
   resolved "https://registry.yarnpkg.com/zigbee-herdsman/-/zigbee-herdsman-0.13.51.tgz#fea5a7185b5927edf477a4540dbc26279fdf80de"
   integrity sha512-W+g2c43YXTHcWNwPjTuTrgimAf8Gt/t5ysp5shPafp3oLWg3IxlW/EDwDI5eOI5Vy+IN3suA1smwMM9C6JSQ2g==
+  dependencies:
+    debounce "^1.2.0"
+    debug "^4.3.1"
+    fast-deep-equal "^3.1.3"
+    mixin-deep "^2.0.1"
+    serialport "9.0.4"
+    slip "^1.0.2"
+
+zigbee-herdsman@^0.13.57:
+  version "0.13.57"
+  resolved "https://registry.yarnpkg.com/zigbee-herdsman/-/zigbee-herdsman-0.13.57.tgz#ca438a4408360b911f3495598a2ecf540f9838da"
+  integrity sha512-BRxKaYAPG5VF5PvuO9um6iVnnpM+iJdA4z4cFkh0TMxtQpUpPGXjpHCWtk4w5ZSbH1//AptYMO2LfUoba4Z/4Q==
   dependencies:
     debounce "^1.2.0"
     debug "^4.3.1"
