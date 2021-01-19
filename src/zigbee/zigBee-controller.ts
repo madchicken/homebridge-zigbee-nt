@@ -2,7 +2,7 @@ import { Controller } from 'zigbee-herdsman';
 import { findByDevice } from 'zigbee-herdsman-converters';
 import { Logger } from 'homebridge';
 import Device from 'zigbee-herdsman/dist/controller/model/device';
-import { ZigBeeDefinition, ZigBeeEntity } from './types';
+import { ZigBeeControllerConfig, ZigBeeDefinition, ZigBeeEntity } from './types';
 
 export const endpointNames = [
   'left',
@@ -59,6 +59,74 @@ export const endpointNames = [
 ];
 const keyEndpointByNumber = new RegExp(`.*/([0-9]*)$`);
 
+interface NetworkOptions {
+  panID: number;
+  extendedPanID?: number[];
+  channelList: number[];
+  networkKey?: number[];
+  networkKeyDistribute?: boolean;
+}
+
+interface SerialPortOptions {
+  baudRate?: number;
+  rtscts?: boolean;
+  path?: string;
+  adapter?: 'zstack' | 'deconz' | 'zigate';
+}
+
+interface AdapterOptions {
+  concurrent?: number;
+  delay?: number;
+}
+
+interface Options {
+  network: NetworkOptions;
+  serialPort: SerialPortOptions;
+  databasePath: string;
+  databaseBackupPath: string;
+  backupPath: string;
+  adapter: AdapterOptions;
+  /**
+   * This lambda can be used by an application to explictly reject or accept an incoming device.
+   * When false is returned zigbee-herdsman will not start the interview process and immidiately
+   * try to remove the device from the network.
+   */
+  acceptJoiningDeviceHandler: (ieeeAddr: string) => Promise<boolean>;
+}
+
+const DefaultOptions: Options = {
+  network: {
+    networkKeyDistribute: false,
+    networkKey: [
+      0x01,
+      0x03,
+      0x05,
+      0x07,
+      0x09,
+      0x0b,
+      0x0d,
+      0x0f,
+      0x00,
+      0x02,
+      0x04,
+      0x06,
+      0x08,
+      0x0a,
+      0x0c,
+      0x0d,
+    ],
+    panID: 0x1a62,
+    extendedPanID: [0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd],
+    channelList: [11],
+  },
+  serialPort: {},
+  databasePath: null,
+  databaseBackupPath: null,
+  backupPath: null,
+  adapter: null,
+  acceptJoiningDeviceHandler: null,
+};
+
 /* eslint-disable no-underscore-dangle */
 export class ZigBeeController {
   private herdsman: Controller;
@@ -69,44 +137,23 @@ export class ZigBeeController {
     this.log = log;
   }
 
-  init(config) {
-    this.herdsman = new Controller({
-      serialPort: {
-        baudRate: 115200,
-        rtscts: true,
-        path: config.port,
-        adapter: 'zstack',
+  init(config: ZigBeeControllerConfig) {
+    const options: Options = {
+      ...DefaultOptions,
+      ...{
+        serialPort: {
+          path: config.port,
+          adapter: config.adapter,
+        },
+        databasePath: config.databasePath,
+        acceptJoiningDeviceHandler: ieeeAddr => this.acceptJoiningDeviceHandler(ieeeAddr),
+        network: {
+          panID: config.panId || 0x1a62,
+          channelList: config.channels,
+        },
       },
-      databasePath: config.db,
-      acceptJoiningDeviceHandler: ieeeAddr => this.acceptJoiningDeviceHandler(ieeeAddr),
-      network: {
-        networkKeyDistribute: false,
-        networkKey: [
-          0x01,
-          0x03,
-          0x05,
-          0x07,
-          0x09,
-          0x0b,
-          0x0d,
-          0x0f,
-          0x00,
-          0x02,
-          0x04,
-          0x06,
-          0x08,
-          0x0a,
-          0x0c,
-          0x0d,
-        ],
-        panID: config.panId || 0xffff,
-        extendedPanID: [0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd],
-        channelList: config.channels,
-      },
-      databaseBackupPath: null,
-      backupPath: null,
-      adapter: null,
-    });
+    };
+    this.herdsman = new Controller(options);
   }
 
   acceptJoiningDeviceHandler(ieeeAddr) {
