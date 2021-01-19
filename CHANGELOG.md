@@ -29,3 +29,4 @@ All notable changes to this project will be documented in this file. This projec
 - Upgraded all dependencies (herdsman and herdsman-converters in particular)
 - NEW: support for [Xiaomi natural gas leak sensor](https://www.zigbee2mqtt.io/devices/JTQJ-BF-01LM_BW.html)
 
+**NOTE: you might need to pair again all your devices because of a change in the herdsman lib to the pan ID of your antenna**
