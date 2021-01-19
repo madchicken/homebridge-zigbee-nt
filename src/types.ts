@@ -1,8 +1,11 @@
 import { PlatformConfig } from 'homebridge';
 
+/**
+ * Supported services for manually configured devices
+ */
 export type ServiceType =
   | 'contact-sensor'
-  | 'bulb'
+  | 'bulb' // lights, switches and dimmers
   | 'motion-sensor'
   | 'leak-sensor' // to use with water, gas or smoke sensors
   | 'vibration-sensor'
@@ -11,6 +14,9 @@ export type ServiceType =
   | 'temperature-sensor'
   | 'outlet';
 
+/**
+ * Service definition for a configured device. Your device should at least define one service.
+ */
 export interface ServiceConfig {
   type: ServiceType;
   meta?: {
@@ -26,9 +32,14 @@ export interface ServiceConfig {
     waterLeak?: boolean; // water leak detection
     gasLeak?: boolean; // gas leak detection
     smokeLeak?: boolean; // smoke leak detection
+    tamper?: boolean; // tampered status detection
   };
 }
 
+/**
+ * Interface to define a device using simple configuration.
+ * It muse provide manufacturer and models as reported by your device amd at least one {@link ServiceConfig}
+ */
 export interface DeviceConfig {
   manufacturer: string;
   models: string[];

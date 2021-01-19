@@ -2,7 +2,7 @@ import { API } from 'homebridge';
 
 import { PLATFORM_NAME, PLUGIN_IDENTIFIER } from './settings';
 import { ZigbeeNTHomebridgePlatform } from './platform';
-import { registerAccessoryClass } from './registry';
+import { registerAccessoryClass, registerAccessoryFactory } from './registry';
 import { PhilipsHueWhite } from './accessories/philips/philips-hue-white';
 import { PhilipsHueWhiteTemperature } from './accessories/philips/philips-hue-white-temperature';
 import { PhilipsHueWhiteAndColor } from './accessories/philips/philips-hue-white-and-color';
@@ -33,6 +33,8 @@ import { IkeaShurtcutSwitch } from './accessories/ikea/ikea-shurtcut-switch';
 import { XiaomiMotionIlluminanceSensor } from './accessories/xiaomi/xiaomi-motion-illuminance-sensor';
 import { AqaraOppleSwitch } from './accessories/xiaomi/aqara-opple-switch';
 import { NanoleafIvy } from './accessories/nanoleaf/nanoleaf-ivy';
+import { DATABASE_ACCESSORIES } from './accessories/database';
+import { ConfigurableAccessory } from './accessories/configurable-accessory';
 
 function registerSupportedDevices(): void {
   registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
@@ -166,11 +168,7 @@ function registerSupportedDevices(): void {
   );
   registerAccessoryClass(
     'LUMI',
-    [
-      'lumi.remote.b286opcn01',
-      'lumi.remote.b486opcn01',
-      'lumi.remote.b686opcn01'
-    ],
+    ['lumi.remote.b286opcn01', 'lumi.remote.b486opcn01', 'lumi.remote.b686opcn01'],
     AqaraOppleSwitch
   );
   registerAccessoryClass('LUMI', ['lumi.sensor_motion'], XiaomiMotionSensor);
@@ -185,7 +183,17 @@ function registerSupportedDevices(): void {
   registerAccessoryClass('NAMRON AS', ['4512704'], NamronSwitch);
   registerAccessoryClass('eWeLink', ['DS01'], SonoffContactSensor);
   registerAccessoryClass('Nanoleaf', ['NL08-0800'], NanoleafIvy);
-};
+
+  // Register devices defined in local database
+  DATABASE_ACCESSORIES.forEach(deviceConfig =>
+    registerAccessoryFactory(
+      deviceConfig.manufacturer,
+      deviceConfig.models,
+      (platform, accessory, client, device) =>
+        new ConfigurableAccessory(platform, accessory, client, device, deviceConfig.services)
+    )
+  );
+}
 
 /**
  * This method registers the platform with Homebridge

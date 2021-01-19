@@ -51,16 +51,19 @@ function createContactService(
   zigBeeDeviceDescriptor: Device,
   serviceConfig: ServiceConfig
 ) {
-  const contactSensorServiceBuilder = new ContactSensorServiceBuilder(
+  const builder = new ContactSensorServiceBuilder(
     platform,
     accessory,
     client,
     zigBeeDeviceDescriptor
   ).withContact();
   if (serviceConfig.meta?.batteryLow) {
-    contactSensorServiceBuilder.withBatteryLow();
+    builder.withBatteryLow();
   }
-  return contactSensorServiceBuilder.build();
+  if (serviceConfig.meta?.tamper) {
+    builder.withTamper();
+  }
+  return builder.build();
 }
 
 function createMotionSensorService(
@@ -70,16 +73,19 @@ function createMotionSensorService(
   zigBeeDeviceDescriptor: Device,
   serviceConfig: ServiceConfig
 ) {
-  const motionSensorServiceBuilder = new MotionSensorServiceBuilder(
+  const builder = new MotionSensorServiceBuilder(
     platform,
     accessory,
     client,
     zigBeeDeviceDescriptor
   ).withOccupancy();
   if (serviceConfig.meta?.batteryLow) {
-    motionSensorServiceBuilder.withBatteryLow();
+    builder.withBatteryLow();
   }
-  return motionSensorServiceBuilder.build();
+  if (serviceConfig.meta?.tamper) {
+    builder.withTamper();
+  }
+  return builder.build();
 }
 
 function createHumiditySensorService(
@@ -89,16 +95,19 @@ function createHumiditySensorService(
   zigBeeDeviceDescriptor: Device,
   serviceConfig: ServiceConfig
 ) {
-  const humiditySensorServiceBuilder = new HumiditySensorServiceBuilder(
+  const builder = new HumiditySensorServiceBuilder(
     platform,
     accessory,
     client,
     zigBeeDeviceDescriptor
   ).withHumidity();
   if (serviceConfig.meta?.batteryLow) {
-    humiditySensorServiceBuilder.withBatteryLow();
+    builder.withBatteryLow();
   }
-  return humiditySensorServiceBuilder.build();
+  if (serviceConfig.meta?.tamper) {
+    builder.withTamper();
+  }
+  return builder.build();
 }
 
 function createTemperatureSensorService(
@@ -108,16 +117,19 @@ function createTemperatureSensorService(
   zigBeeDeviceDescriptor: Device,
   serviceConfig: ServiceConfig
 ) {
-  const temperatureSensorServiceBuilder = new TemperatureSensorServiceBuilder(
+  const builder = new TemperatureSensorServiceBuilder(
     platform,
     accessory,
     client,
     zigBeeDeviceDescriptor
   ).withTemperature();
   if (serviceConfig.meta?.batteryLow) {
-    temperatureSensorServiceBuilder.withBatteryLow();
+    builder.withBatteryLow();
   }
-  return temperatureSensorServiceBuilder.build();
+  if (serviceConfig.meta?.tamper) {
+    builder.withTamper();
+  }
+  return builder.build();
 }
 
 function createBatteryService(
@@ -160,13 +172,16 @@ function createLeakSensorService(
   serviceConfig: ServiceConfig
 ) {
   const builder = new LeakSensorServiceBuilder(platform, accessory, client, zigBeeDeviceDescriptor);
-  if (serviceConfig.meta.waterLeak) {
+  if (serviceConfig.meta?.tamper) {
+    builder.withTamper();
+  }
+  if (serviceConfig.meta?.waterLeak) {
     builder.withWaterLeak();
   }
-  if (serviceConfig.meta.gasLeak) {
+  if (serviceConfig.meta?.gasLeak) {
     builder.withGasLeak();
   }
-  if (serviceConfig.meta.smokeLeak) {
+  if (serviceConfig.meta?.smokeLeak) {
     builder.withSmokeLeak();
   }
   return builder.build();
