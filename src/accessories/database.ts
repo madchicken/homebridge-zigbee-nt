@@ -7,7 +7,7 @@ import { DeviceConfig } from '../types';
 export const DATABASE_ACCESSORIES: DeviceConfig[] = [
   {
     manufacturer: 'Xiaomi',
-    models: ['JTQJ-BF-01LM/BW'],
+    models: ['JTQJ-BF-01LM/BW', 'lumi.sensor_natgas'],
     services: [
       {
         type: 'leak-sensor',
