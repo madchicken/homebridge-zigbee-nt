@@ -198,11 +198,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     // Stop permit join
     await this.permitJoinAccessory.setPermitJoin(false);
     this.log.info(`Device announced leaving and will be removed, id: ${ieeeAddr}`);
-    const accessory = this.getAccessoryByIeeeAddr(message.ieeeAddr);
-    // Sometimes we can unpair device which doesn't exist in HomeKit
-    if (accessory) {
-      await this.unpairDevice(ieeeAddr);
-    }
+    await this.unpairDevice(ieeeAddr);
   }
 
   async handleZigBeeReady() {
@@ -343,10 +339,11 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     const result = await this.zigBeeClient.unpairDevice(ieeeAddr);
     if (result) {
       this.log.info('Device has been unpaired:', ieeeAddr);
-      this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
-        this.getAccessoryByIeeeAddr(ieeeAddr),
-      ]);
-      this.removeAccessory(ieeeAddr);
+      const accessory = this.getAccessoryByIeeeAddr(ieeeAddr);
+      if (accessory) {
+        this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+        this.removeAccessory(ieeeAddr);
+      }
     } else {
       this.log.error('Device has NOT been unpaired:', ieeeAddr);
     }
