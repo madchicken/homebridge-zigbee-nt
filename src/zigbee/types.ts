@@ -2,8 +2,7 @@ import { MessagePayload } from 'zigbee-herdsman/dist/controller/events';
 import Device from 'zigbee-herdsman/dist/controller/model/device';
 import Endpoint from 'zigbee-herdsman/dist/controller/model/endpoint';
 import { Zcl } from 'zigbee-herdsman';
-import Debug from 'debug';
-import { Logger } from 'winston';
+import { Logger } from 'homebridge';
 
 type State = 'ON' | 'OFF' | 'TOGGLE';
 
@@ -217,8 +216,10 @@ export interface ZigBeeDefinition {
       device: Device,
       logger: Logger,
       requestPayload?: {
-        imageType: any;
-        manufacturerCode: any;
+        imageType: number;
+        manufacturerCode: number;
+        fileVersion: number;
+        fieldControl: number;
       }
     ) => Promise<boolean>;
     updateToLatest: (
@@ -231,11 +232,18 @@ export interface ZigBeeDefinition {
 }
 
 export interface ZigBeeEntity {
-  type: 'device' | 'group';
+  type: 'device' | 'group' | 'group_number';
+  ID?: number; // used in groups
   group?: any;
   device?: Device;
   endpoint?: Endpoint;
   definition?: ZigBeeDefinition;
   name: string;
   settings: any;
+}
+
+export interface BindInfo {
+  from: string;
+  to: string;
+  clusters?: string[];
 }

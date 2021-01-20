@@ -1,4 +1,5 @@
 import { Queue } from './queue';
+import { Logger } from 'homebridge';
 import Timeout = NodeJS.Timeout;
 
 class DeferredPromise<T> {
@@ -22,10 +23,12 @@ export interface DeferredMessage<M, R> {
 
 export abstract class PromiseBasedQueue<M, R> implements Queue<M, R> {
   private readonly queuedMessages: DeferredMessage<M, R>[];
+  protected readonly log: Logger;
   private timeout: Timeout;
 
-  protected constructor() {
+  protected constructor(log: Logger) {
     this.queuedMessages = [];
+    this.log = log;
   }
 
   abstract processResponse(messages: DeferredMessage<M, R>[], response: R): boolean;

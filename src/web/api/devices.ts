@@ -5,7 +5,7 @@ import { ZigbeeNTHomebridgePlatform } from '../../platform';
 import { normalizeDeviceModel } from '../common/utils';
 import winston from 'winston';
 
-const logger = winston.createLogger();
+const logger = winston.createLogger({ transports: [new winston.transports.Console()] });
 
 export function mapDevicesRoutes(express: Express, platform: ZigbeeNTHomebridgePlatform) {
   express.get('/api/devices', (_req, res) => {
@@ -22,7 +22,9 @@ export function mapDevicesRoutes(express: Express, platform: ZigbeeNTHomebridgeP
       deviceModel.otaAvailable = platform.zigBeeClient.hasOTA(device);
       if (deviceModel.otaAvailable) {
         try {
-          deviceModel.newFirmwareAvailable = await platform.zigBeeClient.isUpdateAvailable(device);
+          deviceModel.newFirmwareAvailable = await platform.zigBeeClient.isUpdateFirmwareAvailable(
+            device
+          );
         } catch (e) {
           logger.error(e.toString(), e);
           deviceModel.newFirmwareAvailable = false;
@@ -76,6 +78,29 @@ export function mapDevicesRoutes(express: Express, platform: ZigbeeNTHomebridgeP
         res.status(constants.HTTP_STATUS_OK);
         res.contentType('application/json');
         res.end(JSON.stringify({ state }));
+      } else {
+        res.status(constants.HTTP_STATUS_NOT_FOUND);
+        res.end();
+      }
+    } catch (e) {
+      res.send(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+      res.end(JSON.stringify(e.message));
+    }
+  });
+
+  express.post('/api/devices/:ieeeAddr/update', async (req, res) => {
+    try {
+      const device: Device = platform.zigBeeClient.getDevice(req.params.ieeeAddr);
+      if (device) {
+        const hasOTA = platform.zigBeeClient.hasOTA(device);
+        if (hasOTA) {
+          await platform.zigBeeClient.updateFirmware(device, req.body);
+          res.status(constants.HTTP_STATUS_OK);
+          res.end();
+        } else {
+          res.status(constants.HTTP_STATUS_BAD_REQUEST);
+          res.end();
+        }
       } else {
         res.status(constants.HTTP_STATUS_NOT_FOUND);
         res.end();

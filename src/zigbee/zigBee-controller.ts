@@ -132,7 +132,7 @@ export class ZigBeeController {
   private herdsman: Controller;
   private readonly log: Logger;
 
-  constructor(log: Logger = console) {
+  constructor(log: Logger) {
     this.herdsman = null;
     this.log = log;
   }

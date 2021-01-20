@@ -23,7 +23,9 @@ function renderTable(devices: DeviceModel[], history) {
   return (
     <React.Fragment>
       {devices.map((device, index) => {
-        const qualityPercent = device.linkquality ? (device.linkquality / 255) * 100 : 0;
+        const qualityPercent = Math.round(
+          device.linkquality ? (device.linkquality / 255) * 100 : 0
+        );
         let color: Color = 'green';
         if (qualityPercent < 4) {
           color = 'red';
