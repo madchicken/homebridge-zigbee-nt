@@ -6,6 +6,7 @@ import { registerAccessoryClass, registerAccessoryFactory } from './registry';
 import { PhilipsHueWhite } from './accessories/philips/philips-hue-white';
 import { PhilipsHueWhiteTemperature } from './accessories/philips/philips-hue-white-temperature';
 import { PhilipsHueWhiteAndColor } from './accessories/philips/philips-hue-white-and-color';
+import { PhilipsHueDimmableSwitch } from './accessories/philips/philips-hue-dimmable-switch';
 import { IkeaTradfriDimColortemp } from './accessories/ikea/ikea-tradfri-dim-colortemp';
 import { IkeaTradfriDim } from './accessories/ikea/ikea-tradfri-dim';
 import { IkeaTradfriOutlet } from './accessories/ikea/ikea-tradfri-outlet';
@@ -67,6 +68,11 @@ function registerSupportedDevices(): void {
       'LST002',
     ],
     PhilipsHueWhiteAndColor
+  );
+  registerAccessoryClass(
+    'Philips',
+    ['RWL021'],
+    PhilipsHueDimmableSwitch
   );
   registerAccessoryClass(
     'IKEA of Sweden',
