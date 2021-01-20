@@ -3,6 +3,9 @@ import { constants } from 'http2';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { ZigbeeNTHomebridgePlatform } from '../../platform';
 import { normalizeDeviceModel } from '../common/utils';
+import winston from 'winston';
+
+const logger = winston.createLogger();
 
 export function mapDevicesRoutes(express: Express, platform: ZigbeeNTHomebridgePlatform) {
   express.get('/api/devices', (_req, res) => {
@@ -12,11 +15,26 @@ export function mapDevicesRoutes(express: Express, platform: ZigbeeNTHomebridgeP
     res.end(JSON.stringify({ devices: devices.map(device => normalizeDeviceModel(device)) }));
   });
 
-  express.get('/api/devices/:ieeeAddr', (req, res) => {
+  express.get('/api/devices/:ieeeAddr', async (req, res) => {
     const device: Device = platform.zigBeeClient.getDevice(req.params.ieeeAddr);
-    res.status(constants.HTTP_STATUS_OK);
-    res.contentType('application/json');
-    res.end(JSON.stringify({ device: normalizeDeviceModel(device) }));
+    if (device) {
+      const deviceModel = normalizeDeviceModel(device);
+      deviceModel.otaAvailable = platform.zigBeeClient.hasOTA(device);
+      if (deviceModel.otaAvailable) {
+        try {
+          deviceModel.newFirmwareAvailable = await platform.zigBeeClient.isUpdateAvailable(device);
+        } catch (e) {
+          logger.error(e.toString(), e);
+          deviceModel.newFirmwareAvailable = false;
+        }
+      }
+      res.status(constants.HTTP_STATUS_OK);
+      res.contentType('application/json');
+      res.end(JSON.stringify({ device: deviceModel }));
+    } else {
+      res.status(constants.HTTP_STATUS_NOT_FOUND);
+      res.end();
+    }
   });
 
   express.delete('/api/devices/:ieeeAddr', async (req, res) => {

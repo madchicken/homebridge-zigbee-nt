@@ -28,6 +28,8 @@ export type DeviceModel = {
   softwareBuildID: string;
   linkquality: number;
   endpoints?: Endpoint[];
+  otaAvailable?: boolean;
+  newFirmwareAvailable?: boolean;
 };
 
 export interface CoordinatorModel extends DeviceModel {

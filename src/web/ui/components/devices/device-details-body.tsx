@@ -45,6 +45,13 @@ function renderInfo(device: DeviceModel) {
       <Pane padding={sizes.padding.small}>
         <Heading size={400}>Last seen: {dayjs(device.lastSeen).fromNow(false)}</Heading>
       </Pane>
+      {device.otaAvailable ? (
+        <Pane padding={sizes.padding.small}>
+          <Heading size={400}>
+            New OTA firmware: {device.newFirmwareAvailable ? 'YES' : 'NO'}
+          </Heading>
+        </Pane>
+      ) : null}
     </>
   );
 }

@@ -15,6 +15,7 @@ import {
 } from './types';
 import { findSerialPort } from '../utils/find-serial-port';
 import retry from 'async-retry';
+import winston from 'winston';
 
 export interface ZigBeeClientConfig {
   channel: number;
@@ -203,7 +204,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     const meta: Meta = {
       options,
       message: state,
-      logger: this.log,
+      logger: winston.createLogger({ level: 'info' }),
       device,
       state: state,
       mapped: definition,
@@ -458,5 +459,20 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
 
   async getCoordinatorVersion() {
     return this.zigBee.getCoordinatorVersion();
+  }
+
+  async isUpdateAvailable(device: Device) {
+    const zigBeeEntity = this.zigBee.resolveEntity(device);
+    if (zigBeeEntity.definition.ota) {
+      return zigBeeEntity.definition.ota.isUpdateAvailable(
+        device,
+        winston.createLogger({ level: 'info', transports: [new winston.transports.Console()] })
+      );
+    }
+  }
+
+  hasOTA(device: Device): boolean {
+    const zigBeeEntity = this.zigBee.resolveEntity(device);
+    return !!zigBeeEntity.definition.ota;
   }
 }

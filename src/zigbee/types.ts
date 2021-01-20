@@ -2,7 +2,8 @@ import { MessagePayload } from 'zigbee-herdsman/dist/controller/events';
 import Device from 'zigbee-herdsman/dist/controller/model/device';
 import Endpoint from 'zigbee-herdsman/dist/controller/model/endpoint';
 import { Zcl } from 'zigbee-herdsman';
-import { Logger } from 'homebridge';
+import Debug from 'debug';
+import { Logger } from 'winston';
 
 type State = 'ON' | 'OFF' | 'TOGGLE';
 
@@ -210,8 +211,23 @@ export interface ZigBeeDefinition {
   fromZigbee: FromConverter[];
   toZigbee: ToConverter[];
   exposes: Capability[];
-
-  [key: string]: any;
+  interviewing?: boolean;
+  ota?: {
+    isUpdateAvailable: (
+      device: Device,
+      logger: Logger,
+      requestPayload?: {
+        imageType: any;
+        manufacturerCode: any;
+      }
+    ) => Promise<boolean>;
+    updateToLatest: (
+      device: Device,
+      logger: Logger,
+      onProgress: (percentage: number, remaining: number) => void
+    ) => Promise<void>;
+    useTestURL?: () => void;
+  };
 }
 
 export interface ZigBeeEntity {
