@@ -20,12 +20,7 @@ export class TemperatureSensorServiceBuilder extends SensorServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.CurrentTemperature)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        try {
-          Object.assign(this.state, await this.client.getTemperature(this.device));
-          callback(null, this.state.temperature);
-        } catch (e) {
-          callback(e);
-        }
+        callback(null, this.state.temperature);
       });
 
     return this;

@@ -20,12 +20,7 @@ export class HumiditySensorServiceBuilder extends SensorServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.CurrentRelativeHumidity)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
-        try {
-          Object.assign(this.state, await this.client.getHumidity(this.device));
-          callback(null, Math.round(this.state.humidity || 0));
-        } catch (e) {
-          callback(e);
-        }
+        callback(null, Math.round(this.state.humidity || 0));
       });
 
     return this;
