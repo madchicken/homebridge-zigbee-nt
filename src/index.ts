@@ -33,7 +33,7 @@ import { IkeaShurtcutSwitch } from './accessories/ikea/ikea-shurtcut-switch';
 import { XiaomiMotionIlluminanceSensor } from './accessories/xiaomi/xiaomi-motion-illuminance-sensor';
 import { AqaraOppleSwitch2Buttons } from './accessories/xiaomi/aqara-opple-switch';
 import { AqaraOppleSwitch4Buttons } from './accessories/xiaomi/aqara-opple-switch';
-import { AqaraOppleSwitch6Button } from './accessories/xiaomi/aqara-opple-switch';
+import { AqaraOppleSwitch6Buttons } from './accessories/xiaomi/aqara-opple-switch';
 import { NanoleafIvy } from './accessories/nanoleaf/nanoleaf-ivy';
 import { DATABASE_ACCESSORIES } from './accessories/database';
 import { ConfigurableAccessory } from './accessories/configurable-accessory';
@@ -145,9 +145,9 @@ function registerSupportedDevices(): void {
   );
   registerAccessoryClass('Xiaomi', ['GZCGQ01LM'], XiaomiLightIntensitySensor);
   registerAccessoryClass('Xiaomi', ['WXKG11LM', 'WXKG03LM', 'WXKG12LM'], XiaomiWirelessSwitch);
-  registerAccessoryClass('Xiaomi', ['WXCJKG11LM'], AqaraOppleSwitch2Button);
+  registerAccessoryClass('Xiaomi', ['WXCJKG11LM'], AqaraOppleSwitch2Buttons);
   registerAccessoryClass('Xiaomi', ['WXCJKG12LM'], AqaraOppleSwitch4Buttons);
-  registerAccessoryClass('Xiaomi', ['WXCJKG13LM'], AqaraOppleSwitch6Button);
+  registerAccessoryClass('Xiaomi', ['WXCJKG13LM'], AqaraOppleSwitch6Buttons);
   registerAccessoryClass(
     'LUMI',
     ['lumi.weather', 'lumi.sensor_ht.agl02', 'lumi.sensor_ht'],
@@ -173,7 +173,7 @@ function registerSupportedDevices(): void {
   registerAccessoryClass(
     'LUMI',
     ['lumi.remote.b286opcn01'],
-    AqaraOppleSwitch2Button
+    AqaraOppleSwitch2Buttons
   );
   registerAccessoryClass(
     'LUMI',
@@ -183,7 +183,7 @@ function registerSupportedDevices(): void {
   registerAccessoryClass(
     'LUMI',
     ['lumi.remote.b686opcn01'],
-    AqaraOppleSwitch6Button
+    AqaraOppleSwitch6Buttons
   );
   registerAccessoryClass('LUMI', ['lumi.sensor_motion'], XiaomiMotionSensor);
   registerAccessoryClass('Xiaomi', ['lumi.sensor_motion'], XiaomiMotionSensor);

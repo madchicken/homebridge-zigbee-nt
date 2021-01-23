@@ -3,7 +3,7 @@ import { Service } from 'homebridge';
 import { DeviceState } from '../../zigbee/types';
 import { ProgrammableSwitchServiceBuilder } from '../../builders/programmable-switch-service-builder';
 
-export class AqaraOppleSwitch6Button extends ZigBeeAccessory {
+export class AqaraOppleSwitch6Buttons extends ZigBeeAccessory {
   protected switchServiceTopLeft: Service;
   protected switchServiceTopRight: Service;
   protected switchServiceMiddleLeft: Service;
