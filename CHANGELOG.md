@@ -10,14 +10,14 @@ All notable changes to this project will be documented in this file. This projec
 
 - Complete refactoring: better code structure to improve reuse of existing code. Updating of devices is now centralized.
 - NEW: ability to manually configure devices from plugin configuration. See [wiki](https://github.com/madchicken/homebridge-zigbee-nt/wiki/Add-new-devices-in-configuration) for more details. Supported devices types for manual config are
-  * contact sensors
-  * light bulbs, switches and dimmers
-  * motion sensors
-  * leak sensors (water, gas or smoke sensors)
-  * vibration sensors
-  * humidity sensors
-  * temperature sensors
-  * outlets
+  - contact sensors
+  - light bulbs, switches and dimmers
+  - motion sensors
+  - leak sensors (water, gas or smoke sensors)
+  - vibration sensors
+  - humidity sensors
+  - temperature sensors
+  - outlets
 - NEW: permit join status can now be turned on at startup using `enablePermitJoin` boolean config value
 - NEW: auto backup of zigbee database on startup (to reduce lost of paired devices when changing antenna configuration)
 - NEW: support for adapter type in configuration through `adapter` value (supported values are zstack, deconz and zigate)
@@ -30,3 +30,14 @@ All notable changes to this project will be documented in this file. This projec
 - NEW: support for [Xiaomi natural gas leak sensor](https://www.zigbee2mqtt.io/devices/JTQJ-BF-01LM_BW.html)
 
 **NOTE: you might need to pair again all your devices because of a change in the herdsman lib to the pan ID of your antenna**
+
+## 2.0.1 (2021-1-23)
+
+## [Version 2.0.1](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.0.0...v2.0.1)
+
+#### Changes
+
+- Fix a bug with device state update [#74](https://github.com/madchicken/homebridge-zigbee-nt/issues/74)
+- Do not read humidity/temperature (rely on device report) [#69](https://github.com/madchicken/homebridge-zigbee-nt/issues/69)
+- Add devices to internal database
+- Fix problem with accessories names: do not exceed 64 characters

@@ -19,4 +19,43 @@ export const DATABASE_ACCESSORIES: DeviceConfig[] = [
       },
     ],
   },
+  {
+    manufacturer: 'BTicino',
+    models: ['L441C/N4411C/NT4411C'],
+    services: [
+      {
+        type: 'bulb',
+        meta: {
+          brightness: true,
+        },
+      },
+    ],
+  },
+  {
+    manufacturer: 'Philips',
+    models: ['LTC001'],
+    services: [
+      {
+        type: 'bulb',
+        meta: {
+          brightness: true,
+          colorTemp: true,
+        },
+      },
+    ],
+  },
+  {
+    manufacturer: '_TZ3000_riwp3k79',
+    models: ['TS0505A'],
+    services: [
+      {
+        type: 'bulb',
+        meta: {
+          brightness: true,
+          colorXY: true,
+          colorTemp: true,
+        },
+      },
+    ],
+  },
 ];
