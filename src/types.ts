@@ -61,3 +61,7 @@ export interface ZigBeeNTPlatformConfig extends PlatformConfig {
   enablePermitJoin?: boolean;
   devices?: DeviceConfig[];
 }
+
+export interface WSEvent {
+  [k: string]: any;
+}

@@ -28,7 +28,7 @@ function isCoordinator(device: DeviceModel) {
 function renderInfo(device: DeviceModel, showUpdateDialog: () => void) {
   let otaInfo = null;
   if (device.otaAvailable) {
-    if (device.newFirmwareAvailable) {
+    if (device.newFirmwareAvailable === 'YES') {
       otaInfo = (
         <Pane padding={sizes.padding.small} paddingTop={sizes.padding.large} background="tealTint">
           <Heading size={400}>A new firmware version is available for this device!</Heading>
@@ -45,10 +45,16 @@ function renderInfo(device: DeviceModel, showUpdateDialog: () => void) {
           </p>
         </Pane>
       );
-    } else {
+    } else if (device.newFirmwareAvailable === 'NO') {
       otaInfo = (
         <Pane padding={sizes.padding.small}>
           <Heading size={400}>This device is updated to the latest available firmware</Heading>
+        </Pane>
+      );
+    } else {
+      otaInfo = (
+        <Pane padding={sizes.padding.small}>
+          <Heading size={400}>Error fetching OTA info: {device.newFirmwareAvailable}</Heading>
         </Pane>
       );
     }
@@ -188,7 +194,7 @@ export function DeviceDetailsBody(props: Props) {
           onCloseComplete={() => setState({ ...state, isUpdateShown: false })}
           confirmLabel="Start"
         >
-          Update firmware
+          Updating firmware...
         </Dialog>
       </Pane>
     </Pane>

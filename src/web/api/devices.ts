@@ -20,15 +20,19 @@ export function mapDevicesRoutes(express: Express, platform: ZigbeeNTHomebridgeP
     if (device) {
       const deviceModel = normalizeDeviceModel(device);
       deviceModel.otaAvailable = platform.zigBeeClient.hasOTA(device);
-      if (deviceModel.otaAvailable) {
+      if (deviceModel.otaAvailable && device.linkquality > 0) {
         try {
-          deviceModel.newFirmwareAvailable = await platform.zigBeeClient.isUpdateFirmwareAvailable(
+          deviceModel.newFirmwareAvailable = (await platform.zigBeeClient.isUpdateFirmwareAvailable(
             device
-          );
+          ))
+            ? 'YES'
+            : 'NO';
         } catch (e) {
           logger.error(e.toString(), e);
-          deviceModel.newFirmwareAvailable = false;
+          deviceModel.newFirmwareAvailable = 'FETCH_ERROR';
         }
+      } else {
+        deviceModel.newFirmwareAvailable = 'DEVICE_OFFLINE';
       }
       res.status(constants.HTTP_STATUS_OK);
       res.contentType('application/json');

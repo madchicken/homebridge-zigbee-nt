@@ -29,7 +29,7 @@ export type DeviceModel = {
   linkquality: number;
   endpoints?: Endpoint[];
   otaAvailable?: boolean;
-  newFirmwareAvailable?: boolean;
+  newFirmwareAvailable?: string;
 };
 
 export interface CoordinatorModel extends DeviceModel {

@@ -1,3 +1,4 @@
+import { NodeJS } from 'globals';
 import { Queue } from './queue';
 import { Logger } from 'homebridge';
 import Timeout = NodeJS.Timeout;

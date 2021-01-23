@@ -9,6 +9,7 @@ import { DeviceDetailsBody } from './device-details-body';
 import { DEVICES_QUERY_KEY } from './device-table';
 import { sizes } from '../constants';
 import { DeviceModel } from '../../../common/types';
+import { useWebsocket } from '../../web-socket-provider';
 
 interface State {
   isDeleteConfirmationShown: boolean;
@@ -64,6 +65,11 @@ interface Props {
 }
 
 export function DeviceDetails(props: Props): ReactElement {
+  const { addListener } = useWebsocket();
+  addListener(message => {
+    console.log(message);
+    return true;
+  });
   const history = useHistory();
   const queryResult = useQuery<DeviceResponse>(['device', props.ieeeAddr], () =>
     DevicesService.fetchDevice(props.ieeeAddr)

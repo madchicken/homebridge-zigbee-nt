@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { NavBar } from './components/nav-bar';
 import { Pane } from 'evergreen-ui';
 import { sizes } from './components/constants';
+import { WebSocketProvider } from './web-socket-provider';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { refetchOnWindowFocus: false } },
@@ -15,26 +16,28 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <Pane display="flex" height="100%">
-      <QueryClientProvider client={queryClient}>
-        <Router>
-          <NavBar />
-          <Pane padding={sizes.padding.large} flex="1">
-            <Switch>
-              <Route path="/devices/:ieeAddr?">
-                <Devices />
-              </Route>
-              <Route path="/coordinator">
-                <Coordinator />
-              </Route>
-              <Route path="/">
-                <Home />
-              </Route>
-            </Switch>
-          </Pane>
-        </Router>
-      </QueryClientProvider>
-    </Pane>
+    <WebSocketProvider url="homebridge.local:8999">
+      <Pane display="flex" height="100%">
+        <QueryClientProvider client={queryClient}>
+          <Router>
+            <NavBar />
+            <Pane padding={sizes.padding.large} flex="1">
+              <Switch>
+                <Route path="/devices/:ieeAddr?">
+                  <Devices />
+                </Route>
+                <Route path="/coordinator">
+                  <Coordinator />
+                </Route>
+                <Route path="/">
+                  <Home />
+                </Route>
+              </Switch>
+            </Pane>
+          </Router>
+        </QueryClientProvider>
+      </Pane>
+    </WebSocketProvider>
   );
 }
 

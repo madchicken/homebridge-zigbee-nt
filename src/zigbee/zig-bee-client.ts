@@ -460,11 +460,12 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     return this.zigBee.getCoordinatorVersion();
   }
 
-  async isUpdateFirmwareAvailable(device: Device) {
+  async isUpdateFirmwareAvailable(device: Device): Promise<boolean> {
     const zigBeeEntity = this.zigBee.resolveEntity(device);
     if (zigBeeEntity.definition.ota) {
       return zigBeeEntity.definition.ota.isUpdateAvailable(device, this.log);
     }
+    return false;
   }
 
   async updateFirmware(
