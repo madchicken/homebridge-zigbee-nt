@@ -7,6 +7,14 @@ import { Logger } from 'homebridge';
 type State = 'ON' | 'OFF' | 'TOGGLE';
 export type SystemMode = 'off' | 'heat' | 'cool' | 'auto';
 
+export interface ZigBeeControllerConfig {
+  port?: string;
+  panId?: number;
+  channels: number[];
+  databasePath: string;
+  adapter: 'zstack' | 'deconz' | 'zigate';
+}
+
 export interface DeviceState {
   state?: State;
   state_left?: State;
@@ -49,6 +57,8 @@ export interface DeviceState {
   state_l1?: 'ON' | 'OFF' | 'TOGGLE';
   state_l2?: 'ON' | 'OFF' | 'TOGGLE';
   battery?: number;
+  current?: number;
+  power?: number;
   voltage?: number;
   illuminance?: number;
   illuminance_lux?: number;
@@ -75,7 +85,34 @@ export interface DeviceState {
     | 'brightness_stop'
     | 'vibration'
     | 'tilt'
-    | 'drop';
+    | 'button_1_hold'
+    | 'button_2_hold'
+    | 'button_3_hold'
+    | 'button_4_hold'
+    | 'button_5_hold'
+    | 'button_6_hold'
+    | 'button_1_release'
+    | 'button_2_release'
+    | 'button_3_release'
+    | 'button_4_release'
+    | 'button_5_release'
+    | 'button_6_release'
+    | 'button_1_single'
+    | 'button_2_single'
+    | 'button_3_single'
+    | 'button_4_single'
+    | 'button_5_single'
+    | 'button_6_single'
+    | 'button_1_double'
+    | 'button_2_double'
+    | 'button_3_double'
+    | 'button_4_double'
+    | 'button_5_double'
+    | 'button_6_double'
+    | 'drop'
+    | 'single'
+    | 'hold'
+    | 'double';
   occupancy?: boolean;
   tamper?: boolean;
   battery_low?: boolean;
@@ -83,6 +120,13 @@ export interface DeviceState {
   linkquality?: number;
   sensitivity?: 'low' | 'medium' | 'high';
   water_leak?: boolean;
+  gas?: boolean;
+  smoke?: boolean;
+  // Philips HUE specifics
+  hue_power_on_behavior?: 'default' | 'on' | 'off' | 'recover';
+  hue_power_on_brightness?: number;
+  hue_power_on_color_temperature?: number;
+  hue_power_on_color?: string;
 }
 
 export interface ColorCapabilities {

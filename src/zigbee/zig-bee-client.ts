@@ -10,8 +10,9 @@ import {
   Meta,
   Options,
   ToConverter,
-  ZigBeeEntity,
   SystemMode,
+  ZigBeeControllerConfig,
+  ZigBeeEntity,
 } from './types';
 import { findSerialPort } from '../utils/find-serial-port';
 import retry from 'async-retry';
@@ -22,6 +23,7 @@ export interface ZigBeeClientConfig {
   database: string;
   panId: number;
   secondaryChannel?: string;
+  adapter?: 'zstack' | 'deconz' | 'zigate';
 }
 
 type StatePublisher = (ieeeAddr: string, state: DeviceState) => void;
@@ -46,17 +48,18 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
 
     const port = config.port || (await findSerialPort());
     this.log.info(`Configured port for ZigBee dongle is ${port}`);
-    const initConfig = {
+    const initConfig: ZigBeeControllerConfig = {
       port,
-      db: config.database,
+      databasePath: config.database,
       panId: config.panId,
       channels,
+      adapter: config.adapter || 'zstack',
     };
 
     this.log.info(
       `Initializing ZigBee controller on port ${
         initConfig.port
-      } and channels ${initConfig.channels.join(', ')}`
+      } and channels ${initConfig.channels.join(', ')} (pan ID ${config.panId})`
     );
     this.zigBee.init(initConfig);
 
@@ -184,7 +187,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
       });
     });
 
-    this.log.info(`Device state (${device.modelID}): `, deviceState);
+    this.log.debug(`Device state (${device.modelID}): `, deviceState);
     return deviceState;
   }
 
@@ -231,7 +234,9 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
         }
         Object.assign(deviceState, result.state);
       } catch (error) {
-        const message = `Writing '${key}' to '${resolvedEntity.name}' failed: '${error}'`;
+        const message = `Writing '${key}' to '${
+          resolvedEntity.name
+        }' failed with converter ${converter.key.join(', ')}: '${error}'`;
         this.log.error(message);
         this.log.debug(error.stack);
       }
@@ -273,19 +278,33 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     return this.readDeviceState(device, { state: 'ON' });
   }
 
+  getPowerState(device: Device): Promise<DeviceState> {
+    return this.readDeviceState(device, { power: 1 });
+  }
+
+  getCurrentState(device: Device): Promise<DeviceState> {
+    return this.readDeviceState(device, { current: 1 });
+  }
+
+  getVoltageState(device: Device): Promise<DeviceState> {
+    return this.readDeviceState(device, { voltage: 1 });
+  }
+
   getColorXY(device: Device): Promise<DeviceState> {
-    return this.readDeviceState(device, { color: { x: 0, y: 0 } });
+    return this.readDeviceState(device, { color: { x: 1, y: 1 } });
   }
 
   async getBrightnessPercent(device: Device): Promise<DeviceState> {
-    const deviceState = await this.readDeviceState(device, { brightness: 0 });
+    const deviceState = await this.readDeviceState(device, { brightness: 1 });
     deviceState.brightness_percent = Math.round(Number(deviceState.brightness) / 2.55);
     return deviceState;
   }
 
   async setBrightnessPercent(device: Device, brightnessPercent: number) {
     const brightness = Math.round(Number(brightnessPercent) * 2.55);
-    return this.writeDeviceState(device, { brightness });
+    return this.writeDeviceState(device, {
+      brightness,
+    });
   }
 
   async getColorCapabilities(device: Device, force = false): Promise<ColorCapabilities> {
@@ -317,11 +336,11 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   }
 
   getSaturation(device: Device): Promise<DeviceState> {
-    return this.readDeviceState(device, { color: { s: 0 } });
+    return this.readDeviceState(device, { color: { s: 1 } });
   }
 
   getHue(device: Device): Promise<DeviceState> {
-    return this.readDeviceState(device, { color: { hue: 0 } });
+    return this.readDeviceState(device, { color: { hue: 1 } });
   }
 
   setHue(device: Device, hue: number): Promise<DeviceState> {
@@ -357,11 +376,11 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   }
 
   getTemperature(device: Device): Promise<DeviceState> {
-    return this.readDeviceState(device, { temperature: 0 });
+    return this.readDeviceState(device, { temperature: 1 });
   }
 
   getHumidity(device: Device): Promise<Partial<DeviceState>> {
-    return this.readDeviceState(device, { humidity: 0 });
+    return this.readDeviceState(device, { humidity: 1 });
   }
 
   getCoodinator(): Device {
@@ -378,12 +397,14 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
 
   async getColorTemperature(device: Device) {
     return this.readDeviceState(device, {
-      color_temp: 0,
+      color_temp: 1,
     });
   }
 
   async setColorTemperature(device: Device, colorTemperature: number) {
-    return this.writeDeviceState(device, { color_temp: colorTemperature });
+    return this.writeDeviceState(device, {
+      color_temp: colorTemperature,
+    });
   }
 
   setLeftButtonOn(device: Device, on: boolean) {
@@ -446,5 +467,17 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
 
   async ping(ieeeAddr: string) {
     return this.zigBee.ping(ieeeAddr);
+  }
+
+  async setCustomState(device: Device, state: DeviceState) {
+    return this.writeDeviceState(device, state);
+  }
+
+  async getState(device: Device, state: DeviceState) {
+    return this.readDeviceState(device, state);
+  }
+
+  async getCoordinatorVersion() {
+    return this.zigBee.getCoordinatorVersion();
   }
 }

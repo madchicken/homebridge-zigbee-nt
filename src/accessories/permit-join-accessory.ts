@@ -5,7 +5,7 @@ import { ZigBeeClient } from '../zigbee/zig-bee-client';
 export class PermitJoinAccessory {
   private inProgress: boolean;
   private readonly platform: ZigbeeNTHomebridgePlatform;
-  private readonly accessory: PlatformAccessory;
+  public readonly accessory: PlatformAccessory;
   private switchService: Service;
   private zigBeeClient: ZigBeeClient;
 

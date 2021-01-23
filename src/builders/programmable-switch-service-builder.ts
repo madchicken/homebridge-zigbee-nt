@@ -8,6 +8,7 @@ import {
 } from 'homebridge';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { DeviceState } from '../zigbee/types';
+import { BatteryServiceBuilder } from './battery-service-builder';
 
 export class ProgrammableSwitchServiceBuilder {
   protected readonly client: ZigBeeClient;
@@ -87,18 +88,14 @@ export class ProgrammableSwitchServiceBuilder {
   }
 
   public andBattery(): ProgrammableSwitchServiceBuilder {
-    const Characteristic = this.platform.Characteristic;
-
-    const service =
-      this.accessory.getService(this.platform.Service.BatteryService) ||
-      this.accessory.addService(this.platform.Service.BatteryService);
-
-    service
-      .getCharacteristic(Characteristic.BatteryLevel)
-      .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
-        callback(null, this.state.battery);
-      });
-
+    const service = new BatteryServiceBuilder(
+      this.platform,
+      this.accessory,
+      this.client,
+      this.state
+    )
+      .withBatteryPercentage()
+      .build();
     this.services.push(service);
     return this;
   }

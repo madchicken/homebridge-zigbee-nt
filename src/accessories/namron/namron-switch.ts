@@ -1,20 +1,15 @@
 import { ZigBeeAccessory } from '../zig-bee-accessory';
-import { LighbulbServiceBuilder } from '../../builders/lighbulb-service-builder';
 import { Service } from 'homebridge';
+import { SwitchServiceBuilder } from '../../builders/switch-service-builder';
 
 export class NamronSwitch extends ZigBeeAccessory {
-  protected lightbulbService: Service;
+  protected service: Service;
 
   getAvailableServices() {
-    this.lightbulbService = new LighbulbServiceBuilder(
-      this.platform,
-      this.accessory,
-      this.client,
-      this.state
-    )
+    this.service = new SwitchServiceBuilder(this.platform, this.accessory, this.client, this.state)
       .withOnOff()
       .build();
-    return [this.lightbulbService];
+    return [this.service];
   }
 
   async handleAccessoryIdentify() {

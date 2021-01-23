@@ -1,12 +1,14 @@
-import { Button, Dialog, Pane, Paragraph, SideSheet, Spinner } from 'evergreen-ui';
+import { Dialog, IconButton, Pane, Paragraph, SideSheet, Spinner, TrashIcon } from 'evergreen-ui';
 import React, { ReactElement, useState } from 'react';
-import { DeviceModel, DeviceResponse, DevicesService } from '../../actions/devices';
+import { DeviceResponse, DevicesService } from '../../actions/devices';
 import { useQuery, useQueryClient } from 'react-query';
 import { Error } from '../error';
 import { useHistory } from 'react-router-dom';
 import * as H from 'history';
 import { DeviceDetailsBody } from './device-details-body';
 import { DEVICES_QUERY_KEY } from './device-table';
+import { sizes } from '../constants';
+import { DeviceModel } from '../../../common/types';
 
 interface State {
   isDeleteConfirmationShown: boolean;
@@ -35,7 +37,7 @@ function renderConfirmDialog(
         }
       }}
       isConfirmLoading={state.isDeletingDevice}
-      onCancel={() => setState({ ...state, isDialogShown: false })}
+      onCancel={() => setState({ ...state, isDeleteConfirmationShown: false })}
       cancelLabel="Cancel"
       confirmLabel={state.isDeletingDevice ? 'Unpairing...' : 'Unpair'}
     >
@@ -86,30 +88,38 @@ export function DeviceDetails(props: Props): ReactElement {
             flexDirection: 'column',
           }}
         >
-          <Pane zIndex={1} flexShrink={0} elevation={0} backgroundColor="white" minHeight={400}>
+          <Pane
+            display="flex"
+            padding={sizes.padding.small}
+            background="tint2"
+            borderRadius={3}
+            width="100%"
+            height={`${sizes.header.small}px`}
+            flexDirection="row-reverse"
+          >
+            {queryResult.isLoading
+              ? null
+              : renderConfirmDialog(queryResult.data.device, state, setState, history)}
+            <IconButton
+              icon={TrashIcon}
+              marginRight={sizes.margin.medium}
+              intent="danger"
+              onClick={() => setState({ ...state, isDeleteConfirmationShown: true })}
+              disabled={queryResult.isLoading || queryResult.isError}
+            />
+          </Pane>
+          <Pane
+            zIndex={1}
+            flexShrink={0}
+            elevation={0}
+            backgroundColor="white"
+            height={`calc(100% - ${sizes.header.small}px)`}
+          >
             {queryResult.isLoading ? (
               renderSpinner()
             ) : (
               <DeviceDetailsBody device={queryResult.data.device} />
             )}
-          </Pane>
-          <Pane display="flex" padding={16} background="tint2" borderRadius={3}>
-            {queryResult.isLoading
-              ? null
-              : renderConfirmDialog(queryResult.data.device, state, setState, history)}
-            <Pane>
-              {/* Below you can see the marginRight property on a Button. */}
-              <Button
-                marginRight={16}
-                onClick={() => setState({ ...state, isDeleteConfirmationShown: true })}
-                disabled={queryResult.isLoading || queryResult.isError}
-              >
-                Delete
-              </Button>
-              <Button appearance="primary" onClick={() => setState({ ...state })}>
-                Ok
-              </Button>
-            </Pane>
           </Pane>
         </SideSheet>
       </React.Fragment>

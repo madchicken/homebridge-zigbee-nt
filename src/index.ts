@@ -2,35 +2,40 @@ import { API } from 'homebridge';
 
 import { PLATFORM_NAME, PLUGIN_IDENTIFIER } from './settings';
 import { ZigbeeNTHomebridgePlatform } from './platform';
-import { registerAccessoryClass } from './registry';
+import { registerAccessoryClass, registerAccessoryFactory } from './registry';
 import { PhilipsHueWhite } from './accessories/philips/philips-hue-white';
 import { PhilipsHueWhiteTemperature } from './accessories/philips/philips-hue-white-temperature';
 import { PhilipsHueWhiteAndColor } from './accessories/philips/philips-hue-white-and-color';
-import { IkeaTadfriDimColortemp } from './accessories/ikea/ikea-tadfri-dim-colortemp';
-import { IkeaTadfriDim } from './accessories/ikea/ikea-tadfri-dim';
-import { IkeaTadfriOutlet } from './accessories/ikea/ikea-tadfri-outlet';
-import { IkeaTadfriDimColor } from './accessories/ikea/ikea-tadfri-dim-color';
+import { IkeaTradfriDimColortemp } from './accessories/ikea/ikea-tradfri-dim-colortemp';
+import { IkeaTradfriDim } from './accessories/ikea/ikea-tradfri-dim';
+import { IkeaTradfriOutlet } from './accessories/ikea/ikea-tradfri-outlet';
+import { IkeaTradfriDimColor } from './accessories/ikea/ikea-tradfri-dim-color';
 import { IkeaOnoffSwitch } from './accessories/ikea/ikea-onoff-switch';
 import { InnrWhiteTemperature } from './accessories/innr/innr-white-temperature';
-import { TempHumiSensor } from './accessories/xiaomi/temp-humi-sensor';
+import { XiaomiTempHumiSensor } from './accessories/xiaomi/xiaomi-temp-humi-sensor';
 import { GledoptoDim } from './accessories/gledopto/gledopto-dim';
 import { TuyaOnoffDoubleSwitch } from './accessories/tuya/tuya-onoff-double-switch';
-import { XiaomiContactSensor } from './accessories/xiaomi/contact-sensor';
-import { XiaomiLightIntensitySensor } from './accessories/xiaomi/light-intensity-sensor';
+import { XiaomiContactSensor } from './accessories/xiaomi/xiaomi-contact-sensor';
+import { XiaomiLightIntensitySensor } from './accessories/xiaomi/xiaomi-light-intensity-sensor';
 import { XiaomiOutlet } from './accessories/xiaomi/xiaomi-outlet';
 import { IkeaRemoteSwitch } from './accessories/ikea/ikea-remote-switch';
 import { IkeaMotionSensor } from './accessories/ikea/ikea-motion-sensor';
 import { LinkindMotionSensor } from './accessories/linkind/linkind-motion-sensor';
 import { NamronDimmer } from './accessories/namron/namron-dimmer';
 import { NamronSwitch } from './accessories/namron/namron-switch';
-import { XiaomiVibrationSensor } from './accessories/xiaomi/vibration-sensor';
+import { XiaomiVibrationSensor } from './accessories/xiaomi/xiaomi-vibration-sensor';
 import { LonsonhoDoubleSwitch } from './accessories/lonsonho/lonsonho-double-switch';
-import { XiaomiLeakSensor } from './accessories/xiaomi/leak-sensor';
-import { XiaomiMotionSensor } from './accessories/xiaomi/motion-sensor';
+import { XiaomiLeakSensor } from './accessories/xiaomi/xiaomi-leak-sensor';
+import { XiaomiMotionSensor } from './accessories/xiaomi/xiaomi-motion-sensor';
 import { XiaomiWirelessSwitch } from './accessories/xiaomi/xiaomi-wireless-switch';
 import { SonoffContactSensor } from './accessories/sonoff/contact-sensor';
 import { IkeaShurtcutSwitch } from './accessories/ikea/ikea-shurtcut-switch';
 import { TuyaThermostatControl } from './accessories/tuya/tuya-thermostat-control';
+import { XiaomiMotionIlluminanceSensor } from './accessories/xiaomi/xiaomi-motion-illuminance-sensor';
+import { AqaraOppleSwitch } from './accessories/xiaomi/aqara-opple-switch';
+import { NanoleafIvy } from './accessories/nanoleaf/nanoleaf-ivy';
+import { DATABASE_ACCESSORIES } from './accessories/database';
+import { ConfigurableAccessory } from './accessories/configurable-accessory';
 
 function registerSupportedDevices(): void {
   registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
@@ -76,7 +81,7 @@ function registerSupportedDevices(): void {
       'LED1732G11',
       'LED1736G9',
     ],
-    IkeaTadfriDimColortemp
+    IkeaTradfriDimColortemp
   );
   registerAccessoryClass(
     'IKEA of Sweden',
@@ -91,10 +96,10 @@ function registerSupportedDevices(): void {
       'ICPSHC24-10EU-IL-1',
       'ICPSHC24-30EU-IL-1',
     ],
-    IkeaTadfriDim
+    IkeaTradfriDim
   );
-  registerAccessoryClass('IKEA of Sweden', ['E1603/E1702'], IkeaTadfriOutlet);
-  registerAccessoryClass('IKEA of Sweden', ['LED1624G9'], IkeaTadfriDimColor);
+  registerAccessoryClass('IKEA of Sweden', ['E1603/E1702'], IkeaTradfriOutlet);
+  registerAccessoryClass('IKEA of Sweden', ['LED1624G9'], IkeaTradfriDimColor);
   registerAccessoryClass('IKEA of Sweden', ['E1743'], IkeaOnoffSwitch);
   registerAccessoryClass('IKEA of Sweden', ['E1812'], IkeaShurtcutSwitch);
   registerAccessoryClass('IKEA of Sweden', ['E1524/E1810'], IkeaRemoteSwitch);
@@ -131,7 +136,7 @@ function registerSupportedDevices(): void {
 
   registerAccessoryClass('LUMI', ['DJT11LM', 'DJT12LM'], XiaomiVibrationSensor);
 
-  registerAccessoryClass('Xiaomi', ['WSDCGQ01LM', 'WSDCGQ11LM'], TempHumiSensor);
+  registerAccessoryClass('Xiaomi', ['WSDCGQ01LM', 'WSDCGQ11LM'], XiaomiTempHumiSensor);
   registerAccessoryClass(
     'Xiaomi',
     ['lumi.sensor_magnet', 'lumi.sensor_magnet.aq2'],
@@ -139,10 +144,11 @@ function registerSupportedDevices(): void {
   );
   registerAccessoryClass('Xiaomi', ['GZCGQ01LM'], XiaomiLightIntensitySensor);
   registerAccessoryClass('Xiaomi', ['WXKG11LM', 'WXKG03LM', 'WXKG12LM'], XiaomiWirelessSwitch);
+  registerAccessoryClass('Xiaomi', ['WXCJKG11LM', 'WXCJKG12LM', 'WXCJKG13LM'], AqaraOppleSwitch);
   registerAccessoryClass(
     'LUMI',
     ['lumi.weather', 'lumi.sensor_ht.agl02', 'lumi.sensor_ht'],
-    TempHumiSensor
+    XiaomiTempHumiSensor
   );
   registerAccessoryClass(
     'LUMI',
@@ -161,19 +167,36 @@ function registerSupportedDevices(): void {
     ],
     XiaomiWirelessSwitch
   );
-  registerAccessoryClass('LUMI', ['lumi.sensor_motion.aq2'], XiaomiMotionSensor);
+  registerAccessoryClass(
+    'LUMI',
+    ['lumi.remote.b286opcn01', 'lumi.remote.b486opcn01', 'lumi.remote.b686opcn01'],
+    AqaraOppleSwitch
+  );
+  registerAccessoryClass('LUMI', ['lumi.sensor_motion'], XiaomiMotionSensor);
+  registerAccessoryClass('Xiaomi', ['lumi.sensor_motion'], XiaomiMotionSensor);
+  registerAccessoryClass('LUMI', ['lumi.sensor_motion.aq2'], XiaomiMotionIlluminanceSensor);
+  registerAccessoryClass('Xiaomi', ['lumi.sensor_motion.aq2'], XiaomiMotionIlluminanceSensor);
   registerAccessoryClass('LUMI', ['lumi.sensor_wleak.aq1'], XiaomiLeakSensor);
   registerAccessoryClass('TuYa', ['GDKES-02TZXD'], TuyaOnoffDoubleSwitch);
   registerAccessoryClass('TuYa', ['TS0012'], LonsonhoDoubleSwitch);
   registerAccessoryClass('lk', ['ZB-MotionSensor-D0003'], LinkindMotionSensor);
   registerAccessoryClass('NAMRON AS', ['4512700', '1402755'], NamronDimmer);
   registerAccessoryClass('NAMRON AS', ['4512704'], NamronSwitch);
-
-  registerAccessoryClass('eWeLink', ['DS01'], SonoffContactSensor);
-  
   registerAccessoryClass('TuYa', ['TS0601_thermostat'], TuyaThermostatControl);
   registerAccessoryClass('Moes', ['HY369RT'], TuyaThermostatControl);
   registerAccessoryClass('_TZE200_ckud7u2l', ['TS0601'], TuyaThermostatControl);
+  registerAccessoryClass('eWeLink', ['DS01'], SonoffContactSensor);
+  registerAccessoryClass('Nanoleaf', ['NL08-0800'], NanoleafIvy);
+
+  // Register devices defined in local database
+  DATABASE_ACCESSORIES.forEach(deviceConfig =>
+    registerAccessoryFactory(
+      deviceConfig.manufacturer,
+      deviceConfig.models,
+      (platform, accessory, client, device) =>
+        new ConfigurableAccessory(platform, accessory, client, device, deviceConfig.services)
+    )
+  );
 }
 
 /**

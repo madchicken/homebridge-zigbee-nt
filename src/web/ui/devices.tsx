@@ -20,6 +20,7 @@ export function Devices(): ReactElement {
       borderLeft
       borderBottom
       elevation={2}
+      height="100%"
     >
       {detailsOpen && <DeviceDetails ieeeAddr={ieeeAddr} />}
       <DeviceTable />
