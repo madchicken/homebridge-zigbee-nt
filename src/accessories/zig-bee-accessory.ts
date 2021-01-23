@@ -188,7 +188,7 @@ export abstract class ZigBeeAccessory {
 
   public internalUpdate(state: DeviceState) {
     this.log.debug(`Updating state of device ${this.name} with `, state);
-    this.state = { ...this.state, ...state };
+    this.state = Object.assign(this.state, { ...state });
     this.log.debug(`Updated state for device ${this.name} is now `, this.state);
     this.zigBeeDeviceDescriptor.updateLastSeen();
     this.configureDevice().then(configured =>
