@@ -6,6 +6,8 @@ import { sizes } from '../constants';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { CoordinatorModel, DeviceModel } from '../../../common/types';
+import { useQuery } from 'react-query';
+import { DeviceResponse, DevicesService } from '../../actions/devices';
 dayjs.extend(relativeTime);
 
 const TABS = ['Info', 'Endpoints', 'State'];
@@ -25,7 +27,7 @@ function isCoordinator(device: DeviceModel) {
   return device.type === 'Coordinator';
 }
 
-function renderInfo(device: DeviceModel, showUpdateDialog: () => void) {
+function renderInfo(device: DeviceModel, showUpdateDialog: () => void, pingDevice: () => void) {
   let otaInfo = null;
   if (device.otaAvailable) {
     if (device.newFirmwareAvailable === 'YES') {
@@ -55,6 +57,15 @@ function renderInfo(device: DeviceModel, showUpdateDialog: () => void) {
       otaInfo = (
         <Pane padding={sizes.padding.small}>
           <Heading size={400}>Error fetching OTA info: {device.newFirmwareAvailable}</Heading>
+          <Button
+            height={32}
+            appearance="primary"
+            marginRight={16}
+            intent="warning"
+            onClick={() => pingDevice()}
+          >
+            Ping device
+          </Button>
         </Pane>
       );
     }
@@ -122,13 +133,18 @@ function renderCustomState(device: DeviceModel) {
   return <DeviceStateManagement device={device} />;
 }
 
-function renderSelectedTab(selectedTab: string, device: DeviceModel, showUpdateDialog: () => void) {
+function renderSelectedTab(
+  selectedTab: string,
+  device: DeviceModel,
+  showUpdateDialog: () => void,
+  pingDevice: () => void
+) {
   let content = null;
   switch (selectedTab) {
     case 'Info':
       content = isCoordinator(device)
         ? renderCoordinatorInfo(device as CoordinatorModel)
-        : renderInfo(device, showUpdateDialog);
+        : renderInfo(device, showUpdateDialog, pingDevice);
       break;
     case 'Endpoints':
       content = renderEndpoints(device);
@@ -160,6 +176,8 @@ export function DeviceDetailsBody(props: Props) {
     isUpdateShown: false,
   });
   const showUpdateDialog = () => setState({ ...state, isUpdateShown: true });
+  const pingDevice = () =>
+    useQuery<DeviceResponse>(['device', device], () => DevicesService.pingDevice(device.ieeeAddr));
   return (
     <Pane height="100%">
       <Pane padding={sizes.padding.large} borderBottom="muted" height={`${sizes.header.medium}px`}>
@@ -187,7 +205,7 @@ export function DeviceDetailsBody(props: Props) {
             </Tab>
           ))}
         </TabNavigation>
-        {renderSelectedTab(state.selectedTab, device, showUpdateDialog)}
+        {renderSelectedTab(state.selectedTab, device, showUpdateDialog, pingDevice)}
         <Dialog
           isShown={state.isUpdateShown}
           title={`Upgrade firmware for ${device.manufacturerName} ${device.modelID}`}

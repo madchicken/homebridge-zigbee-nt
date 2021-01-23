@@ -4,10 +4,15 @@ import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { ZigbeeNTHomebridgePlatform } from '../../platform';
 import { normalizeDeviceModel } from '../common/utils';
 import winston from 'winston';
+import WebSocket from 'ws';
 
 const logger = winston.createLogger({ transports: [new winston.transports.Console()] });
 
-export function mapDevicesRoutes(express: Express, platform: ZigbeeNTHomebridgePlatform) {
+export function mapDevicesRoutes(
+  express: Express,
+  platform: ZigbeeNTHomebridgePlatform,
+  webSocket: WebSocket.Server
+) {
   express.get('/api/devices', (_req, res) => {
     const devices: Device[] = platform.zigBeeClient.getAllPairedDevices();
     res.status(constants.HTTP_STATUS_OK);
@@ -92,13 +97,36 @@ export function mapDevicesRoutes(express: Express, platform: ZigbeeNTHomebridgeP
     }
   });
 
+  express.post('/api/devices/:ieeeAddr/ping', async (req, res) => {
+    try {
+      const ieeeAddr = req.params.ieeeAddr;
+      const device: Device = platform.zigBeeClient.getDevice(ieeeAddr);
+      if (device) {
+        await platform.zigBeeClient.ping(ieeeAddr);
+        res.status(constants.HTTP_STATUS_OK);
+        res.contentType('application/json');
+        res.end(JSON.stringify({ device }));
+      } else {
+        res.status(constants.HTTP_STATUS_NOT_FOUND);
+        res.end();
+      }
+    } catch (e) {
+      res.send(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+      res.end(JSON.stringify(e.message));
+    }
+  });
+
   express.post('/api/devices/:ieeeAddr/update', async (req, res) => {
     try {
       const device: Device = platform.zigBeeClient.getDevice(req.params.ieeeAddr);
       if (device) {
         const hasOTA = platform.zigBeeClient.hasOTA(device);
         if (hasOTA) {
-          await platform.zigBeeClient.updateFirmware(device, req.body);
+          await platform.zigBeeClient.updateFirmware(device, (percentage, remaining) => {
+            [...webSocket.clients].find(ws =>
+              ws.send({ type: 'firmware-update', data: { percentage, remaining } })
+            );
+          });
           res.status(constants.HTTP_STATUS_OK);
           res.end();
         } else {

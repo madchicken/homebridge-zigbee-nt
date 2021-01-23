@@ -35,7 +35,7 @@ export class HttpServer {
     this.express.use('/', express.static(path.resolve(__dirname, '../../../dist/public')));
     this.server = http.createServer(this.express);
     this.wsServer = this.startWebSocketServer(this.server);
-    mapDevicesRoutes(this.express, zigBee);
+    mapDevicesRoutes(this.express, zigBee, this.wsServer);
     mapCoordinatorRoutes(this.express, zigBee);
     mapZigBeeRoutes(this.express, zigBee);
     this.server.listen(this.port, this.host);
@@ -49,6 +49,13 @@ export class HttpServer {
         if (error) {
           reject(error);
         } else {
+          this.wsServer?.close(error => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(null);
+            }
+          });
           resolve(null);
         }
       });

@@ -67,15 +67,11 @@ function renderSpinner() {
 
 export const DEVICES_QUERY_KEY = 'devices';
 export default function DeviceTable(): ReactElement {
-  const { isLoading, isError, data, error } = useQuery<DeviceResponse>(
-    DEVICES_QUERY_KEY,
-    DevicesService.fetchDevices
-  );
+  const res = useQuery<DeviceResponse>(DEVICES_QUERY_KEY, DevicesService.fetchDevices);
+  const { isLoading, isError, data } = res;
+  const error: Error = res.error as Error;
   const history = useHistory();
 
-  if (isError) {
-    return <Error message={error as string} />;
-  }
   const size = 600;
   return (
     <React.Fragment>
@@ -103,7 +99,13 @@ export default function DeviceTable(): ReactElement {
             <Table.TextHeaderCell>Last seen</Table.TextHeaderCell>
           </Table.Head>
           <Table.Body height="100%">
-            {isLoading ? renderSpinner() : renderTable(data?.devices || [], history)}
+            {isError ? (
+              <Error message={error.message} />
+            ) : isLoading ? (
+              renderSpinner()
+            ) : (
+              renderTable(data?.devices || [], history)
+            )}
           </Table.Body>
         </Table>
       </Pane>
