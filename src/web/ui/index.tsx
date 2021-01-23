@@ -16,7 +16,7 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <WebSocketProvider url="homebridge.local:8999">
+    <WebSocketProvider url="homebridge.local:9000">
       <Pane display="flex" height="100%">
         <QueryClientProvider client={queryClient}>
           <Router>

@@ -32,12 +32,7 @@ export class HttpServer {
     this.express.set('port', this.port);
     this.express.use(bodyParser.json());
     this.express.use(bodyParser.urlencoded({ extended: false }));
-    this.express.use(
-      '/index.html',
-      express.static(path.resolve(__dirname, '../../../dist/public'))
-    );
-    this.express.use('/favicon.*', express.static(path.resolve(__dirname, '../../../dist/public')));
-    this.express.use('/ui.*.js', express.static(path.resolve(__dirname, '../../../dist/public')));
+    this.express.use('/', express.static(path.resolve(__dirname, '../../../dist/public')));
     this.server = http.createServer(this.express);
     this.wsServer = this.startWebSocketServer(this.server);
     mapDevicesRoutes(this.express, zigBee);
@@ -79,13 +74,13 @@ export class HttpServer {
   private handleListening() {
     const addr = this.server.address();
     const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port}`;
-    console.info(`Listening on ${bind}`);
+    this.log.info(`WEB UI Listening on ${bind}`);
   }
 
   private startWebSocketServer(server: http.Server): WebSocket.Server {
     //initialize the WebSocket server instance
     const wss = new WebSocket.Server({ server });
-    this.log.info(`WebSocket server started @ ${wss.host}:${wss.port}`);
+    this.log.info(`WebSocket server started @ ${wss.address()}`);
     wss.on('connection', (ws: WebSocket) => {
       //connection is up, let's add a simple simple event
       ws.on('message', (message: string) => {
