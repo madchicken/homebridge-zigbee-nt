@@ -216,10 +216,10 @@ export interface ZigBeeDefinition {
       device: Device,
       logger: Logger,
       requestPayload?: {
-        imageType: number;
-        manufacturerCode: number;
-        fileVersion: number;
-        fieldControl: number;
+        imageType?: number;
+        manufacturerCode?: number;
+        fileVersion?: number;
+        fieldControl?: number;
       }
     ) => Promise<boolean>;
     updateToLatest: (

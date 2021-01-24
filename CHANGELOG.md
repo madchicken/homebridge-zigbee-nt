@@ -41,3 +41,13 @@ All notable changes to this project will be documented in this file. This projec
 - Do not read humidity/temperature (rely on device report) [#69](https://github.com/madchicken/homebridge-zigbee-nt/issues/69)
 - Add devices to internal database
 - Fix problem with accessories names: do not exceed 64 characters [#92](https://github.com/madchicken/homebridge-zigbee-nt/issues/92)
+
+## 2.1.0 (2021-1-24)
+
+## [Version 2.1.0](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.1.0...v2.0.1)
+
+#### Changes
+
+- Added OTA update in Web UI
+- Added Bindings in Web UI
+- Ability to ping devices for Web UI

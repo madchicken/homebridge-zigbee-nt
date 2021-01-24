@@ -9,7 +9,7 @@ import {
   isDeviceRouter,
   MAX_POLL_INTERVAL,
   MIN_POLL_INTERVAL,
-} from '../utils/router-polling';
+} from '../utils/device';
 import retry from 'async-retry';
 
 export interface ZigBeeAccessoryCtor {
