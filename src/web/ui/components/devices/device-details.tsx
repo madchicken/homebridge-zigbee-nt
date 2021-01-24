@@ -64,6 +64,10 @@ interface Props {
   ieeeAddr: string;
 }
 
+export function useDevice(ieeeAddr: string) {
+  return useQuery<DeviceResponse>(['device', ieeeAddr], () => DevicesService.fetchDevice(ieeeAddr));
+}
+
 export function DeviceDetails(props: Props): ReactElement {
   const { addListener } = useWebsocket();
   addListener(message => {
@@ -71,9 +75,7 @@ export function DeviceDetails(props: Props): ReactElement {
     return true;
   });
   const history = useHistory();
-  const queryResult = useQuery<DeviceResponse>(['device', props.ieeeAddr], () =>
-    DevicesService.fetchDevice(props.ieeeAddr)
-  );
+  const queryResult = useDevice(props.ieeeAddr);
   const [state, setState] = useState<State>({
     selectedTab: 'Info',
     isDeleteConfirmationShown: false,
@@ -124,7 +126,12 @@ export function DeviceDetails(props: Props): ReactElement {
             {queryResult.isLoading ? (
               renderSpinner()
             ) : (
-              <DeviceDetailsBody device={queryResult.data.device} />
+              <DeviceDetailsBody
+                device={queryResult.data.device}
+                refresh={async () => {
+                  await queryResult.refetch();
+                }}
+              />
             )}
           </Pane>
         </SideSheet>

@@ -16,6 +16,7 @@ const COORDINATOR_TABS = ['Info', 'Structure'];
 
 interface Props {
   device: DeviceModel;
+  refresh: () => void;
 }
 
 interface State {
@@ -37,14 +38,14 @@ function renderCustomState(device: DeviceModel) {
   return <DeviceStateManagement device={device} />;
 }
 
-function renderSelectedTab(selectedTab: string, device: DeviceModel) {
+function renderSelectedTab(selectedTab: string, device: DeviceModel, props: Props) {
   let content = null;
   switch (selectedTab) {
     case 'Info':
       content = isCoordinator(device) ? (
         <CoordinatorInfo device={device as CoordinatorModel} />
       ) : (
-        <DeviceInfo device={device} />
+        <DeviceInfo device={device} refresh={props.refresh} />
       );
       break;
     case 'Structure':
@@ -102,7 +103,7 @@ export function DeviceDetailsBody(props: Props) {
             </Tab>
           ))}
         </TabNavigation>
-        {renderSelectedTab(state.selectedTab, device)}
+        {renderSelectedTab(state.selectedTab, device, props)}
       </Pane>
     </Pane>
   );

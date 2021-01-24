@@ -9,6 +9,7 @@ import { DeviceUpdate } from './device-update';
 
 interface Props {
   device: DeviceModel;
+  refresh: () => void;
 }
 
 interface State {
@@ -57,8 +58,9 @@ export function DeviceInfo(props: Props) {
           <DeviceUpdate
             device={device}
             isShown={state.isUpdateShown}
-            onClose={() => {
+            onClose={async () => {
               showUpdateDialog(false);
+              props.refresh();
             }}
           />
         </Pane>
