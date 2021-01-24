@@ -39,7 +39,7 @@ export class AqaraOppleSwitch6Buttons extends ZigBeeAccessory {
         ProgrammableSwitchEvent.DOUBLE_PRESS,
         ProgrammableSwitchEvent.LONG_PRESS,
       ])
-      .withStatelessSwitch('botto, left', 'bottom_left', 1, [
+      .withStatelessSwitch('bottom left', 'bottom_left', 1, [
         ProgrammableSwitchEvent.SINGLE_PRESS,
         ProgrammableSwitchEvent.DOUBLE_PRESS,
         ProgrammableSwitchEvent.LONG_PRESS,
