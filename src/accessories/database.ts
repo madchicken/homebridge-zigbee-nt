@@ -58,4 +58,18 @@ export const DATABASE_ACCESSORIES: DeviceConfig[] = [
       },
     ],
   },
+  {
+    manufacturer: 'TuYa',
+    models: ['TS0121_plug'],
+    services: [
+      {
+        type: 'outlet',
+        meta: {
+          power: true,
+          current: true,
+          voltage: true,
+        },
+      },
+    ],
+  },
 ];
