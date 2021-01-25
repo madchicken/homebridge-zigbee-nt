@@ -8,10 +8,11 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { CoordinatorModel, DeviceModel } from '../../../common/types';
 import { CoordinatorInfo } from './coordinator-info';
 import { DeviceInfo } from './device-info';
+import { DeviceBindings } from './device-bindings';
 
 dayjs.extend(relativeTime);
 
-const TABS = ['Info', 'Structure', 'State'];
+const TABS = ['Info', 'Structure', 'State', 'Bindings'];
 const COORDINATOR_TABS = ['Info', 'Structure'];
 
 interface Props {
@@ -53,6 +54,9 @@ function renderSelectedTab(selectedTab: string, device: DeviceModel, props: Prop
       break;
     case 'State':
       content = renderCustomState(device);
+      break;
+    case 'Bindings':
+      content = <DeviceBindings device={device} />;
       break;
   }
 

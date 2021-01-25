@@ -1,3 +1,19 @@
+export interface Binding {
+  cluster: number;
+  type: 'group' | 'endpoint';
+  groupID?: number;
+  endpointID?: number;
+  deviceIeeeAddress?: string;
+}
+
+export interface ConfiguredReporting {
+  cluster: number;
+  attrId: number;
+  minRepIntval: number;
+  maxRepIntval: number;
+  repChange: number;
+}
+
 export type Endpoint = {
   ID: number;
   profileID: number;
@@ -11,7 +27,8 @@ export type Endpoint = {
       attributes: any;
     };
   };
-  _binds: any[];
+  binds: Binding[];
+  configuredReportings: ConfiguredReporting[];
   meta: any;
 };
 

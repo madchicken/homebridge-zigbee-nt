@@ -102,7 +102,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     const panId =
       this.config.panId && this.config.panId < 0xffff ? this.config.panId : DEFAULT_PAN_ID;
     const database = this.config.database || path.join(this.api.user.storagePath(), './zigBee.db');
-    this.backupDatabase(database);
+    //this.backupDatabase(database);
     await this.client.start({
       channel: this.config.channel,
       secondaryChannel: this.config.secondaryChannel,
@@ -389,10 +389,12 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     }
   }
 
+  /*
   private backupDatabase(database: string) {
     if (fs.existsSync(database)) {
       this.log.debug('Creating copy of existing database');
       fs.copyFileSync(database, `${database}.${Date.now()}`);
     }
   }
+*/
 }

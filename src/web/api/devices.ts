@@ -25,23 +25,34 @@ export function mapDevicesRoutes(
     if (device) {
       const deviceModel = normalizeDeviceModel(device);
       deviceModel.otaAvailable = platform.zigBeeClient.hasOTA(device);
-      if (deviceModel.otaAvailable && device.linkquality > 0) {
+      res.status(constants.HTTP_STATUS_OK);
+      res.contentType('application/json');
+      res.end(JSON.stringify({ device: deviceModel }));
+    } else {
+      res.status(constants.HTTP_STATUS_NOT_FOUND);
+      res.end();
+    }
+  });
+
+  express.get('/api/devices/:ieeeAddr/otaCheck', async (req, res) => {
+    const device: Device = platform.zigBeeClient.getDevice(req.params.ieeeAddr);
+    if (device) {
+      let newFirmwareAvailable = 'NO';
+      if (platform.zigBeeClient.hasOTA(device) && device.linkquality > 0) {
         try {
-          deviceModel.newFirmwareAvailable = (await platform.zigBeeClient.isUpdateFirmwareAvailable(
-            device
-          ))
+          newFirmwareAvailable = (await platform.zigBeeClient.isUpdateFirmwareAvailable(device))
             ? 'YES'
             : 'NO';
         } catch (e) {
           logger.error(e.toString(), e);
-          deviceModel.newFirmwareAvailable = 'FETCH_ERROR';
+          newFirmwareAvailable = 'FETCH_ERROR';
         }
       } else {
-        deviceModel.newFirmwareAvailable = 'DEVICE_OFFLINE';
+        newFirmwareAvailable = 'DEVICE_OFFLINE';
       }
       res.status(constants.HTTP_STATUS_OK);
       res.contentType('application/json');
-      res.end(JSON.stringify({ device: deviceModel }));
+      res.end(JSON.stringify({ newFirmwareAvailable }));
     } else {
       res.status(constants.HTTP_STATUS_NOT_FOUND);
       res.end();
@@ -140,6 +151,19 @@ export function mapDevicesRoutes(
     } catch (e) {
       res.send(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
       res.end(JSON.stringify(e.message));
+    }
+  });
+
+  express.post('/api/devices/:ieeeAddr/unbind', async (req, res) => {
+    const device: Device = platform.zigBeeClient.getDevice(req.params.ieeeAddr);
+    if (device) {
+      const command = req.body;
+      await platform.zigBeeClient.unbind(req.params.ieeeAddr, command.target, command.clusters);
+      res.status(constants.HTTP_STATUS_OK);
+      res.end();
+    } else {
+      res.status(constants.HTTP_STATUS_NOT_FOUND);
+      res.end();
     }
   });
 }

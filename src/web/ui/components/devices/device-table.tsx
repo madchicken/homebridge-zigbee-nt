@@ -74,41 +74,29 @@ export default function DeviceTable(): ReactElement {
 
   const size = 600;
   return (
-    <React.Fragment>
-      <Pane
-        display="flex"
-        flexDirection="column"
-        justifyContent="stretch"
-        width="100%"
-        height="100%"
-      >
-        <Pane
-          padding={sizes.padding.large}
-          borderBottom="muted"
-          height={`${sizes.header.medium}px`}
-        >
-          <Heading size={size}>Paired devices</Heading>
-        </Pane>
-        <Table height={`calc(100% - ${sizes.header.medium}px)`}>
-          <Table.Head>
-            <Table.TextHeaderCell>Model ID</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Manufacturer</Table.TextHeaderCell>
-            <Table.TextHeaderCell>IEEE Address</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Power source</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Link Quality</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Last seen</Table.TextHeaderCell>
-          </Table.Head>
-          <Table.Body height="100%">
-            {isError ? (
-              <Error message={error.message} />
-            ) : isLoading ? (
-              renderSpinner()
-            ) : (
-              renderTable(data?.devices || [], history)
-            )}
-          </Table.Body>
-        </Table>
+    <Pane display="flex" flexDirection="column" justifyContent="stretch" width="100%" height="100%">
+      <Pane padding={sizes.padding.large} borderBottom="muted" height={`${sizes.header.medium}px`}>
+        <Heading size={size}>Paired devices</Heading>
       </Pane>
-    </React.Fragment>
+      <Table height={`calc(100% - ${sizes.header.medium}px)`}>
+        <Table.Head>
+          <Table.TextHeaderCell>Model ID</Table.TextHeaderCell>
+          <Table.TextHeaderCell>Manufacturer</Table.TextHeaderCell>
+          <Table.TextHeaderCell>IEEE Address</Table.TextHeaderCell>
+          <Table.TextHeaderCell>Power source</Table.TextHeaderCell>
+          <Table.TextHeaderCell>Link Quality</Table.TextHeaderCell>
+          <Table.TextHeaderCell>Last seen</Table.TextHeaderCell>
+        </Table.Head>
+        <Table.Body height="100%">
+          {isError ? (
+            <Error message={error.message} />
+          ) : isLoading ? (
+            renderSpinner()
+          ) : (
+            renderTable(data?.devices || [], history)
+          )}
+        </Table.Body>
+      </Table>
+    </Pane>
   );
 }
