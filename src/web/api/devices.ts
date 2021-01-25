@@ -159,6 +159,12 @@ export function mapDevicesRoutes(
     if (device) {
       const command = req.body;
       await platform.zigBeeClient.unbind(req.params.ieeeAddr, command.target, command.clusters);
+      res.contentType('application/json');
+      res.end(
+        JSON.stringify({
+          device: normalizeDeviceModel(platform.zigBeeClient.getDevice(req.params.ieeeAddr)),
+        })
+      );
       res.status(constants.HTTP_STATUS_OK);
       res.end();
     } else {

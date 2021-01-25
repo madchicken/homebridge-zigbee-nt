@@ -498,6 +498,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     ];
     const source = this.resolveEntity(this.zigBee.device(sourceId));
     const target = this.resolveEntity(this.zigBee.device(targetId));
+    this.log.info(`Unbinding ${sourceId} from ${targetId}`);
     const successfulClusters = [];
     const failedClusters = [];
     await Promise.all(
@@ -523,7 +524,9 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
               if (operation === 'bind') {
                 await source.endpoint.bind(cluster, bindTarget);
               } else {
+                this.log.info(`Unbinding ${cluster} from ${bindTarget}`);
                 await source.endpoint.unbind(cluster, bindTarget);
+                this.log.info(`Done unbinding ${cluster} from ${bindTarget}`);
               }
 
               successfulClusters.push(cluster);
@@ -540,6 +543,8 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
               );
             }
           }
+        } else {
+          this.log.warn(`Clusters don't include ${cluster} (${clusters.join(', ')})`);
         }
       })
     );
