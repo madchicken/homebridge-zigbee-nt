@@ -184,33 +184,33 @@ export class AqaraOppleSwitch6Buttons extends AqaraOppleSwitch {
     this.buttons = [
       {
         index: 3,
-        displayName: 'top left',
-        subType: 'top_left',
-      },
-      {
-        index: 4,
-        displayName: 'top right',
-        subType: 'top_right',
-      },
-      {
-        index: 1,
-        displayName: 'bottom left',
-        subType: 'bottom_left',
-      },
-      {
-        index: 2,
-        displayName: 'bottom right',
-        subType: 'bottom_right',
-      },
-      {
-        index: 5,
         displayName: 'middle left',
         subType: 'middle_left',
       },
       {
-        index: 6,
+        index: 4,
         displayName: 'middle right',
         subType: 'middle_right',
+      },
+      {
+        index: 5,
+        displayName: 'bottom left',
+        subType: 'bottom_left',
+      },
+      {
+        index: 6,
+        displayName: 'bottom right',
+        subType: 'bottom_right',
+      },
+      {
+        index: 1,
+        displayName: 'top right',
+        subType: 'top_right',
+      },
+      {
+        index: 2,
+        displayName: 'top right',
+        subType: 'top_right',
       },
     ];
   }
