@@ -183,16 +183,6 @@ export class AqaraOppleSwitch6Buttons extends AqaraOppleSwitch {
     this.withBattery = true;
     this.buttons = [
       {
-        index: 1,
-        displayName: 'top left',
-        subType: 'top_left',
-      },
-      {
-        index: 2,
-        displayName: 'top right',
-        subType: 'top_right',
-      },
-      {
         index: 3,
         displayName: 'middle left',
         subType: 'middle_left',
@@ -201,16 +191,30 @@ export class AqaraOppleSwitch6Buttons extends AqaraOppleSwitch {
         index: 4,
         displayName: 'middle right',
         subType: 'middle_right',
+
       },
       {
         index: 5,
         displayName: 'bottom left',
         subType: 'bottom_left',
+
       },
       {
         index: 6,
         displayName: 'bottom right',
         subType: 'bottom_right',
+
+      },
+      {
+        index: 1,
+        displayName: 'top left',
+        subType: 'top_left',
+      },
+      {
+        index: 2,
+        displayName: 'top right',
+        subType: 'top_right',
+
       },
     ];
   }
