@@ -103,6 +103,7 @@ export abstract class ZigBeeAccessory {
 
   public async onDeviceMount() {
     this.log.info(`Mounting device ${this.name}...`);
+    await this.zigBeeDeviceDescriptor.interview();
     if (
       isDeviceRouter(this.zigBeeDeviceDescriptor) &&
       this.platform.config.disableRoutingPolling !== true

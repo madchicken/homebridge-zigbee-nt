@@ -18,6 +18,14 @@ interface BindingRow extends Binding {
   endpointID: number;
 }
 
+const CLUSTERS = [
+  'genScenes',
+  'genOnOff',
+  'genLevelCtrl',
+  'lightingColorCtrl',
+  'closuresWindowCovering',
+];
+
 export function DeviceBindings(props: Props) {
   const { device } = props;
   const [state, setState] = useState<State>({
@@ -26,14 +34,12 @@ export function DeviceBindings(props: Props) {
     pingError: null,
   });
 
-  function deleteBinding(binding: BindingRow) {
+  async function deleteBinding(binding: BindingRow) {
     setState({ ...state, isWorking: true });
     const endpoint = device.endpoints.find(e => e.ID === binding.endpointID);
-    DevicesService.unbind(
-      device.ieeeAddr,
-      binding.deviceIeeeAddress,
-      Object.keys(endpoint.clusters)
-    );
+    console.log('Unbinding endpoint ', endpoint);
+    await DevicesService.unbind(device.ieeeAddr, binding.deviceIeeeAddress, CLUSTERS);
+    setState({ ...state, isWorking: false });
   }
 
   const rows: BindingRow[] = [];
@@ -72,6 +78,7 @@ export function DeviceBindings(props: Props) {
                     iconSize={16}
                     intent="danger"
                     onClick={() => deleteBinding(row)}
+                    isLoading={state.isWorking}
                   />
                 </Table.TextCell>
               </Table.Row>

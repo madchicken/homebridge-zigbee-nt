@@ -269,6 +269,10 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     return keys;
   }
 
+  interview(ieeeAddr: string) {
+    return this.zigBee.interview(ieeeAddr);
+  }
+
   setOn(device: Device, on: boolean): Promise<DeviceState> {
     return this.writeDeviceState(device, { state: on ? 'ON' : 'OFF' });
   }
@@ -460,10 +464,10 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     return this.zigBee.getCoordinatorVersion();
   }
 
-  async isUpdateFirmwareAvailable(device: Device): Promise<boolean> {
+  async isUpdateFirmwareAvailable(device: Device, request = {}): Promise<boolean> {
     const zigBeeEntity = this.zigBee.resolveEntity(device);
     if (zigBeeEntity.definition.ota) {
-      return zigBeeEntity.definition.ota.isUpdateAvailable(device, this.log);
+      return zigBeeEntity.definition.ota.isUpdateAvailable(device, this.log, request);
     }
     return false;
   }

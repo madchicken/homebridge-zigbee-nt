@@ -34,11 +34,11 @@ export function mapDevicesRoutes(
     }
   });
 
-  express.get('/api/devices/:ieeeAddr/otaCheck', async (req, res) => {
+  express.get('/api/devices/:ieeeAddr/checkForUpdates', async (req, res) => {
     const device: Device = platform.zigBeeClient.getDevice(req.params.ieeeAddr);
     if (device) {
       let newFirmwareAvailable = 'NO';
-      if (platform.zigBeeClient.hasOTA(device) && device.linkquality > 0) {
+      if (platform.zigBeeClient.hasOTA(device)) {
         try {
           newFirmwareAvailable = (await platform.zigBeeClient.isUpdateFirmwareAvailable(device))
             ? 'YES'
@@ -47,8 +47,6 @@ export function mapDevicesRoutes(
           logger.error(e.toString(), e);
           newFirmwareAvailable = 'FETCH_ERROR';
         }
-      } else {
-        newFirmwareAvailable = 'DEVICE_OFFLINE';
       }
       res.status(constants.HTTP_STATUS_OK);
       res.contentType('application/json');

@@ -325,4 +325,9 @@ export class ZigBeeController {
   async touchlinkFactoryReset() {
     return this.herdsman.touchlinkFactoryResetFirst();
   }
+
+  async interview(ieeeAddr: string): Promise<Device> {
+    await this.device(ieeeAddr).interview();
+    return this.device(ieeeAddr);
+  }
 }

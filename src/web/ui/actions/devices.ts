@@ -136,4 +136,22 @@ export class DevicesService {
       throw new Error(await response.text());
     }
   }
+
+  static async checkForUpdates(ieeeAddr: string) {
+    const response = await fetch(`/api/devices/${ieeeAddr}/checkForUpdates`, {
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+    if (response.ok) {
+      const json = await response.json();
+      return {
+        result: 'success',
+        state: json,
+      };
+    } else {
+      throw new Error(await response.text());
+    }
+  }
 }
