@@ -196,7 +196,8 @@ export abstract class ZigBeeAccessory {
     this.configureDevice().then(configured =>
       configured ? this.log.debug(`${this.name} configured after state update`) : null
     );
-    this.update(this.state);
+    this.update({ ...this.state });
+    delete this.state.action;
   }
 
   /**
