@@ -70,4 +70,17 @@ export const DATABASE_ACCESSORIES: DeviceConfig[] = [
       },
     ],
   },
+  {
+    manufacturer: '_TZ1800_fcdjzz3s',
+    models: ['TY0202'],
+    services: [
+      {
+        type: 'motion-sensor',
+        meta: {
+          tamper: true,
+          batteryLow: true,
+        },
+      },
+    ],
+  },
 ];
