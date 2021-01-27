@@ -1447,6 +1447,11 @@
   resolved "https://registry.yarnpkg.com/@serialport/parser-delimiter/-/parser-delimiter-9.0.1.tgz#3778663eb8bf8028d77f7677f95aefb52c32cb0d"
   integrity sha512-+oaSl5zEu47OlrRiF5p5tn2qgGqYuhVcE+NI+Pv4E1xsNB/A0fFxxMv/8XUw466CRLEJ5IESIB9qbFvKE6ltaQ==
 
+"@serialport/parser-inter-byte-timeout@^9.0.1":
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/@serialport/parser-inter-byte-timeout/-/parser-inter-byte-timeout-9.0.1.tgz#3db6f51d472e5f4f3009d4b8433c9e3ff59b5dd3"
+  integrity sha512-lFflcUflcP5SF4vLIixAKs1xUI/wfOzCv1Xq78VbPOBlIjZ6ny9lQ6g7cMPR/sB/M1BHwGcdX7CEr90pe3kkog==
+
 "@serialport/parser-readline@^9.0.1":
   version "9.0.1"
   resolved "https://registry.yarnpkg.com/@serialport/parser-readline/-/parser-readline-9.0.1.tgz#f7c8b6c2cba17e8b20faf59d36f8c7d046887aa9"
@@ -8536,16 +8541,17 @@ serialize-to-js@^3.0.0:
   resolved "https://registry.yarnpkg.com/serialize-to-js/-/serialize-to-js-3.1.1.tgz#b3e77d0568ee4a60bfe66287f991e104d3a1a4ac"
   integrity sha512-F+NGU0UHMBO4Q965tjw7rvieNVjlH6Lqi2emq/Lc9LUURYJbiCzmpi4Cy1OOjjVPtxu0c+NE85LU6968Wko5ZA==
 
-serialport@9.0.4:
-  version "9.0.4"
-  resolved "https://registry.yarnpkg.com/serialport/-/serialport-9.0.4.tgz#9d6264fd738e0ba86c731071900c87ee52e34fd5"
-  integrity sha512-Wtl6sxciHKNdJKW8jUZm+f5KRXt0J0UP25ksM8N31l08KTdAhZ5MmKNUFpoO/YYG6TvHFOu+07PUX35m+TUw7g==
+serialport@9.0.6:
+  version "9.0.6"
+  resolved "https://registry.yarnpkg.com/serialport/-/serialport-9.0.6.tgz#3b0bd8ce6a230566aab56ecb9d3556e7c3b5d889"
+  integrity sha512-T9eY4HFzQij0Hd/RsPcZySdeuAqzV5iGICHz8FXUSKVn2SvGT5zjfz/H+pRwI86k+3iFVOyddEyy8gbVNVbW7A==
   dependencies:
     "@serialport/binding-mock" "^9.0.2"
     "@serialport/bindings" "^9.0.4"
     "@serialport/parser-byte-length" "^9.0.1"
     "@serialport/parser-cctalk" "^9.0.1"
     "@serialport/parser-delimiter" "^9.0.1"
+    "@serialport/parser-inter-byte-timeout" "^9.0.1"
     "@serialport/parser-readline" "^9.0.1"
     "@serialport/parser-ready" "^9.0.1"
     "@serialport/parser-regex" "^9.0.1"
@@ -10025,37 +10031,25 @@ yn@3.1.1:
   resolved "https://registry.yarnpkg.com/yn/-/yn-3.1.1.tgz#1e87401a09d767c1d5eab26a6e4c185182d2eb50"
   integrity sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==
 
-zigbee-herdsman-converters@^14.0.24:
-  version "14.0.24"
-  resolved "https://registry.yarnpkg.com/zigbee-herdsman-converters/-/zigbee-herdsman-converters-14.0.24.tgz#5fe0ad3c147437dd3d67d57c36e6c5e1e74638f9"
-  integrity sha512-C1z7q+bUX6GJMeu68s7Yt9feuKO2BCOzR+7H1kXKGw1btrwQHOgYz+ENUI9S817VkuLE7ONq8SyDHaZ4cLq1iA==
+zigbee-herdsman-converters@^14.0.34:
+  version "14.0.34"
+  resolved "https://registry.yarnpkg.com/zigbee-herdsman-converters/-/zigbee-herdsman-converters-14.0.34.tgz#b5776e47deb195ce4377336f1dd2cb9c2b607790"
+  integrity sha512-ThZyFIzzBhIlDY5Coq6GYAej12xBgut5CTYSAQQaVKDLuj7zImMs86EMCkdXkMDkjaX9GNlV/Oyo6UXFzL8jwQ==
   dependencies:
     axios "^0.21.1"
     buffer-crc32 "^0.2.13"
     https-proxy-agent "^5.0.0"
     tar-stream "^2.2.0"
-    zigbee-herdsman "^0.13.49"
+    zigbee-herdsman "^0.13.58"
 
-zigbee-herdsman@^0.13.49:
-  version "0.13.51"
-  resolved "https://registry.yarnpkg.com/zigbee-herdsman/-/zigbee-herdsman-0.13.51.tgz#fea5a7185b5927edf477a4540dbc26279fdf80de"
-  integrity sha512-W+g2c43YXTHcWNwPjTuTrgimAf8Gt/t5ysp5shPafp3oLWg3IxlW/EDwDI5eOI5Vy+IN3suA1smwMM9C6JSQ2g==
+zigbee-herdsman@^0.13.58, zigbee-herdsman@^0.13.59:
+  version "0.13.59"
+  resolved "https://registry.yarnpkg.com/zigbee-herdsman/-/zigbee-herdsman-0.13.59.tgz#488e0f47410686197f4027c317983cf2052b402f"
+  integrity sha512-A1AwKzayvcm88JrwdmoaFm80sHU4qk0GteKe5kMoN7Mqqo0+wArEa0XAV9pyHTpItRco7y+F7Vw2eEat6RuoJw==
   dependencies:
     debounce "^1.2.0"
     debug "^4.3.1"
     fast-deep-equal "^3.1.3"
     mixin-deep "^2.0.1"
-    serialport "9.0.4"
-    slip "^1.0.2"
-
-zigbee-herdsman@^0.13.57:
-  version "0.13.57"
-  resolved "https://registry.yarnpkg.com/zigbee-herdsman/-/zigbee-herdsman-0.13.57.tgz#ca438a4408360b911f3495598a2ecf540f9838da"
-  integrity sha512-BRxKaYAPG5VF5PvuO9um6iVnnpM+iJdA4z4cFkh0TMxtQpUpPGXjpHCWtk4w5ZSbH1//AptYMO2LfUoba4Z/4Q==
-  dependencies:
-    debounce "^1.2.0"
-    debug "^4.3.1"
-    fast-deep-equal "^3.1.3"
-    mixin-deep "^2.0.1"
-    serialport "9.0.4"
+    serialport "9.0.6"
     slip "^1.0.2"
