@@ -58,4 +58,16 @@ export const DATABASE_ACCESSORIES: DeviceConfig[] = [
       },
     ],
   },
+  {
+    manufacturer: 'BTicino',
+    models: ['L441C/N4411C/NT4411C'],
+    services: [
+      {
+        type: 'bulb',
+        meta: {
+          brightness: true,
+        },
+      },
+    ],
+  },
 ];
