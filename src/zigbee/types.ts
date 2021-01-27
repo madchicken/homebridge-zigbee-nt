@@ -61,6 +61,7 @@ export interface DeviceState {
   contact?: boolean;
   action?:
     | 'on'
+    | 'off'
     | 'toggle'
     | 'toggle_hold'
     | 'toggle_release'
@@ -108,7 +109,11 @@ export interface DeviceState {
     | 'drop'
     | 'single'
     | 'hold'
-    | 'double';
+    | 'double'
+    | 'brightness_down'
+    | 'brightness_up'
+    | 'play_pause'
+    | 'release';
   occupancy?: boolean;
   tamper?: boolean;
   battery_low?: boolean;

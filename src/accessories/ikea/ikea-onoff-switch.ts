@@ -35,7 +35,7 @@ export class IkeaOnoffSwitch extends ZigBeeAccessory {
   update(state: DeviceState) {
     super.update(state);
     const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
-    switch (state.click) {
+    switch (state.action) {
       case 'brightness_up':
         this.switchServiceOn
           .getCharacteristic(ProgrammableSwitchEvent)
