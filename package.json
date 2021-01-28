@@ -1,6 +1,6 @@
 {
   "name": "homebridge-zigbee-nt",
-  "version": "2.0.2-unstable-8",
+  "version": "2.0.2-unstable-9",
   "description": "ZigBee New Technology Platform plugin for HomeBridge",
   "main": "dist/index.js",
   "scripts": {
@@ -71,6 +71,7 @@
     "serialport": "^9.0.2",
     "serve-static": "^1.14.1",
     "winston": "^3.3.3",
+    "ws": "^7.4.2",
     "zigbee-herdsman": "^0.13.59",
     "zigbee-herdsman-converters": "^14.0.34"
   },
