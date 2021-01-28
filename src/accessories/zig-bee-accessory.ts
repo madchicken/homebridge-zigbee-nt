@@ -78,8 +78,9 @@ export abstract class ZigBeeAccessory {
    * Perform initialization of the accessory. By default is creates services exposed by the
    * accessory by invoking {@link ZigBeeAccessory.getAvailableServices}
    */
-  public initialize(): void {
+  public async initialize(): Promise<void> {
     this.mappedServices = this.getAvailableServices();
+    await this.onDeviceMount();
   }
 
   handleAccessoryIdentify() {}
@@ -102,6 +103,7 @@ export abstract class ZigBeeAccessory {
 
   public async onDeviceMount() {
     this.log.info(`Mounting device ${this.name}...`);
+    await this.zigBeeDeviceDescriptor.interview();
     if (
       isDeviceRouter(this.zigBeeDeviceDescriptor) &&
       this.platform.config.disableRoutingPolling !== true
