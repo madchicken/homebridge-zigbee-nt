@@ -15,6 +15,7 @@ import { InnrWhiteTemperature } from './accessories/innr/innr-white-temperature'
 import { XiaomiTempHumiSensor } from './accessories/xiaomi/xiaomi-temp-humi-sensor';
 import { GledoptoDim } from './accessories/gledopto/gledopto-dim';
 import { TuyaOnoffDoubleSwitch } from './accessories/tuya/tuya-onoff-double-switch';
+import { TuyaMotionSensor } from './accessories/tuya/tuya-motion-sensor';
 import { XiaomiContactSensor } from './accessories/xiaomi/xiaomi-contact-sensor';
 import { XiaomiLightIntensitySensor } from './accessories/xiaomi/xiaomi-light-intensity-sensor';
 import { XiaomiOutlet } from './accessories/xiaomi/xiaomi-outlet';
@@ -178,6 +179,7 @@ function registerSupportedDevices(): void {
   registerAccessoryClass('LUMI', ['lumi.sensor_wleak.aq1'], XiaomiLeakSensor);
   registerAccessoryClass('TuYa', ['GDKES-02TZXD'], TuyaOnoffDoubleSwitch);
   registerAccessoryClass('TuYa', ['TS0012'], LonsonhoDoubleSwitch);
+  registerAccessoryClass('TUYATEC-e4wp7oyu', ['RH3040'], TuyaMotionSensor);
   registerAccessoryClass('lk', ['ZB-MotionSensor-D0003'], LinkindMotionSensor);
   registerAccessoryClass('NAMRON AS', ['4512700', '1402755'], NamronDimmer);
   registerAccessoryClass('NAMRON AS', ['4512704'], NamronSwitch);
