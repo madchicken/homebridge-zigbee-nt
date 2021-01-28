@@ -67,7 +67,9 @@ export abstract class ZigBeeAccessory {
       .setCharacteristic(Characteristic.HardwareRevision, device.hardwareVersion)
       .setCharacteristic(
         Characteristic.Name,
-        `${this.zigBeeDefinition.description}-${device.ieeeAddr}`
+        `${this.zigBeeDefinition.description.substr(0, 64 - 1 - device.ieeeAddr.length)}-${
+          device.ieeeAddr
+        }`
       );
     this.accessory.on('identify', () => this.handleAccessoryIdentify());
   }

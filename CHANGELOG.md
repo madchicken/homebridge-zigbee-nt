@@ -30,3 +30,14 @@ All notable changes to this project will be documented in this file. This projec
 - NEW: support for [Xiaomi natural gas leak sensor](https://www.zigbee2mqtt.io/devices/JTQJ-BF-01LM_BW.html)
 
 **NOTE: you might need to pair again all your devices because of a change in the herdsman lib to the pan ID of your antenna**
+
+## 2.0.1 (2021-1-23)
+
+## [Version 2.0.1](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.0.0...v2.0.1)
+
+#### Changes
+
+- Fix a bug with device state update [#74](https://github.com/madchicken/homebridge-zigbee-nt/issues/74)
+- Do not read humidity/temperature (rely on device report) [#69](https://github.com/madchicken/homebridge-zigbee-nt/issues/69)
+- Add devices to internal database
+- Fix problem with accessories names: do not exceed 64 characters [#92](https://github.com/madchicken/homebridge-zigbee-nt/issues/92)
