@@ -23,7 +23,9 @@ function renderTable(devices: DeviceModel[], history) {
   return (
     <React.Fragment>
       {devices.map((device, index) => {
-        const qualityPercent = device.linkquality ? (device.linkquality / 255) * 100 : 0;
+        const qualityPercent = Math.round(
+          device.linkquality ? (device.linkquality / 255) * 100 : 0
+        );
         let color: Color = 'green';
         if (qualityPercent < 4) {
           color = 'red';
@@ -65,46 +67,36 @@ function renderSpinner() {
 
 export const DEVICES_QUERY_KEY = 'devices';
 export default function DeviceTable(): ReactElement {
-  const { isLoading, isError, data, error } = useQuery<DeviceResponse>(
-    DEVICES_QUERY_KEY,
-    DevicesService.fetchDevices
-  );
+  const res = useQuery<DeviceResponse>(DEVICES_QUERY_KEY, DevicesService.fetchDevices);
+  const { isLoading, isError, data } = res;
+  const error: Error = res.error as Error;
   const history = useHistory();
 
-  if (isError) {
-    return <Error message={error as string} />;
-  }
   const size = 600;
   return (
-    <React.Fragment>
-      <Pane
-        display="flex"
-        flexDirection="column"
-        justifyContent="stretch"
-        width="100%"
-        height="100%"
-      >
-        <Pane
-          padding={sizes.padding.large}
-          borderBottom="muted"
-          height={`${sizes.header.medium}px`}
-        >
-          <Heading size={size}>Paired devices</Heading>
-        </Pane>
-        <Table height={`calc(100% - ${sizes.header.medium}px)`}>
-          <Table.Head>
-            <Table.TextHeaderCell>Model ID</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Manufacturer</Table.TextHeaderCell>
-            <Table.TextHeaderCell>IEEE Address</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Power source</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Link Quality</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Last seen</Table.TextHeaderCell>
-          </Table.Head>
-          <Table.Body height="100%">
-            {isLoading ? renderSpinner() : renderTable(data?.devices || [], history)}
-          </Table.Body>
-        </Table>
+    <Pane display="flex" flexDirection="column" justifyContent="stretch" width="100%" height="100%">
+      <Pane padding={sizes.padding.large} borderBottom="muted" height={`${sizes.header.medium}px`}>
+        <Heading size={size}>Paired devices</Heading>
       </Pane>
-    </React.Fragment>
+      <Table height={`calc(100% - ${sizes.header.medium}px)`}>
+        <Table.Head>
+          <Table.TextHeaderCell>Model ID</Table.TextHeaderCell>
+          <Table.TextHeaderCell>Manufacturer</Table.TextHeaderCell>
+          <Table.TextHeaderCell>IEEE Address</Table.TextHeaderCell>
+          <Table.TextHeaderCell>Power source</Table.TextHeaderCell>
+          <Table.TextHeaderCell>Link Quality</Table.TextHeaderCell>
+          <Table.TextHeaderCell>Last seen</Table.TextHeaderCell>
+        </Table.Head>
+        <Table.Body height="100%">
+          {isError ? (
+            <Error message={error.message} />
+          ) : isLoading ? (
+            renderSpinner()
+          ) : (
+            renderTable(data?.devices || [], history)
+          )}
+        </Table.Body>
+      </Table>
+    </Pane>
   );
 }

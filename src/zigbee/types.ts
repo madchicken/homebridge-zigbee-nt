@@ -215,16 +215,40 @@ export interface ZigBeeDefinition {
   fromZigbee: FromConverter[];
   toZigbee: ToConverter[];
   exposes: Capability[];
-
-  [key: string]: any;
+  interviewing?: boolean;
+  ota?: {
+    isUpdateAvailable: (
+      device: Device,
+      logger: Logger,
+      requestPayload?: {
+        imageType?: number;
+        manufacturerCode?: number;
+        fileVersion?: number;
+        fieldControl?: number;
+      }
+    ) => Promise<boolean>;
+    updateToLatest: (
+      device: Device,
+      logger: Logger,
+      onProgress: (percentage: number, remaining: number) => void
+    ) => Promise<void>;
+    useTestURL?: () => void;
+  };
 }
 
 export interface ZigBeeEntity {
-  type: 'device' | 'group';
+  type: 'device' | 'group' | 'group_number';
+  ID?: number; // used in groups
   group?: any;
   device?: Device;
   endpoint?: Endpoint;
   definition?: ZigBeeDefinition;
   name: string;
   settings: any;
+}
+
+export interface BindInfo {
+  from: string;
+  to: string;
+  clusters?: string[];
 }

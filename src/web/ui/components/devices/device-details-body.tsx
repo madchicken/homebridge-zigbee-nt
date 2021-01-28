@@ -13,6 +13,7 @@ const COORDINATOR_TABS = ['Info', 'Endpoints'];
 
 interface Props {
   device: DeviceModel;
+  refresh: () => void;
 }
 
 interface State {
