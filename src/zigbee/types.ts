@@ -114,8 +114,6 @@ export interface DeviceState {
     | 'single'
     | 'hold'
     | 'double'
-    | 'brightness_down'
-    | 'brightness_up'
     | 'play_pause'
     | 'release';
   occupancy?: boolean;

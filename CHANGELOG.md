@@ -57,3 +57,11 @@ All notable changes to this project will be documented in this file. This projec
 - Add support for TuYa plug [#85](https://github.com/madchicken/homebridge-zigbee-nt/issues/85)
 - Add support for Xiaomi MiJia Honeywell smoke detector [#85](https://github.com/madchicken/homebridge-zigbee-nt/issues/85)
 - Add support for Tuya Thermostatic Radiator Valve [#104](https://github.com/madchicken/homebridge-zigbee-nt/pull/104)
+
+## 2.0.3 (2021-1-29)
+
+## [Version 2.0.3](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.0.2...v2.0.3)
+
+#### Changes
+
+- Restore long press for IKEA ON/OFF button
