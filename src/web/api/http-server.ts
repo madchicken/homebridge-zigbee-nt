@@ -6,19 +6,87 @@ import { mapCoordinatorRoutes } from './coordinator';
 import path from 'path';
 import { ZigbeeNTHomebridgePlatform } from '../../platform';
 import { mapZigBeeRoutes } from './zigbee';
+import * as WebSocket from 'ws';
+import { Logging } from 'homebridge';
+import serveStatic from 'serve-static';
+import { NextFunction, Request, Response } from 'express-serve-static-core';
+import * as url from 'url';
+import { withPrefix } from 'homebridge/lib/logger';
 
 const DEFAULT_WEB_PORT = 9000;
 const DEFAULT_WEB_HOST = '0.0.0.0';
+
+function enableCors(res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, PUT, PATCH, POST, DELETE');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Content-Type'
+  );
+}
+
+function setHeaders(res) {
+  enableCors(res);
+}
+
+const serve = serveStatic(path.resolve(__dirname, '../../../dist/public'), {
+  index: false,
+  redirect: false,
+  setHeaders: setHeaders,
+  dotfiles: 'allow',
+});
+
+function middleware(publicURL: string, logger: Logging) {
+  function logAccessIfVerbose(req) {
+    const protocol = req.connection.encrypted ? 'https' : 'http';
+    const fullUrl = `${protocol}://${req.headers.host}${req.url}`;
+
+    logger.debug(`Request: ${fullUrl}`);
+  }
+  return function(req: Request, res: Response, next: NextFunction) {
+    logAccessIfVerbose(req);
+
+    function send404() {
+      if (next) {
+        return next();
+      }
+      setHeaders(res);
+      res.writeHead(404);
+      res.end();
+    }
+
+    function sendIndex() {
+      req.url = `/${path.basename('index.html')}`;
+      serve(req, res, send404);
+    }
+
+    const { pathname } = url.parse(req.url);
+    if (pathname.startsWith('/api')) {
+      next();
+    } else if (!pathname.startsWith(publicURL) || path.extname(pathname) === '') {
+      // If the URL doesn't start with the public path, or the URL doesn't
+      // have a file extension, send the main HTML bundle.
+      return sendIndex();
+    } else {
+      // Otherwise, serve the file from the dist folder
+      req.url = pathname.slice(publicURL.length);
+      return serve(req, res, sendIndex);
+    }
+  };
+}
 
 export class HttpServer {
   private readonly express: Express;
   private server: http.Server;
   private readonly port: number;
   private readonly host: string;
+  private wsServer: WebSocket.Server;
+  private readonly log;
 
   constructor(port = DEFAULT_WEB_PORT, host = DEFAULT_WEB_HOST) {
     this.port = port;
     this.host = host;
+    this.log = withPrefix('ZigBee');
     this.express = express();
   }
 
@@ -27,11 +95,12 @@ export class HttpServer {
     this.express.set('port', this.port);
     this.express.use(bodyParser.json());
     this.express.use(bodyParser.urlencoded({ extended: false }));
-    this.express.use('/', express.static(path.resolve(__dirname, '../../../dist/public')));
-    this.server = http.createServer(this.express);
-    mapDevicesRoutes(this.express, zigBee);
+    this.express.use(middleware('/', this.log));
+    mapDevicesRoutes(this.express, zigBee, this.wsServer);
     mapCoordinatorRoutes(this.express, zigBee);
     mapZigBeeRoutes(this.express, zigBee);
+    this.server = http.createServer(this.express);
+    this.wsServer = this.startWebSocketServer(this.server);
     this.server.listen(this.port, this.host);
     this.server.on('error', error => this.handleError(error));
     this.server.on('listening', () => this.handleListening());
@@ -43,6 +112,13 @@ export class HttpServer {
         if (error) {
           reject(error);
         } else {
+          this.wsServer?.close(error => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(null);
+            }
+          });
           resolve(null);
         }
       });
@@ -68,6 +144,22 @@ export class HttpServer {
   private handleListening() {
     const addr = this.server.address();
     const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port}`;
-    console.info(`Listening on ${bind}`);
+    this.log.info(`WEB UI Listening on ${bind}`);
+  }
+
+  private startWebSocketServer(server: http.Server): WebSocket.Server {
+    //initialize the WebSocket server instance
+    const wss = new WebSocket.Server({ server });
+    this.log.info(`WebSocket server started @ ${wss.address()}`);
+    wss.on('connection', (ws: WebSocket) => {
+      //connection is up, let's add a simple simple event
+      ws.on('message', (message: string) => {
+        ws.send(`Hello, you sent -> ${message}`);
+      });
+
+      ws.send(JSON.stringify({ type: 'message', message: 'Connection established' }));
+    });
+
+    return wss;
   }
 }

@@ -3,14 +3,7 @@ import { Alert, Pane } from 'evergreen-ui';
 
 function renderError(error: string, description?: string): ReactElement {
   return (
-    <Pane
-      height={120}
-      width={240}
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      border="default"
-    >
+    <Pane height={120} width="100%" display="flex" alignItems="center" justifyContent="center">
       <Alert intent="danger" title={error}>
         {description || null}
       </Alert>

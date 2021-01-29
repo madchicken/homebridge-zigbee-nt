@@ -23,7 +23,7 @@ export function Coordinator() {
 
   return (
     <Pane>
-      <DeviceDetailsBody device={queryResult.data.coordinator} />
+      <DeviceDetailsBody device={queryResult.data.coordinator} refresh={() => {}} />
     </Pane>
   );
 }
