@@ -56,3 +56,4 @@ All notable changes to this project will be documented in this file. This projec
 - UI improvements
 - Add support for TuYa plug [#85](https://github.com/madchicken/homebridge-zigbee-nt/issues/85)
 - Add support for Xiaomi MiJia Honeywell smoke detector [#85](https://github.com/madchicken/homebridge-zigbee-nt/issues/85)
+- Add support for Tuya Thermostatic Radiator Valve [#104](https://github.com/madchicken/homebridge-zigbee-nt/pull/104)
