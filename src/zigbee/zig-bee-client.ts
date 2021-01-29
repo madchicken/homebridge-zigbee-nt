@@ -1,5 +1,4 @@
 import { ZigBeeController } from './zigBee-controller';
-import { Logger } from 'homebridge';
 import { sleep } from '../utils/sleep';
 import { MessagePayload } from 'zigbee-herdsman/dist/controller/events';
 import { DeferredMessage, PromiseBasedQueue } from '../utils/promise-queue';
@@ -16,6 +15,7 @@ import {
 } from './types';
 import { findSerialPort } from '../utils/find-serial-port';
 import retry from 'async-retry';
+import { Logger } from 'homebridge';
 
 export interface ZigBeeClientConfig {
   channel: number;
@@ -28,15 +28,15 @@ export interface ZigBeeClientConfig {
 
 type StatePublisher = (ieeeAddr: string, state: DeviceState) => void;
 
+const DEFAULT_ZIGBEE_TIMEOUT = 10000;
+
 export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   private readonly zigBee: ZigBeeController;
-  private readonly log: Logger;
 
   constructor(log: Logger) {
-    super();
-    this.zigBee = new ZigBeeController(this.log);
-    this.log = log;
-    this.setTimeout(5000);
+    super(log);
+    this.zigBee = new ZigBeeController(log);
+    this.setTimeout(DEFAULT_ZIGBEE_TIMEOUT);
   }
 
   async start(config: ZigBeeClientConfig): Promise<boolean> {
@@ -270,6 +270,10 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     return keys;
   }
 
+  interview(ieeeAddr: string) {
+    return this.zigBee.interview(ieeeAddr);
+  }
+
   setOn(device: Device, on: boolean): Promise<DeviceState> {
     return this.writeDeviceState(device, { state: on ? 'ON' : 'OFF' });
   }
@@ -479,5 +483,107 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
 
   async getCoordinatorVersion() {
     return this.zigBee.getCoordinatorVersion();
+  }
+
+  async isUpdateFirmwareAvailable(device: Device, request = {}): Promise<boolean> {
+    const zigBeeEntity = this.zigBee.resolveEntity(device);
+    if (zigBeeEntity.definition.ota) {
+      return zigBeeEntity.definition.ota.isUpdateAvailable(device, this.log, request);
+    }
+    return false;
+  }
+
+  async updateFirmware(
+    device: Device,
+    onProgress: (percentage: number, remaining: number) => void
+  ) {
+    const zigBeeEntity = this.zigBee.resolveEntity(device);
+    if (zigBeeEntity.definition.ota) {
+      return zigBeeEntity.definition.ota.updateToLatest(device, this.log, onProgress);
+    }
+  }
+
+  hasOTA(device: Device): boolean {
+    const zigBeeEntity = this.zigBee.resolveEntity(device);
+    return !!zigBeeEntity.definition.ota;
+  }
+
+  private async bindOrUnbind(
+    operation: 'bind' | 'unbind',
+    sourceId: string,
+    targetId: string,
+    clusters: string[]
+  ) {
+    const clusterCandidates = [
+      'genScenes',
+      'genOnOff',
+      'genLevelCtrl',
+      'lightingColorCtrl',
+      'closuresWindowCovering',
+    ];
+    const source = this.resolveEntity(this.zigBee.device(sourceId));
+    const target = this.resolveEntity(this.zigBee.device(targetId));
+    this.log.info(`Unbinding ${sourceId} from ${targetId}`);
+    const successfulClusters = [];
+    const failedClusters = [];
+    await Promise.all(
+      clusterCandidates.map(async cluster => {
+        const targetValid =
+          target.type === 'group' ||
+          target.type === 'group_number' ||
+          target.device.type === 'Coordinator' ||
+          target.endpoint.supportsInputCluster(cluster);
+        if (clusters && clusters.includes(cluster)) {
+          if (source.endpoint.supportsOutputCluster(cluster) && targetValid) {
+            const sourceName = source.device.ieeeAddr;
+            const targetName = target.device.ieeeAddr;
+            this.log.debug(
+              `${operation}ing cluster '${cluster}' from '${sourceName}' to '${targetName}'`
+            );
+            try {
+              let bindTarget;
+              if (target.type === 'group') bindTarget = target.group;
+              else if (target.type === 'group_number') bindTarget = target.ID;
+              else bindTarget = target.endpoint;
+
+              if (operation === 'bind') {
+                await source.endpoint.bind(cluster, bindTarget);
+              } else {
+                this.log.info(`Unbinding ${cluster} from ${bindTarget}`);
+                await source.endpoint.unbind(cluster, bindTarget);
+                this.log.info(`Done unbinding ${cluster} from ${bindTarget}`);
+              }
+
+              successfulClusters.push(cluster);
+              this.log.info(
+                `Successfully ${
+                  operation === 'bind' ? 'bound' : 'unbound'
+                } cluster '${cluster}' from ` + `'${sourceName}' to '${targetName}'`
+              );
+            } catch (error) {
+              failedClusters.push(cluster);
+              this.log.error(
+                `Failed to ${operation} cluster '${cluster}' from '${sourceName}' to ` +
+                  `'${targetName}' (${error})`
+              );
+            }
+          }
+        } else {
+          this.log.warn(`Clusters don't include ${cluster} (${clusters.join(', ')})`);
+        }
+      })
+    );
+    return {
+      successfulClusters,
+      failedClusters,
+    };
+  }
+
+  async bind(sourceId: string, targetId: string, clusters: string[]) {
+    return this.bindOrUnbind('bind', sourceId, targetId, clusters);
+  }
+
+  async unbind(sourceId: string, targetId: string, clusters: string[]) {
+    return this.bindOrUnbind('unbind', sourceId, targetId, clusters);
   }
 }

@@ -1,14 +1,32 @@
 import { ZigBeeAccessory } from '../zig-bee-accessory';
-import { Service } from 'homebridge';
+import { PlatformAccessory, Service } from 'homebridge';
 import { DeviceState } from '../../zigbee/types';
 import { ProgrammableSwitchServiceBuilder } from '../../builders/programmable-switch-service-builder';
+import { ZigbeeNTHomebridgePlatform } from '../../platform';
+import { ZigBeeClient } from '../../zigbee/zig-bee-client';
+import { Device } from 'zigbee-herdsman/dist/controller/model';
 
-export class AqaraOppleSwitch extends ZigBeeAccessory {
-  protected switchServiceTopLeft: Service;
-  protected switchServiceTopRight: Service;
-  protected switchServiceBottomLeft: Service;
-  protected switchServiceBottomRight: Service;
-  protected batteryService: Service;
+export enum EventType {
+  SINGLE,
+  DOUBLE,
+  HOLD,
+}
+
+interface Action {
+  switchService: Service;
+  eventType: EventType;
+}
+
+interface Button {
+  index: number;
+  displayName: string;
+  subType: string;
+}
+
+abstract class AqaraOppleSwitch extends ZigBeeAccessory {
+  protected services: Service[];
+  protected buttons: Button[];
+  protected withBattery = false;
 
   getAvailableServices(): Service[] {
     const builder = new ProgrammableSwitchServiceBuilder(
@@ -18,114 +36,186 @@ export class AqaraOppleSwitch extends ZigBeeAccessory {
       this.state
     );
 
-    const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
+    this.buttons.forEach(button => {
+      builder.withStatelessSwitch(button.displayName, button.subType, button.index, [
+        EventType.SINGLE,
+        EventType.DOUBLE,
+        EventType.HOLD,
+      ]);
+    });
 
-    [
-      this.switchServiceBottomLeft,
-      this.switchServiceBottomRight,
-      this.switchServiceTopLeft,
-      this.switchServiceTopRight,
-      this.batteryService,
-    ] = builder
-      .withStatelessSwitch('bottom left', 'top_left', 3, [
-        ProgrammableSwitchEvent.SINGLE_PRESS,
-        ProgrammableSwitchEvent.DOUBLE_PRESS,
-        ProgrammableSwitchEvent.LONG_PRESS,
-      ])
-      .withStatelessSwitch('bottom right', 'top_right', 4, [
-        ProgrammableSwitchEvent.SINGLE_PRESS,
-        ProgrammableSwitchEvent.DOUBLE_PRESS,
-        ProgrammableSwitchEvent.LONG_PRESS,
-      ])
-      .withStatelessSwitch('top left', 'bottom_left', 1, [
-        ProgrammableSwitchEvent.SINGLE_PRESS,
-        ProgrammableSwitchEvent.DOUBLE_PRESS,
-        ProgrammableSwitchEvent.LONG_PRESS,
-      ])
-      .withStatelessSwitch('top right', 'bottom_right', 2, [
-        ProgrammableSwitchEvent.SINGLE_PRESS,
-        ProgrammableSwitchEvent.DOUBLE_PRESS,
-        ProgrammableSwitchEvent.LONG_PRESS,
-      ])
-      .andBattery()
-      .build();
+    if (this.withBattery) {
+      builder.andBattery();
+    }
 
-    return [
-      this.switchServiceBottomLeft,
-      this.switchServiceBottomRight,
-      this.switchServiceTopLeft,
-      this.switchServiceTopRight,
-      this.batteryService,
-    ];
+    this.services = builder.build();
+
+    return this.services;
   }
 
   update(state: DeviceState) {
     super.update(state);
-    const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
-    switch (state.action) {
-      //single press
-      case 'button_1_single':
-        this.switchServiceTopLeft
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.SINGLE_PRESS);
-        break;
-      case 'button_2_single':
-        this.switchServiceTopRight
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.SINGLE_PRESS);
-        break;
-      case 'button_3_single':
-        this.switchServiceBottomLeft
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.SINGLE_PRESS);
-        break;
-      case 'button_4_single':
-        this.switchServiceBottomRight
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.SINGLE_PRESS);
-        break;
-      //double press
-      case 'button_1_double':
-        this.switchServiceTopLeft
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.DOUBLE_PRESS);
-        break;
-      case 'button_2_double':
-        this.switchServiceTopRight
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.DOUBLE_PRESS);
-        break;
-      case 'button_3_double':
-        this.switchServiceBottomLeft
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.DOUBLE_PRESS);
-        break;
-      case 'button_4_double':
-        this.switchServiceBottomRight
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.DOUBLE_PRESS);
-        break;
-      //long press
-      case 'button_1_hold':
-        this.switchServiceTopLeft
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.LONG_PRESS);
-        break;
-      case 'button_2_hold':
-        this.switchServiceTopRight
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.LONG_PRESS);
-        break;
-      case 'button_3_hold':
-        this.switchServiceBottomLeft
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.LONG_PRESS);
-        break;
-      case 'button_4_hold':
-        this.switchServiceBottomRight
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.LONG_PRESS);
-        break;
+
+    const action = this.parseAction(this.state.action);
+
+    if (action !== null) {
+      const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
+      action.switchService.getCharacteristic(ProgrammableSwitchEvent).setValue(action.eventType);
+
+      delete this.state.action;
     }
+  }
+
+  // actionString eg. 'button_2_double' => button with index 2 with EventType DOUBLE
+  protected parseAction(actionString: string): Action | null {
+    if (actionString == undefined) {
+      return null;
+    }
+
+    const actionComponents = actionString.split('_');
+
+    if (actionComponents.length !== 3 || actionComponents[0] !== 'button') {
+      return null;
+    }
+
+    // get index of switchService by checking if button.index matches the button index from action
+    const switchServiceIndex = this.buttons.findIndex(
+      button => button.index === parseInt(actionComponents[1])
+    );
+
+    // just to be sure probably not needed ¯\_(ツ)_/¯
+    if (switchServiceIndex < 0) {
+      return null;
+    }
+
+    const action = {
+      switchService: this.services[switchServiceIndex],
+      eventType: undefined,
+    };
+
+    switch (actionComponents[2]) {
+      case 'single':
+        action.eventType = EventType.SINGLE;
+        break;
+      case 'double':
+        action.eventType = EventType.DOUBLE;
+        break;
+      case 'hold':
+        action.eventType = EventType.HOLD;
+        break;
+      default:
+        return null;
+    }
+
+    return action;
+  }
+}
+
+export class AqaraOppleSwitch2Buttons extends AqaraOppleSwitch {
+  constructor(
+    platform: ZigbeeNTHomebridgePlatform,
+    accessory: PlatformAccessory,
+    client: ZigBeeClient,
+    device: Device
+  ) {
+    super(platform, accessory, client, device);
+
+    this.withBattery = true;
+    this.buttons = [
+      {
+        index: 1,
+        displayName: 'button_1',
+        subType: 'top_left',
+      },
+      {
+        index: 2,
+        displayName: 'button_2',
+        subType: 'top_right',
+      },
+    ];
+  }
+}
+
+export class AqaraOppleSwitch4Buttons extends AqaraOppleSwitch {
+  constructor(
+    platform: ZigbeeNTHomebridgePlatform,
+    accessory: PlatformAccessory,
+    client: ZigBeeClient,
+    device: Device
+  ) {
+    super(platform, accessory, client, device);
+
+    this.withBattery = true;
+    this.buttons = [
+      {
+        index: 3,
+        displayName: 'button_1',
+        subType: 'top_left',
+      },
+      {
+        index: 4,
+        displayName: 'button_2',
+        subType: 'top_right',
+      },
+      {
+        index: 1,
+        displayName: 'button_3',
+        subType: 'bottom_left',
+      },
+      {
+        index: 2,
+        displayName: 'button_4',
+        subType: 'bottom_right',
+      },
+    ];
+  }
+}
+
+export class AqaraOppleSwitch6Buttons extends AqaraOppleSwitch {
+  constructor(
+    platform: ZigbeeNTHomebridgePlatform,
+    accessory: PlatformAccessory,
+    client: ZigBeeClient,
+    device: Device
+  ) {
+    super(platform, accessory, client, device);
+
+    this.withBattery = true;
+    this.buttons = [
+      {
+        index: 3,
+        displayName: 'middle left',
+        subType: 'middle_left',
+      },
+      {
+        index: 4,
+        displayName: 'middle right',
+        subType: 'middle_right',
+
+      },
+      {
+        index: 5,
+        displayName: 'bottom left',
+        subType: 'bottom_left',
+
+      },
+      {
+        index: 6,
+        displayName: 'bottom right',
+        subType: 'bottom_right',
+
+      },
+      {
+        index: 1,
+        displayName: 'top left',
+        subType: 'top_left',
+      },
+      {
+        index: 2,
+        displayName: 'top right',
+        subType: 'top_right',
+
+      },
+    ];
   }
 }

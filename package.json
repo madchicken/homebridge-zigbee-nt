@@ -1,6 +1,6 @@
 {
   "name": "homebridge-zigbee-nt",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "ZigBee New Technology Platform plugin for HomeBridge",
   "main": "dist/index.js",
   "scripts": {
@@ -69,8 +69,11 @@
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "serialport": "^9.0.2",
-    "zigbee-herdsman": "^0.13.57",
-    "zigbee-herdsman-converters": "^14.0.24"
+    "serve-static": "^1.14.1",
+    "winston": "^3.3.3",
+    "ws": "^7.4.2",
+    "zigbee-herdsman": "^0.13.59",
+    "zigbee-herdsman-converters": "^14.0.34"
   },
   "devDependencies": {
     "@emotion/eslint-plugin": "^11.0.0",
@@ -86,6 +89,8 @@
     "@types/react-router": "^5.1.8",
     "@types/react-router-dom": "^5.1.6",
     "@types/serialport": "^8.0.1",
+    "@types/serve-static": "^1.13.9",
+    "@types/ws": "^7.4.0",
     "@typescript-eslint/eslint-plugin": "^2.14.0",
     "@typescript-eslint/parser": "^2.14.0",
     "concurrently": "^5.3.0",

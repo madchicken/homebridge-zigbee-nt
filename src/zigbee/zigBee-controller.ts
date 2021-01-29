@@ -132,7 +132,7 @@ export class ZigBeeController {
   private herdsman: Controller;
   private readonly log: Logger;
 
-  constructor(log: Logger = console) {
+  constructor(log: Logger) {
     this.herdsman = null;
     this.log = log;
   }
@@ -323,5 +323,10 @@ export class ZigBeeController {
 
   async touchlinkFactoryReset() {
     return this.herdsman.touchlinkFactoryResetFirst();
+  }
+
+  async interview(ieeeAddr: string): Promise<Device> {
+    await this.device(ieeeAddr).interview();
+    return this.device(ieeeAddr);
   }
 }
