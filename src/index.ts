@@ -181,7 +181,7 @@ function registerSupportedDevices(): void {
   registerAccessoryClass('TuYa', ['GDKES-02TZXD'], TuyaOnoffDoubleSwitch);
   registerAccessoryClass('TuYa', ['TS0012'], LonsonhoDoubleSwitch);
   registerAccessoryClass('TUYATEC-e4wp7oyu', ['RH3040'], TuyaMotionSensor);
-  registerAccessoryClass('TUYATEC-yg5dcbfu', ['RH3052'], TuyaMotionSensor);
+  registerAccessoryClass('TUYATEC-yg5dcbfu', ['RH3052'], TuyaTempHumiSensor);
   registerAccessoryClass('lk', ['ZB-MotionSensor-D0003'], LinkindMotionSensor);
   registerAccessoryClass('NAMRON AS', ['4512700', '1402755'], NamronDimmer);
   registerAccessoryClass('NAMRON AS', ['4512704'], NamronSwitch);
