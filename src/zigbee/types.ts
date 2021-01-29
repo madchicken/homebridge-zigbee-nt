@@ -5,6 +5,7 @@ import { Zcl } from 'zigbee-herdsman';
 import { Logger } from 'homebridge';
 
 type State = 'ON' | 'OFF' | 'TOGGLE';
+export type SystemMode = 'off' | 'heat' | 'cool' | 'auto';
 
 export interface ZigBeeControllerConfig {
   port?: string;
@@ -39,6 +40,9 @@ export interface DeviceState {
   // - "none": stop blinking
   alert?: 'select' | 'lselect' | 'none';
   temperature?: number;
+  local_temperature?: number;
+  current_heating_setpoint?: number;
+  system_mode?: SystemMode;
   humidity?: number;
   click?:
     | 'on'
@@ -61,6 +65,7 @@ export interface DeviceState {
   contact?: boolean;
   action?:
     | 'on'
+    | 'off'
     | 'toggle'
     | 'toggle_hold'
     | 'toggle_release'
@@ -108,7 +113,11 @@ export interface DeviceState {
     | 'drop'
     | 'single'
     | 'hold'
-    | 'double';
+    | 'double'
+    | 'brightness_down'
+    | 'brightness_up'
+    | 'play_pause'
+    | 'release';
   occupancy?: boolean;
   tamper?: boolean;
   battery_low?: boolean;

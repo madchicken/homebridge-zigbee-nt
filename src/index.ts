@@ -30,8 +30,11 @@ import { XiaomiMotionSensor } from './accessories/xiaomi/xiaomi-motion-sensor';
 import { XiaomiWirelessSwitch } from './accessories/xiaomi/xiaomi-wireless-switch';
 import { SonoffContactSensor } from './accessories/sonoff/contact-sensor';
 import { IkeaShurtcutSwitch } from './accessories/ikea/ikea-shurtcut-switch';
+import { TuyaThermostatControl } from './accessories/tuya/tuya-thermostat-control';
 import { XiaomiMotionIlluminanceSensor } from './accessories/xiaomi/xiaomi-motion-illuminance-sensor';
-import { AqaraOppleSwitch } from './accessories/xiaomi/aqara-opple-switch';
+import { AqaraOppleSwitch2Buttons } from './accessories/xiaomi/aqara-opple-switch';
+import { AqaraOppleSwitch4Buttons } from './accessories/xiaomi/aqara-opple-switch';
+import { AqaraOppleSwitch6Buttons } from './accessories/xiaomi/aqara-opple-switch';
 import { NanoleafIvy } from './accessories/nanoleaf/nanoleaf-ivy';
 import { DATABASE_ACCESSORIES } from './accessories/database';
 import { ConfigurableAccessory } from './accessories/configurable-accessory';
@@ -143,7 +146,9 @@ function registerSupportedDevices(): void {
   );
   registerAccessoryClass('Xiaomi', ['GZCGQ01LM'], XiaomiLightIntensitySensor);
   registerAccessoryClass('Xiaomi', ['WXKG11LM', 'WXKG03LM', 'WXKG12LM'], XiaomiWirelessSwitch);
-  registerAccessoryClass('Xiaomi', ['WXCJKG11LM', 'WXCJKG12LM', 'WXCJKG13LM'], AqaraOppleSwitch);
+  registerAccessoryClass('Xiaomi', ['WXCJKG11LM'], AqaraOppleSwitch2Buttons);
+  registerAccessoryClass('Xiaomi', ['WXCJKG12LM'], AqaraOppleSwitch4Buttons);
+  registerAccessoryClass('Xiaomi', ['WXCJKG13LM'], AqaraOppleSwitch6Buttons);
   registerAccessoryClass(
     'LUMI',
     ['lumi.weather', 'lumi.sensor_ht.agl02', 'lumi.sensor_ht'],
@@ -166,11 +171,9 @@ function registerSupportedDevices(): void {
     ],
     XiaomiWirelessSwitch
   );
-  registerAccessoryClass(
-    'LUMI',
-    ['lumi.remote.b286opcn01', 'lumi.remote.b486opcn01', 'lumi.remote.b686opcn01'],
-    AqaraOppleSwitch
-  );
+  registerAccessoryClass('LUMI', ['lumi.remote.b286opcn01'], AqaraOppleSwitch2Buttons);
+  registerAccessoryClass('LUMI', ['lumi.remote.b486opcn01'], AqaraOppleSwitch4Buttons);
+  registerAccessoryClass('LUMI', ['lumi.remote.b686opcn01'], AqaraOppleSwitch6Buttons);
   registerAccessoryClass('LUMI', ['lumi.sensor_motion'], XiaomiMotionSensor);
   registerAccessoryClass('Xiaomi', ['lumi.sensor_motion'], XiaomiMotionSensor);
   registerAccessoryClass('LUMI', ['lumi.sensor_motion.aq2'], XiaomiMotionIlluminanceSensor);
@@ -181,6 +184,9 @@ function registerSupportedDevices(): void {
   registerAccessoryClass('lk', ['ZB-MotionSensor-D0003'], LinkindMotionSensor);
   registerAccessoryClass('NAMRON AS', ['4512700', '1402755'], NamronDimmer);
   registerAccessoryClass('NAMRON AS', ['4512704'], NamronSwitch);
+  registerAccessoryClass('TuYa', ['TS0601_thermostat'], TuyaThermostatControl);
+  registerAccessoryClass('Moes', ['HY369RT'], TuyaThermostatControl);
+  registerAccessoryClass('_TZE200_ckud7u2l', ['TS0601'], TuyaThermostatControl);
   registerAccessoryClass('eWeLink', ['DS01'], SonoffContactSensor);
   registerAccessoryClass('Nanoleaf', ['NL08-0800'], NanoleafIvy);
 

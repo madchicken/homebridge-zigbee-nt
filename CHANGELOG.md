@@ -42,6 +42,22 @@ All notable changes to this project will be documented in this file. This projec
 - Add devices to internal database
 - Fix problem with accessories names: do not exceed 64 characters [#92](https://github.com/madchicken/homebridge-zigbee-nt/issues/92)
 
+## 2.0.2 (2021-1-28)
+
+## [Version 2.0.2](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.0.1...v2.0.2)
+
+#### Changes
+
+- Add 2 and 6 buttons support for Aquara Opple button [#94](https://github.com/madchicken/homebridge-zigbee-nt/pull/94) [#98](https://github.com/madchicken/homebridge-zigbee-nt/pull/98)
+- Fix bug where switches were randomly turning on and off (driving people crazy by turning on bulbs in the middle of the night)
+- Add support for BTicino Dimmer [#82](https://github.com/madchicken/homebridge-zigbee-nt/issues/82)
+- Add support for LIDL motion sensor [#99](https://github.com/madchicken/homebridge-zigbee-nt/issues/99)
+- Restore ping for router devices on mount process
+- UI improvements
+- Add support for TuYa plug [#85](https://github.com/madchicken/homebridge-zigbee-nt/issues/85)
+- Add support for Xiaomi MiJia Honeywell smoke detector [#85](https://github.com/madchicken/homebridge-zigbee-nt/issues/85)
+- Add support for Tuya Thermostatic Radiator Valve [#104](https://github.com/madchicken/homebridge-zigbee-nt/pull/104)
+
 ## 2.1.0 (2021-1-24)
 
 ## [Version 2.1.0](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.1.0...v2.0.1)

@@ -9,6 +9,7 @@ import {
   Meta,
   Options,
   ToConverter,
+  SystemMode,
   ZigBeeControllerConfig,
   ZigBeeEntity,
 } from './types';
@@ -356,6 +357,26 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
 
   setColorRGB(device: Device, r: number, g: number, b: number): Promise<DeviceState> {
     return this.writeDeviceState(device, { color: { rgb: `${r},${g},${b}` } });
+  }
+
+  getLocalTemperature(device: Device): Promise<DeviceState> {
+    return this.readDeviceState(device, { local_temperature: 0 });
+  }
+
+  setCurrentHeatingSetpoint(device: Device, temperature: number): Promise<DeviceState> {
+    return this.writeDeviceState(device, { current_heating_setpoint: temperature });
+  }
+
+  getCurrentHeatingSetpoint(device: Device): Promise<DeviceState> {
+    return this.readDeviceState(device, { current_heating_setpoint: 0 });
+  }
+
+  setSystemMode(device: Device, state: SystemMode): Promise<DeviceState> {
+    return this.writeDeviceState(device, { system_mode: state });
+  }
+
+  getSystemMode(device: Device): Promise<DeviceState> {
+    return this.readDeviceState(device, { system_mode: 'off' });
   }
 
   getTemperature(device: Device): Promise<DeviceState> {
