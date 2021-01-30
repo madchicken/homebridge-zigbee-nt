@@ -1,15 +1,15 @@
 import { ZigBeeAccessory } from '../zig-bee-accessory';
-import { Callback, CharacteristicEventTypes, Service } from 'homebridge';
+import { Service } from 'homebridge';
 import { TemperatureSensorServiceBuilder } from '../../builders/temperature-sensor-service-builder';
 import { HumiditySensorServiceBuilder } from '../../builders/humidity-sensor-service-builder';
+import { BatteryServiceBuilder } from '../../builders/battery-service-builder';
 
-export class TempHumiSensor extends ZigBeeAccessory {
+export class XiaomiTempHumiSensor extends ZigBeeAccessory {
   private temperatureService: Service;
   private humidityService: Service;
   private batteryService: Service;
 
   getAvailableServices() {
-    const Characteristic = this.platform.Characteristic;
     this.temperatureService = new TemperatureSensorServiceBuilder(
       this.platform,
       this.accessory,
@@ -17,8 +17,8 @@ export class TempHumiSensor extends ZigBeeAccessory {
       this.state
     )
       .withTemperature()
-      .andBattery()
       .build();
+
     this.humidityService = new HumiditySensorServiceBuilder(
       this.platform,
       this.accessory,
@@ -26,18 +26,16 @@ export class TempHumiSensor extends ZigBeeAccessory {
       this.state
     )
       .withHumidity()
-      .andBattery()
       .build();
 
-    this.batteryService =
-      this.accessory.getService(this.platform.Service.BatteryService) ||
-      this.accessory.addService(this.platform.Service.BatteryService);
-
-    this.batteryService
-      .getCharacteristic(Characteristic.BatteryLevel)
-      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        callback(null, this.state.battery);
-      });
+    this.batteryService = new BatteryServiceBuilder(
+      this.platform,
+      this.accessory,
+      this.client,
+      this.state
+    )
+      .withBatteryPercentage()
+      .build();
 
     return [this.temperatureService, this.humidityService, this.batteryService];
   }

@@ -163,8 +163,4 @@ export class ThermostatServiceBuilder extends ServiceBuilder {
     this.log.info('translateToSystemMode(' + val + '): ' + result);
     return result;
   }
-
-  public build(): Service {
-    return this.service;
-  }
 }

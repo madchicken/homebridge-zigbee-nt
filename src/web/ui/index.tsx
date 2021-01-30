@@ -7,6 +7,7 @@ import { Devices } from './devices';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { NavBar } from './components/nav-bar';
 import { Pane } from 'evergreen-ui';
+import { sizes } from './components/constants';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { refetchOnWindowFocus: false } },
@@ -18,7 +19,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <Router>
           <NavBar />
-          <Pane padding={16} flex="1">
+          <Pane padding={sizes.padding.large} flex="1">
             <Switch>
               <Route path="/devices/:ieeAddr?">
                 <Devices />

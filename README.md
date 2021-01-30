@@ -42,7 +42,7 @@ To completely disable http UI, set `disableHttpServer: true` in the configuratio
 
 ## License
 
-Licensed under [MIT](LICENSE)
+Licensed under [Apache 2.0](LICENSE)
 
 ## Contribute
 
@@ -50,4 +50,4 @@ Any PR is welcome to this project, so please, fork and open one if you can!
 
 If otherwise, you simply enjoyed using this plugin, and you want to contribute in some way, you can always donate something!
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](paypal.me/madchicken74)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/madchicken74)

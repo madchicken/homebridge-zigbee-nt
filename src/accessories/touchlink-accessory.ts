@@ -6,7 +6,7 @@ export class TouchlinkAccessory {
   private inProgress: boolean;
   private readonly log: Logger;
   private readonly platform: ZigbeeNTHomebridgePlatform;
-  private readonly accessory: PlatformAccessory;
+  public readonly accessory: PlatformAccessory;
   private switchService: Service;
   private zigBee: ZigBeeClient;
 

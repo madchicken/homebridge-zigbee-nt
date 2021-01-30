@@ -1,5 +1,4 @@
 import { ZigBeeController } from './zigBee-controller';
-import { Logger } from 'homebridge';
 import { sleep } from '../utils/sleep';
 import { MessagePayload } from 'zigbee-herdsman/dist/controller/events';
 import { DeferredMessage, PromiseBasedQueue } from '../utils/promise-queue';
@@ -10,11 +9,13 @@ import {
   Meta,
   Options,
   ToConverter,
-  ZigBeeEntity,
   SystemMode,
+  ZigBeeControllerConfig,
+  ZigBeeEntity,
 } from './types';
 import { findSerialPort } from '../utils/find-serial-port';
 import retry from 'async-retry';
+import { Logger } from 'homebridge';
 
 export interface ZigBeeClientConfig {
   channel: number;
@@ -22,19 +23,20 @@ export interface ZigBeeClientConfig {
   database: string;
   panId: number;
   secondaryChannel?: string;
+  adapter?: 'zstack' | 'deconz' | 'zigate';
 }
 
 type StatePublisher = (ieeeAddr: string, state: DeviceState) => void;
 
+const DEFAULT_ZIGBEE_TIMEOUT = 10000;
+
 export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   private readonly zigBee: ZigBeeController;
-  private readonly log: Logger;
 
   constructor(log: Logger) {
-    super();
-    this.zigBee = new ZigBeeController(this.log);
-    this.log = log;
-    this.setTimeout(5000);
+    super(log);
+    this.zigBee = new ZigBeeController(log);
+    this.setTimeout(DEFAULT_ZIGBEE_TIMEOUT);
   }
 
   async start(config: ZigBeeClientConfig): Promise<boolean> {
@@ -46,17 +48,18 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
 
     const port = config.port || (await findSerialPort());
     this.log.info(`Configured port for ZigBee dongle is ${port}`);
-    const initConfig = {
+    const initConfig: ZigBeeControllerConfig = {
       port,
-      db: config.database,
+      databasePath: config.database,
       panId: config.panId,
       channels,
+      adapter: config.adapter || 'zstack',
     };
 
     this.log.info(
       `Initializing ZigBee controller on port ${
         initConfig.port
-      } and channels ${initConfig.channels.join(', ')}`
+      } and channels ${initConfig.channels.join(', ')} (pan ID ${config.panId})`
     );
     this.zigBee.init(initConfig);
 
@@ -184,7 +187,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
       });
     });
 
-    this.log.info(`Device state (${device.modelID}): `, deviceState);
+    this.log.debug(`Device state (${device.modelID}): `, deviceState);
     return deviceState;
   }
 
@@ -231,7 +234,9 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
         }
         Object.assign(deviceState, result.state);
       } catch (error) {
-        const message = `Writing '${key}' to '${resolvedEntity.name}' failed: '${error}'`;
+        const message = `Writing '${key}' to '${
+          resolvedEntity.name
+        }' failed with converter ${converter.key.join(', ')}: '${error}'`;
         this.log.error(message);
         this.log.debug(error.stack);
       }
@@ -265,6 +270,10 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     return keys;
   }
 
+  interview(ieeeAddr: string) {
+    return this.zigBee.interview(ieeeAddr);
+  }
+
   setOn(device: Device, on: boolean): Promise<DeviceState> {
     return this.writeDeviceState(device, { state: on ? 'ON' : 'OFF' });
   }
@@ -273,19 +282,33 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     return this.readDeviceState(device, { state: 'ON' });
   }
 
+  getPowerState(device: Device): Promise<DeviceState> {
+    return this.readDeviceState(device, { power: 1 });
+  }
+
+  getCurrentState(device: Device): Promise<DeviceState> {
+    return this.readDeviceState(device, { current: 1 });
+  }
+
+  getVoltageState(device: Device): Promise<DeviceState> {
+    return this.readDeviceState(device, { voltage: 1 });
+  }
+
   getColorXY(device: Device): Promise<DeviceState> {
-    return this.readDeviceState(device, { color: { x: 0, y: 0 } });
+    return this.readDeviceState(device, { color: { x: 1, y: 1 } });
   }
 
   async getBrightnessPercent(device: Device): Promise<DeviceState> {
-    const deviceState = await this.readDeviceState(device, { brightness: 0 });
+    const deviceState = await this.readDeviceState(device, { brightness: 1 });
     deviceState.brightness_percent = Math.round(Number(deviceState.brightness) / 2.55);
     return deviceState;
   }
 
   async setBrightnessPercent(device: Device, brightnessPercent: number) {
     const brightness = Math.round(Number(brightnessPercent) * 2.55);
-    return this.writeDeviceState(device, { brightness });
+    return this.writeDeviceState(device, {
+      brightness,
+    });
   }
 
   async getColorCapabilities(device: Device, force = false): Promise<ColorCapabilities> {
@@ -317,11 +340,11 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   }
 
   getSaturation(device: Device): Promise<DeviceState> {
-    return this.readDeviceState(device, { color: { s: 0 } });
+    return this.readDeviceState(device, { color: { s: 1 } });
   }
 
   getHue(device: Device): Promise<DeviceState> {
-    return this.readDeviceState(device, { color: { hue: 0 } });
+    return this.readDeviceState(device, { color: { hue: 1 } });
   }
 
   setHue(device: Device, hue: number): Promise<DeviceState> {
@@ -357,11 +380,11 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   }
 
   getTemperature(device: Device): Promise<DeviceState> {
-    return this.readDeviceState(device, { temperature: 0 });
+    return this.readDeviceState(device, { temperature: 1 });
   }
 
   getHumidity(device: Device): Promise<Partial<DeviceState>> {
-    return this.readDeviceState(device, { humidity: 0 });
+    return this.readDeviceState(device, { humidity: 1 });
   }
 
   getCoodinator(): Device {
@@ -378,12 +401,14 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
 
   async getColorTemperature(device: Device) {
     return this.readDeviceState(device, {
-      color_temp: 0,
+      color_temp: 1,
     });
   }
 
   async setColorTemperature(device: Device, colorTemperature: number) {
-    return this.writeDeviceState(device, { color_temp: colorTemperature });
+    return this.writeDeviceState(device, {
+      color_temp: colorTemperature,
+    });
   }
 
   setLeftButtonOn(device: Device, on: boolean) {
@@ -446,5 +471,119 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
 
   async ping(ieeeAddr: string) {
     return this.zigBee.ping(ieeeAddr);
+  }
+
+  async setCustomState(device: Device, state: DeviceState) {
+    return this.writeDeviceState(device, state);
+  }
+
+  async getState(device: Device, state: DeviceState) {
+    return this.readDeviceState(device, state);
+  }
+
+  async getCoordinatorVersion() {
+    return this.zigBee.getCoordinatorVersion();
+  }
+
+  async isUpdateFirmwareAvailable(device: Device, request = {}): Promise<boolean> {
+    const zigBeeEntity = this.zigBee.resolveEntity(device);
+    if (zigBeeEntity.definition.ota) {
+      return zigBeeEntity.definition.ota.isUpdateAvailable(device, this.log, request);
+    }
+    return false;
+  }
+
+  async updateFirmware(
+    device: Device,
+    onProgress: (percentage: number, remaining: number) => void
+  ) {
+    const zigBeeEntity = this.zigBee.resolveEntity(device);
+    if (zigBeeEntity.definition.ota) {
+      return zigBeeEntity.definition.ota.updateToLatest(device, this.log, onProgress);
+    }
+  }
+
+  hasOTA(device: Device): boolean {
+    const zigBeeEntity = this.zigBee.resolveEntity(device);
+    return !!zigBeeEntity.definition.ota;
+  }
+
+  private async bindOrUnbind(
+    operation: 'bind' | 'unbind',
+    sourceId: string,
+    targetId: string,
+    clusters: string[]
+  ) {
+    const clusterCandidates = [
+      'genScenes',
+      'genOnOff',
+      'genLevelCtrl',
+      'lightingColorCtrl',
+      'closuresWindowCovering',
+    ];
+    const source = this.resolveEntity(this.zigBee.device(sourceId));
+    const target = this.resolveEntity(this.zigBee.device(targetId));
+    this.log.info(`Unbinding ${sourceId} from ${targetId}`);
+    const successfulClusters = [];
+    const failedClusters = [];
+    await Promise.all(
+      clusterCandidates.map(async cluster => {
+        const targetValid =
+          target.type === 'group' ||
+          target.type === 'group_number' ||
+          target.device.type === 'Coordinator' ||
+          target.endpoint.supportsInputCluster(cluster);
+        if (clusters && clusters.includes(cluster)) {
+          if (source.endpoint.supportsOutputCluster(cluster) && targetValid) {
+            const sourceName = source.device.ieeeAddr;
+            const targetName = target.device.ieeeAddr;
+            this.log.debug(
+              `${operation}ing cluster '${cluster}' from '${sourceName}' to '${targetName}'`
+            );
+            try {
+              let bindTarget;
+              if (target.type === 'group') bindTarget = target.group;
+              else if (target.type === 'group_number') bindTarget = target.ID;
+              else bindTarget = target.endpoint;
+
+              if (operation === 'bind') {
+                await source.endpoint.bind(cluster, bindTarget);
+              } else {
+                this.log.info(`Unbinding ${cluster} from ${bindTarget}`);
+                await source.endpoint.unbind(cluster, bindTarget);
+                this.log.info(`Done unbinding ${cluster} from ${bindTarget}`);
+              }
+
+              successfulClusters.push(cluster);
+              this.log.info(
+                `Successfully ${
+                  operation === 'bind' ? 'bound' : 'unbound'
+                } cluster '${cluster}' from ` + `'${sourceName}' to '${targetName}'`
+              );
+            } catch (error) {
+              failedClusters.push(cluster);
+              this.log.error(
+                `Failed to ${operation} cluster '${cluster}' from '${sourceName}' to ` +
+                  `'${targetName}' (${error})`
+              );
+            }
+          }
+        } else {
+          this.log.warn(`Clusters don't include ${cluster} (${clusters.join(', ')})`);
+        }
+      })
+    );
+    return {
+      successfulClusters,
+      failedClusters,
+    };
+  }
+
+  async bind(sourceId: string, targetId: string, clusters: string[]) {
+    return this.bindOrUnbind('bind', sourceId, targetId, clusters);
+  }
+
+  async unbind(sourceId: string, targetId: string, clusters: string[]) {
+    return this.bindOrUnbind('unbind', sourceId, targetId, clusters);
   }
 }
