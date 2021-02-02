@@ -46,6 +46,11 @@ export interface DeviceConfig {
   services: ServiceConfig[];
 }
 
+export interface CustomDeviceSetting {
+  ieeeAddr: string;
+  friendlyName?: string;
+}
+
 export interface ZigBeeNTPlatformConfig extends PlatformConfig {
   name: string;
   port?: string;
@@ -60,6 +65,7 @@ export interface ZigBeeNTPlatformConfig extends PlatformConfig {
   routerPollingInterval?: number;
   enablePermitJoin?: boolean;
   devices?: DeviceConfig[];
+  customDeviceSettings?: CustomDeviceSetting[];
 }
 
 export interface WSEvent {

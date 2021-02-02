@@ -12,7 +12,7 @@ import serveStatic from 'serve-static';
 import { NextFunction, Request, Response } from 'express-serve-static-core';
 import * as url from 'url';
 import { withPrefix } from 'homebridge/lib/logger';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { constants } from 'http2';
 
 const DEFAULT_WEB_PORT = 9000;
 const DEFAULT_WEB_HOST = '0.0.0.0';
@@ -97,6 +97,10 @@ export class HttpServer {
     this.express.use(bodyParser.json());
     this.express.use(bodyParser.urlencoded({ extended: false }));
     this.express.use(middleware('/', this.log));
+    this.express.use((err, req, res, _next) => {
+      this.log.error(err.stack);
+      res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Something broke!');
+    });
     mapDevicesRoutes(this.express, zigBee, this.wsServer);
     mapCoordinatorRoutes(this.express, zigBee);
     mapZigBeeRoutes(this.express, zigBee);

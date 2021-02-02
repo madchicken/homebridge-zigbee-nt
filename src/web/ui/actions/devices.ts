@@ -118,6 +118,25 @@ export class DevicesService {
     }
   }
 
+  static async bind(ieeeAddr: string, target: string, clusters: string[]) {
+    const response = await fetch(`/api/devices/${ieeeAddr}/bind`, {
+      method: 'POST',
+      body: JSON.stringify({ target, clusters }),
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+    if (response.ok) {
+      const json = await response.json();
+      return {
+        result: 'success',
+        state: json,
+      };
+    } else {
+      throw new Error(await response.text());
+    }
+  }
+
   static async unbind(ieeeAddr: string, target: string, clusters: string[]) {
     const response = await fetch(`/api/devices/${ieeeAddr}/unbind`, {
       method: 'POST',

@@ -52,3 +52,11 @@ export type DeviceModel = {
 export interface CoordinatorModel extends DeviceModel {
   meta: { [s: string]: number | string };
 }
+
+export const ALLOWED_CLUSTERS = [
+  'genScenes',
+  'genOnOff',
+  'genLevelCtrl',
+  'lightingColorCtrl',
+  'closuresWindowCovering',
+];

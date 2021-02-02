@@ -5,6 +5,7 @@ import { ZigbeeNTHomebridgePlatform } from '../../platform';
 import { normalizeDeviceModel } from '../common/utils';
 import winston from 'winston';
 import WebSocket from 'ws';
+import { BindCommand, validateBindCommand } from './validators';
 
 const logger = winston.createLogger({ transports: [new winston.transports.Console()] });
 
@@ -155,16 +156,63 @@ export function mapDevicesRoutes(
   express.post('/api/devices/:ieeeAddr/unbind', async (req, res) => {
     const device: Device = platform.zigBeeClient.getDevice(req.params.ieeeAddr);
     if (device) {
-      const command = req.body;
-      await platform.zigBeeClient.unbind(req.params.ieeeAddr, command.target, command.clusters);
-      res.contentType('application/json');
-      res.end(
-        JSON.stringify({
-          device: normalizeDeviceModel(platform.zigBeeClient.getDevice(req.params.ieeeAddr)),
-        })
-      );
-      res.status(constants.HTTP_STATUS_OK);
+      const command = req.body as BindCommand;
+      const errors = validateBindCommand(command);
+      if (errors && errors.length) {
+        res.status(constants.HTTP_STATUS_BAD_REQUEST);
+        res.end(
+          JSON.stringify({
+            errors,
+          })
+        );
+      } else {
+        const result = await platform.zigBeeClient.unbind(
+          req.params.ieeeAddr,
+          command.target,
+          command.clusters
+        );
+        res.contentType('application/json');
+        res.end(
+          JSON.stringify({
+            result,
+          })
+        );
+        res.status(constants.HTTP_STATUS_OK);
+        res.end();
+      }
+    } else {
+      res.status(constants.HTTP_STATUS_NOT_FOUND);
       res.end();
+    }
+  });
+
+  express.post('/api/devices/:ieeeAddr/bind', async (req, res) => {
+    const device: Device = platform.zigBeeClient.getDevice(req.params.ieeeAddr);
+    if (device) {
+      const command = req.body as BindCommand;
+      const errors = validateBindCommand(command);
+      if (errors && errors.length) {
+        res.status(constants.HTTP_STATUS_BAD_REQUEST);
+        res.end(
+          JSON.stringify({
+            errors,
+          })
+        );
+      } else {
+        const result = await platform.zigBeeClient.bind(
+          req.params.ieeeAddr,
+          command.target,
+          command.clusters
+        );
+        res.contentType('application/json');
+        res.end(
+          JSON.stringify({
+            result,
+          })
+        );
+        res.status(constants.HTTP_STATUS_OK);
+        res.end();
+      }
     } else {
       res.status(constants.HTTP_STATUS_NOT_FOUND);
       res.end();

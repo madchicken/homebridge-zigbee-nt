@@ -521,9 +521,13 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
       'lightingColorCtrl',
       'closuresWindowCovering',
     ];
+    const defaultBindGroup = { type: 'group_number', ID: 901 } as ZigBeeEntity;
     const source = this.resolveEntity(this.zigBee.device(sourceId));
-    const target = this.resolveEntity(this.zigBee.device(targetId));
-    this.log.info(`Unbinding ${sourceId} from ${targetId}`);
+    const target =
+      targetId === 'default_bind_group'
+        ? defaultBindGroup
+        : this.resolveEntity(this.zigBee.device(targetId));
+    this.log.info(`${operation}ing ${sourceId} from ${targetId} (clusters ${clusters.join(', ')})`);
     const successfulClusters = [];
     const failedClusters = [];
     await Promise.all(
@@ -536,7 +540,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
         if (clusters && clusters.includes(cluster)) {
           if (source.endpoint.supportsOutputCluster(cluster) && targetValid) {
             const sourceName = source.device.ieeeAddr;
-            const targetName = target.device.ieeeAddr;
+            const targetName = target.device?.ieeeAddr;
             this.log.debug(
               `${operation}ing cluster '${cluster}' from '${sourceName}' to '${targetName}'`
             );
