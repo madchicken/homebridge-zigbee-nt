@@ -34,11 +34,14 @@ export function clearRegistries() {
 }
 
 export function registerAccessoryClass(
-  manufacturer: string,
+  manufacturer: string | string[],
   models: string[],
   clazz: ZigBeeAccessoryCtor
 ) {
-  models.forEach(model => classRegistry.set(getKey(manufacturer, model), clazz));
+  const manufacturers = Array.isArray(manufacturer) ? manufacturer : [manufacturer];
+  manufacturers.forEach(manufacturer => {
+    models.forEach(model => classRegistry.set(getKey(manufacturer, model), clazz));
+  });
 }
 
 export function registerAccessoryFactory(

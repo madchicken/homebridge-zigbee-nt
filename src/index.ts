@@ -42,13 +42,17 @@ import { ConfigurableAccessory } from './accessories/configurable-accessory';
 function registerSupportedDevices(): void {
   registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
   registerAccessoryClass(
-    'Philips',
+    ['Philips', 'Signify Netherlands B.V.'],
     ['LWA001', 'LWA002', 'LWB006', 'LWB010', 'LWB014'],
     PhilipsHueWhite
   );
-  registerAccessoryClass('Philips', ['LTA001'], PhilipsHueWhiteTemperature);
   registerAccessoryClass(
-    'Philips',
+    ['Philips', 'Signify Netherlands B.V.'],
+    ['LTA001'],
+    PhilipsHueWhiteTemperature
+  );
+  registerAccessoryClass(
+    ['Philips', 'Signify Netherlands B.V.'],
     [
       'LCT001',
       'LCT007',
@@ -171,21 +175,9 @@ function registerSupportedDevices(): void {
     ],
     XiaomiWirelessSwitch
   );
-  registerAccessoryClass(
-    'LUMI',
-    ['lumi.remote.b286opcn01'],
-    AqaraOppleSwitch2Buttons
-  );
-  registerAccessoryClass(
-    'LUMI',
-    ['lumi.remote.b486opcn01'],
-    AqaraOppleSwitch4Buttons
-  );
-  registerAccessoryClass(
-    'LUMI',
-    ['lumi.remote.b686opcn01'],
-    AqaraOppleSwitch6Buttons
-  );
+  registerAccessoryClass('LUMI', ['lumi.remote.b286opcn01'], AqaraOppleSwitch2Buttons);
+  registerAccessoryClass('LUMI', ['lumi.remote.b486opcn01'], AqaraOppleSwitch4Buttons);
+  registerAccessoryClass('LUMI', ['lumi.remote.b686opcn01'], AqaraOppleSwitch6Buttons);
   registerAccessoryClass('LUMI', ['lumi.sensor_motion'], XiaomiMotionSensor);
   registerAccessoryClass('Xiaomi', ['lumi.sensor_motion'], XiaomiMotionSensor);
   registerAccessoryClass('LUMI', ['lumi.sensor_motion.aq2'], XiaomiMotionIlluminanceSensor);
