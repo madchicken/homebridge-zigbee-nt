@@ -97,7 +97,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
 
   async startZigBee() {
     // Create client
-    this.client = new ZigBeeClient(this.log);
+    this.client = new ZigBeeClient(this.log, this.config.customDeviceSettings);
 
     const panId =
       this.config.panId && this.config.panId < 0xffff ? this.config.panId : DEFAULT_PAN_ID;
@@ -154,10 +154,14 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     const status = message.status;
     switch (status) {
       case 'failed':
-        this.log.error(`Interview progress ${status} for device ${ieeeAddr}`);
+        this.log.error(
+          `Interview progress ${status} for device ${this.getDeviceFriendlyName(ieeeAddr)}`
+        );
         break;
       case 'started':
-        this.log.info(`Interview progress ${status} for device ${ieeeAddr}`);
+        this.log.info(
+          `Interview progress ${status} for device ${this.getDeviceFriendlyName(ieeeAddr)}`
+        );
         break;
       case 'successful':
         this.log.info(
@@ -169,7 +173,9 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
 
   async handleZigBeeDevJoined(message: DeviceJoinedPayload) {
     this.log.info(
-      `Device joined, Adding ${message.device.ieeeAddr} (${message.device.manufacturerName} - ${message.device.modelID})`
+      `Device joined, Adding ${this.getDeviceFriendlyName(message.device.ieeeAddr)} (${
+        message.device.manufacturerName
+      } - ${message.device.modelID})`
     );
     await this.handleDeviceUpdate(message.device);
   }
@@ -183,7 +189,11 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       await this.initDevice(device);
       return true;
     } else {
-      this.log.debug(`Not initializing device ${device.ieeeAddr}: already mapped in Homebridge`);
+      this.log.debug(
+        `Not initializing device ${this.getDeviceFriendlyName(
+          device.ieeeAddr
+        )}: already mapped in Homebridge`
+      );
       accessory.internalUpdate({});
     }
     return false;
@@ -283,7 +293,8 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       }
     } catch (error) {
       this.log.warn(
-        `Unable to initialize device ${ieeeAddr}, ` + 'try to remove it and add it again.\n'
+        `Unable to initialize device ${this.getDeviceFriendlyName(ieeeAddr)}, ` +
+          'try to remove it and add it again.\n'
       );
       this.log.warn('Reason:', error);
     }
@@ -352,7 +363,9 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   private async handleDeviceAnnounce(message: DeviceAnnouncePayload) {
     const ieeeAddr = message.device.ieeeAddr;
     this.log.info(
-      `Device announce: ${ieeeAddr} (${message.device.manufacturerName} - ${message.device.modelID})`
+      `Device announce: ${this.getDeviceFriendlyName(ieeeAddr)} (${
+        message.device.manufacturerName
+      } - ${message.device.modelID})`
     );
     if (message.device.interviewCompleted) {
       if (!this.getAccessoryByIeeeAddr(ieeeAddr)) {
@@ -361,18 +374,29 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
         this.initDevice(message.device);
         await this.mountDevice(ieeeAddr);
       } else {
-        this.log.warn(`Not initializing device ${ieeeAddr}: already mapped in Homebridge`);
+        this.log.warn(
+          `Not initializing device ${this.getDeviceFriendlyName(
+            ieeeAddr
+          )}: already mapped in Homebridge`
+        );
         await this.homekitAccessories
           .get(this.getAccessoryByIeeeAddr(ieeeAddr).UUID)
           .onDeviceMount();
       }
     } else {
-      this.log.warn(`Not initializing device ${ieeeAddr}: interview process still not completed`);
+      this.log.warn(
+        `Not initializing device ${this.getDeviceFriendlyName(
+          ieeeAddr
+        )}: interview process still not completed`
+      );
     }
   }
 
   private handleZigBeeMessage(message: MessagePayload) {
-    this.log.debug(`Zigbee message from ${message.device.ieeeAddr}`, message.type);
+    this.log.debug(
+      `Zigbee message from ${this.getDeviceFriendlyName(message.device.ieeeAddr)}`,
+      message.type
+    );
     if (message.type === 'readResponse') {
       // only process messages that we wait for
       this.client.processQueue(message);
@@ -389,6 +413,12 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     }
   }
 
+  public getDeviceFriendlyName(ieeeAddr: string): string {
+    return (
+      this.config.customDeviceSettings?.find(config => config.ieeeAddr === ieeeAddr)
+        ?.friendlyName || ieeeAddr
+    );
+  }
   /*
   private backupDatabase(database: string) {
     if (fs.existsSync(database)) {

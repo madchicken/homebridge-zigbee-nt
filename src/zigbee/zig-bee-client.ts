@@ -8,14 +8,15 @@ import {
   DeviceState,
   Meta,
   Options,
-  ToConverter,
   SystemMode,
+  ToConverter,
   ZigBeeControllerConfig,
   ZigBeeEntity,
 } from './types';
 import { findSerialPort } from '../utils/find-serial-port';
 import retry from 'async-retry';
 import { Logger } from 'homebridge';
+import { CustomDeviceSetting } from '../types';
 
 export interface ZigBeeClientConfig {
   channel: number;
@@ -32,14 +33,18 @@ const DEFAULT_ZIGBEE_TIMEOUT = 10000;
 
 export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   private readonly zigBee: ZigBeeController;
+  private readonly deviceSettingsMap: Map<string, CustomDeviceSetting>;
 
-  constructor(log: Logger) {
+  constructor(log: Logger, customDeviceSettings: CustomDeviceSetting[]) {
     super(log);
     this.zigBee = new ZigBeeController(log);
     this.setTimeout(DEFAULT_ZIGBEE_TIMEOUT);
+    this.deviceSettingsMap = new Map<string, CustomDeviceSetting>(
+      customDeviceSettings.map(s => [s.ieeeAddr, s])
+    );
   }
 
-  async start(config: ZigBeeClientConfig): Promise<boolean> {
+  public async start(config: ZigBeeClientConfig): Promise<boolean> {
     const channels = [config.channel];
     const secondaryChannel = parseInt(config.secondaryChannel);
     if (!isNaN(secondaryChannel) && !channels.includes(secondaryChannel)) {
@@ -88,7 +93,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     }
   }
 
-  processResponse(
+  public processResponse(
     messages: DeferredMessage<string, MessagePayload>[],
     response: MessagePayload
   ): boolean {
@@ -113,11 +118,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     return resolvedEntity;
   }
 
-  public decodeMessage(
-    message: MessagePayload,
-    callback: StatePublisher,
-    options: Options = {}
-  ): void {
+  public decodeMessage(message: MessagePayload, callback: StatePublisher): void {
     const state = {} as DeviceState;
     const resolvedEntity: ZigBeeEntity = this.resolveEntity(message.device);
     if (resolvedEntity) {
@@ -135,7 +136,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
           (state: DeviceState) => {
             callback(message.device.ieeeAddr, state);
           },
-          options,
+          this.deviceSettingsMap.get(message.device.ieeeAddr),
           meta
         );
         if (converted) {
@@ -144,6 +145,10 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
       });
     }
     callback(message.device.ieeeAddr, state);
+  }
+
+  private getDeviceName(ieeeAddr: string) {
+    return this.deviceSettingsMap.get(ieeeAddr)?.friendlyName || ieeeAddr;
   }
 
   private async readDeviceState(device: Device, state: DeviceState): Promise<DeviceState> {
@@ -178,15 +183,23 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
       usedConverters.get(target.ID).push(converter);
     }
     this.log.debug(`Sent ${promises.length} messages for device ${device.modelID}`);
-    const responses = await Promise.all<MessagePayload>(promises);
-    this.log.debug(`Got ${responses.length} messages for device ${device.modelID}`);
-    responses.forEach(response => {
-      this.decodeMessage(response, (ieeeAddr, state) => {
-        this.log.debug(`Decoded message for ${response.device.modelID}`, state);
-        Object.assign(deviceState, state);
-      });
-    });
-
+    await Promise.all(
+      promises.map(async promise => {
+        try {
+          const response: MessagePayload = await promise;
+          this.log.debug(`Got response messages for device ${device.modelID}: `, response);
+          this.decodeMessage(response, (ieeeAddr, state) => {
+            this.log.debug(`Decoded message for ${response.device.modelID}`, state);
+            Object.assign(deviceState, state);
+          });
+        } catch (e) {
+          this.log.error(
+            `Reading state for device ${this.getDeviceName(device.ieeeAddr)} Failed: ${e.message}`
+          );
+        }
+        return Promise.resolve();
+      })
+    );
     this.log.debug(`Device state (${device.modelID}): `, deviceState);
     return deviceState;
   }
@@ -542,7 +555,9 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
             const sourceName = source.device.ieeeAddr;
             const targetName = target.device?.ieeeAddr;
             this.log.debug(
-              `${operation}ing cluster '${cluster}' from '${sourceName}' to '${targetName}'`
+              `${operation}ing cluster '${cluster}' from '${this.getDeviceName(
+                sourceName
+              )}' to '${this.getDeviceName(targetName)}'`
             );
             try {
               let bindTarget;

@@ -65,12 +65,7 @@ export abstract class ZigBeeAccessory {
       .setCharacteristic(Characteristic.SerialNumber, device.ieeeAddr)
       .setCharacteristic(Characteristic.SoftwareRevision, device.softwareBuildID)
       .setCharacteristic(Characteristic.HardwareRevision, device.hardwareVersion)
-      .setCharacteristic(
-        Characteristic.Name,
-        `${this.zigBeeDefinition.description.substr(0, 64 - 1 - device.ieeeAddr.length)}-${
-          device.ieeeAddr
-        }`
-      );
+      .setCharacteristic(Characteristic.Name, this.name);
     this.accessory.on('identify', () => this.handleAccessoryIdentify());
   }
 
@@ -96,7 +91,13 @@ export abstract class ZigBeeAccessory {
   }
 
   public get name() {
-    return this.zigBeeDefinition?.description;
+    return (
+      this.platform.getDeviceFriendlyName(this.ieeeAddr) ||
+      `${this.zigBeeDefinition.description.substr(
+        0,
+        64 - 1 - this.zigBeeDeviceDescriptor.ieeeAddr.length
+      )}-${this.zigBeeDeviceDescriptor.ieeeAddr}`
+    );
   }
 
   public abstract getAvailableServices(): Service[];

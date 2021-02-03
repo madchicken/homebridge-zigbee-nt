@@ -1,4 +1,5 @@
 import { PlatformConfig } from 'homebridge';
+import { DeviceSetting } from './zigbee/types';
 
 /**
  * Supported services for manually configured devices
@@ -46,9 +47,8 @@ export interface DeviceConfig {
   services: ServiceConfig[];
 }
 
-export interface CustomDeviceSetting {
+export interface CustomDeviceSetting extends DeviceSetting {
   ieeeAddr: string;
-  friendlyName?: string;
 }
 
 export interface ZigBeeNTPlatformConfig extends PlatformConfig {
