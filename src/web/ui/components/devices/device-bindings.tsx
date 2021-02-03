@@ -76,7 +76,7 @@ export function DeviceBindings(props: Props) {
                   {row.type === 'group' ? row.groupID : row.deviceIeeeAddress}
                 </Table.TextCell>
                 <Table.TextCell>
-                  <Pane float="left" marginRight={16}>
+                  <Pane display="flex" marginRight={16} flexDirection="row">
                     <IconButton
                       icon={TrashIcon}
                       iconSize={16}

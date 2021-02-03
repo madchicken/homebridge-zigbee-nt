@@ -1,11 +1,11 @@
 import { DeviceModel } from '../../../common/types';
 import { Button, Heading, Pane, Paragraph, WarningSignIcon } from 'evergreen-ui';
 import { sizes } from '../constants';
-import { isDeviceRouter } from '../../../../utils/device';
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import { DevicesService } from '../../actions/devices';
 import { DeviceUpdate } from './device-update';
+import { isDeviceRouter } from '../../../../utils/device';
 
 interface Props {
   device: DeviceModel;
@@ -27,8 +27,13 @@ export function DeviceInfo(props: Props) {
     isUpdateShown: false,
     pingError: null,
   });
-  const showUpdateDialog = (isShown: boolean) => setState({ ...state, isUpdateShown: isShown });
-  const pingDevice = async () => {
+  const { isLoadingState, isUpdateShown, otaCheck, pingError, newFirmwareAvailable } = state;
+
+  const showUpdateDialog = useCallback(
+    (isShown: boolean) => setState({ ...state, isUpdateShown: isShown }),
+    [state, setState, device.ieeeAddr]
+  );
+  const pingDevice = useCallback(async () => {
     try {
       setState({ ...state, isLoadingState: true });
       await DevicesService.pingDevice(device.ieeeAddr);
@@ -37,7 +42,7 @@ export function DeviceInfo(props: Props) {
     } finally {
       setState({ ...state, isLoadingState: false });
     }
-  };
+  }, [state, setState, device.ieeeAddr]);
 
   async function checkForUpdates() {
     try {
@@ -46,6 +51,7 @@ export function DeviceInfo(props: Props) {
       console.log(resp);
       setState({
         ...state,
+        otaCheck: Date.now(),
         newFirmwareAvailable: resp.state.newFirmwareAvailable,
         isLoadingState: false,
       });
@@ -54,13 +60,13 @@ export function DeviceInfo(props: Props) {
     }
   }
 
-  function otaInfoPanel() {
-    if (!state.otaCheck || state.newFirmwareAvailable === 'FETCH_ERROR') {
+  const otaInfoPanel = useMemo(() => {
+    if (!otaCheck || newFirmwareAvailable === 'FETCH_ERROR') {
       return (
         <Pane padding={sizes.padding.small} paddingTop={sizes.padding.large} background="tealTint">
           <Heading size={400}>
             Check for new firmware{' '}
-            {state.newFirmwareAvailable === 'FETCH_ERROR' ? (
+            {newFirmwareAvailable === 'FETCH_ERROR' ? (
               <WarningSignIcon color="warning" marginRight={16} title="Last check failed" />
             ) : null}
           </Heading>
@@ -70,7 +76,7 @@ export function DeviceInfo(props: Props) {
               appearance="primary"
               marginRight={16}
               intent="warning"
-              isLoading={state.isLoadingState}
+              isLoading={isLoadingState}
               onClick={() => checkForUpdates()}
             >
               Check for updates
@@ -80,11 +86,9 @@ export function DeviceInfo(props: Props) {
       );
     }
 
-    let otaInfo = null;
-
-    if (state.newFirmwareAvailable) {
-      if (state.newFirmwareAvailable === 'YES') {
-        otaInfo = (
+    if (newFirmwareAvailable) {
+      if (newFirmwareAvailable === 'YES') {
+        return (
           <Pane
             padding={sizes.padding.small}
             paddingTop={sizes.padding.large}
@@ -97,7 +101,7 @@ export function DeviceInfo(props: Props) {
                 appearance="primary"
                 marginRight={16}
                 intent="warning"
-                isLoading={state.isLoadingState}
+                isLoading={isLoadingState}
                 onClick={() => showUpdateDialog(true)}
               >
                 Update!
@@ -105,24 +109,24 @@ export function DeviceInfo(props: Props) {
             </p>
             <DeviceUpdate
               device={device}
-              isShown={state.isUpdateShown}
+              isShown={isUpdateShown}
               onClose={async () => {
                 showUpdateDialog(false);
-                props.refresh();
+                refresh();
               }}
             />
           </Pane>
         );
-      } else if (state.newFirmwareAvailable === 'NO') {
-        otaInfo = (
+      } else if (newFirmwareAvailable === 'NO') {
+        return (
           <Pane padding={sizes.padding.small}>
             <Heading size={400}>This device is updated to the latest available firmware</Heading>
           </Pane>
         );
       } else {
-        otaInfo = (
+        return (
           <Pane padding={sizes.padding.small}>
-            <Paragraph>{state.pingError}</Paragraph>
+            <Paragraph>{pingError}</Paragraph>
             <Heading size={400}>Error fetching OTA info: {device.newFirmwareAvailable}</Heading>
             {isDeviceRouter(device) && (
               <Button
@@ -139,8 +143,16 @@ export function DeviceInfo(props: Props) {
         );
       }
     }
-    return otaInfo;
-  }
+  }, [
+    newFirmwareAvailable,
+    isLoadingState,
+    isUpdateShown,
+    otaCheck,
+    pingError,
+    pingDevice,
+    refresh,
+    showUpdateDialog,
+  ]);
 
   return (
     <React.Fragment>
@@ -162,7 +174,7 @@ export function DeviceInfo(props: Props) {
       <Pane padding={sizes.padding.small}>
         <Heading size={400}>Last seen: {dayjs(device.lastSeen).fromNow(false)}</Heading>
       </Pane>
-      {otaInfoPanel()}
+      {otaInfoPanel}
     </React.Fragment>
   );
 }
