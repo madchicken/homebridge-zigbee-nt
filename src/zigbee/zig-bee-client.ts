@@ -35,7 +35,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   private readonly zigBee: ZigBeeController;
   private readonly deviceSettingsMap: Map<string, CustomDeviceSetting>;
 
-  constructor(log: Logger, customDeviceSettings: CustomDeviceSetting[]) {
+  constructor(log: Logger, customDeviceSettings: CustomDeviceSetting[] = []) {
     super(log);
     this.zigBee = new ZigBeeController(log);
     this.setTimeout(DEFAULT_ZIGBEE_TIMEOUT);

@@ -49,7 +49,7 @@ function getAccessoryInstance(ieeeAddr: string) {
     device.modelID,
     new ZigbeeNTHomebridgePlatform(log, config, API),
     new API.platformAccessory('test', API.hap.uuid.generate('test')),
-    new ZigBeeClient(log, this.config.customDeviceSettings),
+    new ZigBeeClient(log),
     device
   );
 }
