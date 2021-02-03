@@ -190,7 +190,11 @@ function registerSupportedDevices(): void {
   registerAccessoryClass('NAMRON AS', ['4512704'], NamronSwitch);
   registerAccessoryClass('TuYa', ['TS0601_thermostat'], TuyaThermostatControl);
   registerAccessoryClass('Moes', ['HY369RT'], TuyaThermostatControl);
-  registerAccessoryClass('_TZE200_ckud7u2l', ['TS0601'], TuyaThermostatControl);
+  registerAccessoryClass(
+    ['_TZE200_ckud7u2l', '_TZE200_2dpplnsn'],
+    ['TS0601'],
+    TuyaThermostatControl
+  );
   registerAccessoryClass('eWeLink', ['DS01'], SonoffContactSensor);
   registerAccessoryClass('Nanoleaf', ['NL08-0800'], NanoleafIvy);
 

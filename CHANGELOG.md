@@ -65,3 +65,12 @@ All notable changes to this project will be documented in this file. This projec
 #### Changes
 
 - Restore long press for IKEA ON/OFF button
+
+## 2.0.4 (2021-2-03)
+
+## [Version 2.0.4](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.0.3...v2.0.4)
+
+#### Changes
+
+- Let manufacturer name be an array to map multiple devices all at once ([#111](https://github.com/madchicken/homebridge-zigbee-nt/pull/111))
+- Add Tuya Thermostat model TS0601 with manufacturer `_TZE200_2dpplnsn`
