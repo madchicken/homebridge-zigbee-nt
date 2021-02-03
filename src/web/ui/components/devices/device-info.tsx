@@ -112,7 +112,7 @@ export function DeviceInfo(props: Props) {
               isShown={isUpdateShown}
               onClose={async () => {
                 showUpdateDialog(false);
-                refresh();
+                props.refresh();
               }}
             />
           </Pane>
