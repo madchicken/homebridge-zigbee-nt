@@ -42,13 +42,17 @@ import { ConfigurableAccessory } from './accessories/configurable-accessory';
 function registerSupportedDevices(): void {
   registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
   registerAccessoryClass(
-    'Philips',
+    ['Philips', 'Signify Netherlands B.V.'],
     ['LWA001', 'LWA002', 'LWB006', 'LWB010', 'LWB014'],
     PhilipsHueWhite
   );
-  registerAccessoryClass('Philips', ['LTA001'], PhilipsHueWhiteTemperature);
   registerAccessoryClass(
-    'Philips',
+    ['Philips', 'Signify Netherlands B.V.'],
+    ['LTA001'],
+    PhilipsHueWhiteTemperature
+  );
+  registerAccessoryClass(
+    ['Philips', 'Signify Netherlands B.V.'],
     [
       'LCT001',
       'LCT007',
