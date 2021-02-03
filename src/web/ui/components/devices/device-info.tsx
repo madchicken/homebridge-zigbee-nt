@@ -150,7 +150,6 @@ export function DeviceInfo(props: Props) {
     otaCheck,
     pingError,
     pingDevice,
-    refresh,
     showUpdateDialog,
   ]);
 

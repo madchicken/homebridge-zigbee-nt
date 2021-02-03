@@ -72,8 +72,8 @@
     "serve-static": "^1.14.1",
     "winston": "^3.3.3",
     "ws": "^7.4.2",
-    "zigbee-herdsman": "^0.13.59",
-    "zigbee-herdsman-converters": "^14.0.34"
+    "zigbee-herdsman": "^0.13.61",
+    "zigbee-herdsman-converters": "^14.0.44"
   },
   "devDependencies": {
     "@emotion/eslint-plugin": "^11.0.0",
