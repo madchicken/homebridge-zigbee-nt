@@ -251,7 +251,7 @@ export interface ZigBeeEntity {
   endpoint?: Endpoint;
   definition?: ZigBeeDefinition;
   name: string;
-  settings: any;
+  settings: DeviceSetting;
 }
 
 export interface BindInfo {

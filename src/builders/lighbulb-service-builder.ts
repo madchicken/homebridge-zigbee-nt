@@ -43,7 +43,9 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.On)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
-          // Object.assign(this.state, await this.client.getOnOffState(this.device));
+          if (this.state.state === undefined) {
+            Object.assign(this.state, await this.client.getOnOffState(this.device));
+          }
           callback(null, this.state.state === 'ON');
         } catch (e) {
           callback(e);
@@ -75,7 +77,9 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.Brightness)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
-          // Object.assign(this.state, await this.client.getBrightnessPercent(this.device));
+          if (isNaN(this.state.brightness_percent)) {
+            Object.assign(this.state, await this.client.getBrightnessPercent(this.device));
+          }
           callback(null, this.state.brightness_percent);
         } catch (e) {
           callback(e);
@@ -107,7 +111,9 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.ColorTemperature)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
-          // Object.assign(this.state, await this.client.getColorTemperature(this.device));
+          if (isNaN(this.state.color_temp)) {
+            Object.assign(this.state, await this.client.getColorTemperature(this.device));
+          }
           callback(null, this.state.color_temp);
         } catch (e) {
           callback(e);
@@ -137,7 +143,9 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.Hue)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
-          // Object.assign(this.state, await this.client.getHue(this.device));
+          if (!this.state.color || isNaN(this.state.color.hue)) {
+            Object.assign(this.state, await this.client.getHue(this.device));
+          }
           callback(null, this.state.color.hue);
         } catch (e) {
           callback(e);
@@ -172,7 +180,9 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.Hue)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
-          // Object.assign(this.state, await this.client.getColorXY(this.device));
+          if (!this.state.color || isNaN(this.state.color.hue)) {
+            Object.assign(this.state, await this.client.getColorXY(this.device));
+          }
           const Y =
             (this.service.getCharacteristic(Characteristic.Brightness).value as number) / 100;
           const hsbType = HSBType.fromXY(this.state.color.x, this.state.color.y, Y);
@@ -205,7 +215,9 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.Saturation)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
-          // Object.assign(this.state, await this.client.getColorXY(this.device));
+          if (!this.state.color || isNaN(this.state.color.y)) {
+            Object.assign(this.state, await this.client.getColorXY(this.device));
+          }
           const Y =
             (this.service.getCharacteristic(Characteristic.Brightness).value as number) / 100;
           const hsbType = HSBType.fromXY(this.state.color.x, this.state.color.y, Y);
@@ -239,7 +251,9 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.Saturation)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
-          // const response = await this.client.getSaturation(this.device);
+          if (!this.state.color || isNaN(this.state.color.s)) {
+            Object.assign(this.state, await this.client.getSaturation(this.device));
+          }
           callback(null, this.state.color.s);
         } catch (e) {
           callback(e);

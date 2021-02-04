@@ -258,14 +258,22 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     return this.homekitAccessories.has(this.generateUUID(ieeeAddr));
   }
 
-  private initDevice(device: Device): string {
-    this.log.info(`Found ZigBee device: `, device);
+  private async initDevice(device: Device): Promise<string> {
     const model = parseModelName(device.modelID);
     const manufacturer = device.manufacturerName;
     const ieeeAddr = device.ieeeAddr;
+    this.log.info(
+      `Initializing ZigBee device: ${this.getDeviceFriendlyName(
+        ieeeAddr
+      )} - ${model} - ${manufacturer}`
+    );
 
     if (!isAccessorySupported(manufacturer, model)) {
-      this.log.info('Unrecognized device:', ieeeAddr, manufacturer, model);
+      this.log.info(
+        `Unsupported ZigBee device: ${this.getDeviceFriendlyName(
+          ieeeAddr
+        )} - ${model} - ${manufacturer}`
+      );
       return null;
     } else {
       const accessory = this.createHapAccessory(ieeeAddr);
@@ -278,7 +286,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
         device
       );
       this.log.info('Registered device:', ieeeAddr, manufacturer, model);
-      homeKitAccessory.initialize(); // init services
+      await homeKitAccessory.initialize(); // init services
       this.homekitAccessories.set(accessory.UUID, homeKitAccessory);
       return accessory.UUID;
     }
