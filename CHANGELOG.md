@@ -66,9 +66,9 @@ All notable changes to this project will be documented in this file. This projec
 
 - Restore long press for IKEA ON/OFF button
 
-## 2.0.4 (2021-2-03)
+## 2.0.5 (2021-2-04)
 
-## [Version 2.0.4](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.0.3...v2.0.4)
+## [Version 2.0.5](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.0.3...v2.0.5)
 
 #### Changes
 
