@@ -1,5 +1,5 @@
 {
-  "name": "homebridge-zigbee-nt",
+  "name": "homebridge-zigbee-nt-fork",
   "version": "2.0.3",
   "description": "ZigBee New Technology Platform plugin for HomeBridge",
   "main": "dist/index.js",
@@ -29,7 +29,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/madchicken/homebridge-zigbee-nt.git"
+    "url": "git+https://github.com/prugala/homebridge-zigbee-nt.git"
   },
   "keywords": [
     "homebridge-plugin",
