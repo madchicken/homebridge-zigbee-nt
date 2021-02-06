@@ -4,7 +4,9 @@ import { PlatformConfig } from 'homebridge';
  * Supported services for manually configured devices
  */
 export type ServiceType =
+  | 'unknown'
   | 'contact-sensor'
+  | 'light-sensor'
   | 'bulb' // lights, switches and dimmers
   | 'motion-sensor'
   | 'leak-sensor' // to use with water, gas or smoke sensors
@@ -12,28 +14,31 @@ export type ServiceType =
   | 'battery'
   | 'humidity-sensor'
   | 'temperature-sensor'
-  | 'outlet';
+  | 'outlet'
+  | 'climate'; // thermostats
+
+export type ServiceMeta = {
+  colorTemp?: boolean; // light temperature control
+  batteryLow?: boolean; // battery low warning
+  colorXY?: boolean; // XY light color control
+  brightness?: boolean; // brightness control
+  hue?: boolean; // hue control
+  saturation?: boolean; // saturation control
+  power?: boolean; // consumption information (Wh)
+  voltage?: boolean; // consumption information (a)
+  current?: boolean; // consumption information (mWh)
+  waterLeak?: boolean; // water leak detection
+  gasLeak?: boolean; // gas leak detection
+  smokeLeak?: boolean; // smoke leak detection
+  tamper?: boolean; // tampered status detection
+};
 
 /**
  * Service definition for a configured device. Your device should at least define one service.
  */
 export interface ServiceConfig {
   type: ServiceType;
-  meta?: {
-    colorTemp?: boolean; // light temperature control
-    batteryLow?: boolean; // battery low warning
-    colorXY?: boolean; // XY light color control
-    brightness?: boolean; // brightness control
-    hue?: boolean; // hue control
-    saturation?: boolean; // saturation control
-    power?: boolean; // consumption information (Wh)
-    voltage?: boolean; // consumption information (a)
-    current?: boolean; // consumption information (mWh)
-    waterLeak?: boolean; // water leak detection
-    gasLeak?: boolean; // gas leak detection
-    smokeLeak?: boolean; // smoke leak detection
-    tamper?: boolean; // tampered status detection
-  };
+  meta?: ServiceMeta;
 }
 
 /**

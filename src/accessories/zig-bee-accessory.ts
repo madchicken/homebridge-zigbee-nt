@@ -1,7 +1,6 @@
 import { Logger, PlatformAccessory, Service } from 'homebridge';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
-import { findByDevice } from 'zigbee-herdsman-converters';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { DeviceState, ZigBeeDefinition, ZigBeeEntity } from '../zigbee/types';
 import {
@@ -11,6 +10,7 @@ import {
   MIN_POLL_INTERVAL,
 } from '../utils/router-polling';
 import retry from 'async-retry';
+import assert from 'assert';
 
 export interface ZigBeeAccessoryCtor {
   new (
@@ -57,6 +57,7 @@ export abstract class ZigBeeAccessory {
     this.accessory = accessory;
     this.accessory.context = device;
     this.entity = this.client.resolveEntity(device);
+    assert(this.entity !== null, 'ZigBee Entity resolution failed');
     const Characteristic = platform.Characteristic;
     this.accessory
       .getService(this.platform.Service.AccessoryInformation)
@@ -90,9 +91,7 @@ export abstract class ZigBeeAccessory {
   }
 
   public get zigBeeDefinition(): ZigBeeDefinition {
-    return this.entity
-      ? this.entity.definition
-      : (findByDevice(this.zigBeeDeviceDescriptor) as ZigBeeDefinition);
+    return this.entity.definition;
   }
 
   public get name() {

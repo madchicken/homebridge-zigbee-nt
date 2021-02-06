@@ -258,7 +258,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     const manufacturer = device.manufacturerName;
     const ieeeAddr = device.ieeeAddr;
 
-    if (!isAccessorySupported(manufacturer, model)) {
+    if (!isAccessorySupported(device)) {
       this.log.info('Unrecognized device:', ieeeAddr, manufacturer, model);
       return null;
     } else {

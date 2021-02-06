@@ -42,6 +42,13 @@ export abstract class PromiseBasedQueue<M, R> implements Queue<M, R> {
     }
   }
 
+  stop() {
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+      this.timeout = null;
+    }
+  }
+
   cleanPending(timeout: number) {
     const timestamp = new Date().getTime();
     const toKeep = this.queuedMessages.reduce((keep: DeferredMessage<M, R>[], value) => {

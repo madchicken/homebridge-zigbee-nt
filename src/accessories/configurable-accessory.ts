@@ -12,6 +12,7 @@ import { HumiditySensorServiceBuilder } from '../builders/humidity-sensor-servic
 import { TemperatureSensorServiceBuilder } from '../builders/temperature-sensor-service-builder';
 import { OutletServiceBuilder } from '../builders/outlet-service-builder';
 import { LeakSensorServiceBuilder } from '../builders/leak-sensor-service-builder';
+import { AmbientLightServiceBuilder } from '../builders/ambient-light-service-builder';
 
 function createLightBulbService(
   platform: ZigbeeNTHomebridgePlatform,
@@ -187,6 +188,23 @@ function createLeakSensorService(
   return builder.build();
 }
 
+function createAmbientLightService(
+  platform: ZigbeeNTHomebridgePlatform,
+  accessory: PlatformAccessory,
+  client: ZigBeeClient,
+  zigBeeDeviceDescriptor: Device,
+  _serviceConfig: ServiceConfig
+) {
+  const builder = new AmbientLightServiceBuilder(
+    platform,
+    accessory,
+    client,
+    zigBeeDeviceDescriptor
+  );
+  builder.withAmbientLightLevel();
+  return builder.build();
+}
+
 /**
  * Generic device accessory builder
  */
@@ -208,6 +226,14 @@ export class ConfigurableAccessory extends ZigBeeAccessory {
     const { platform, accessory, client, zigBeeDeviceDescriptor } = this;
     return this.accessoryConfig.map(serviceConfig => {
       switch (serviceConfig.type) {
+        case 'light-sensor':
+          return createAmbientLightService(
+            platform,
+            accessory,
+            client,
+            zigBeeDeviceDescriptor,
+            serviceConfig
+          );
         case 'contact-sensor':
           return createContactService(
             platform,
