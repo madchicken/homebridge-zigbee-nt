@@ -36,7 +36,6 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   constructor(log: Logger) {
     super(log);
     this.zigBee = new ZigBeeController(log);
-    this.setTimeout(DEFAULT_ZIGBEE_TIMEOUT);
   }
 
   async start(config: ZigBeeClientConfig): Promise<boolean> {
@@ -66,6 +65,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     const retrier = async () => {
       try {
         await this.zigBee.start();
+        this.setTimeout(DEFAULT_ZIGBEE_TIMEOUT);
         this.log.info('Successfully started ZigBee service');
         return true;
       } catch (error) {
@@ -436,6 +436,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
   }
 
   stop(): Promise<void> {
+    super.stop();
     return this.zigBee.stop();
   }
 

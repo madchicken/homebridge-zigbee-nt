@@ -3,11 +3,13 @@ import {
   ZigBeeAccessoryCtor,
   ZigBeeAccessoryFactory,
 } from './accessories/zig-bee-accessory';
-import { findByZigbeeModel } from 'zigbee-herdsman-converters';
+import { findByDevice } from 'zigbee-herdsman-converters';
 import { ZigbeeNTHomebridgePlatform } from './platform';
 import { PlatformAccessory } from 'homebridge';
 import { ZigBeeClient } from './zigbee/zig-bee-client';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
+import { parseModelName } from './utils/parse-model-name';
+import { guessAccessoryFromDevice } from './accessories/accessory-guesser';
 
 const classRegistry: Map<string, ZigBeeAccessoryCtor> = new Map();
 const factoryRegistry: Map<string, ZigBeeAccessoryFactory> = new Map();
@@ -16,12 +18,13 @@ function getKey(manufacturer: string, model: string) {
   return `${manufacturer}:${model}`;
 }
 
-function findByManufacturerAndModel(manufacturer: string, model: string) {
-  let key = getKey(manufacturer, model);
+function find(device: Device) {
+  const model = parseModelName(device.modelID);
+  let key = getKey(device.manufacturerName, model);
   if (!classRegistry.has(key) && !factoryRegistry.has(key)) {
-    const zm = findByZigbeeModel(model);
+    const zm = findByDevice(device);
     if (zm) {
-      key = getKey(manufacturer, zm.model);
+      key = getKey(device.manufacturerName, model);
     }
   }
   return key;
@@ -60,8 +63,8 @@ export function createAccessoryInstance<T extends ZigBeeAccessory>(
   client: ZigBeeClient,
   device: Device
 ): T {
-  const key = findByManufacturerAndModel(manufacturer, model);
-  const factory = factoryRegistry.get(key);
+  const key = find(device);
+  const factory = factoryRegistry.get(key) || guessAccessoryFromDevice(device);
   if (factory) {
     return factory(platform, accessory, client, device) as T;
   }
@@ -72,7 +75,7 @@ export function createAccessoryInstance<T extends ZigBeeAccessory>(
   return null;
 }
 
-export function isAccessorySupported(manufacturer: string, model: string): boolean {
-  const key = findByManufacturerAndModel(manufacturer, model);
+export function isAccessorySupported(device: Device): boolean {
+  const key = find(device);
   return factoryRegistry.has(key) || classRegistry.has(key);
 }

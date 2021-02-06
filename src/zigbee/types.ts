@@ -192,9 +192,43 @@ export interface FromConverter {
   ) => Partial<DeviceState>;
 }
 
-interface Capability {
-  type: string;
+enum AccessType {
+  STATE = 1,
+  SET = 2,
+  STATE_SET = 3,
+  STATE_GET = 5,
+  ALL = 7,
+}
+
+type Value = string | boolean | number;
+
+export interface Capability {
+  type?:
+    | 'light'
+    | 'switch'
+    | 'cover'
+    | 'fan'
+    | 'lock'
+    | 'climate'
+    | 'composite'
+    | 'binary'
+    | 'numeric'
+    | 'enum'
+    | 'text';
   name: string;
+  features: Feature[];
+}
+
+export interface Feature extends Capability {
+  property?: string;
+  access: AccessType;
+  value_on?: Value;
+  value_off?: Value;
+  values?: Value[];
+  value_toggle?: Value;
+  value_max?: number;
+  value_min?: number;
+  value_step?: number;
 }
 
 export interface ZigBeeDefinition {
@@ -218,6 +252,7 @@ export interface ZigBeeDefinition {
   toZigbee: ToConverter[];
   exposes: Capability[];
   interviewing?: boolean;
+  fingerprint?: [{ modelID: string; manufacturerName: string }];
   ota?: {
     isUpdateAvailable: (
       device: Device,
