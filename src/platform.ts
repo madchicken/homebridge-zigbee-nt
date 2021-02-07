@@ -263,14 +263,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       return null;
     } else {
       const accessory = this.createHapAccessory(ieeeAddr);
-      const homeKitAccessory = createAccessoryInstance(
-        manufacturer,
-        model,
-        this,
-        accessory,
-        this.client,
-        device
-      );
+      const homeKitAccessory = createAccessoryInstance(this, accessory, this.client, device);
       this.log.info('Registered device:', ieeeAddr, manufacturer, model);
       homeKitAccessory.initialize(); // init services
       this.homekitAccessories.set(accessory.UUID, homeKitAccessory);
