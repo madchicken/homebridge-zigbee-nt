@@ -302,14 +302,11 @@ export abstract class ZigBeeAccessory {
           break;
         case Service.Outlet.UUID:
           service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
-          if (this.supports('power')) {
-            service.updateCharacteristic(this.platform.Characteristic.InUse, state.power > 0);
-          }
-          if (this.supports('voltage')) {
-            service.updateCharacteristic(this.platform.Characteristic.InUse, state.voltage > 0);
-          }
-          if (this.supports('energy')) {
-            service.updateCharacteristic(this.platform.Characteristic.InUse, state.current > 0);
+          if (this.supports('power') || this.supports('voltage') || this.supports('energy')) {
+            service.updateCharacteristic(
+              this.platform.Characteristic.InUse,
+              state.power > 0 || state.voltage > 0 || state.current > 0
+            );
           }
           break;
         case Service.TemperatureSensor.UUID:

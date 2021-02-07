@@ -18,6 +18,7 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
     state: DeviceState
   ) {
     super(platform, accessory, client, state);
+    state.state = 'OFF';
     this.service =
       this.accessory.getService(platform.Service.Lightbulb) ||
       this.accessory.addService(platform.Service.Lightbulb);
@@ -43,7 +44,15 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.On)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
-          Object.assign(this.state, await this.client.getOnOffState(this.device));
+          this.client
+            .getOnOffState(this.device)
+            .then(s => {
+              Object.assign(this.state, s);
+              this.service.updateCharacteristic(Characteristic.On, this.state.state === 'ON');
+            })
+            .catch(e => {
+              this.log.error(e.message);
+            });
           callback(null, this.state.state === 'ON');
         } catch (e) {
           callback(e);
@@ -54,6 +63,7 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
   }
 
   public withBrightness(): LighbulbServiceBuilder {
+    this.state.brightness_percent = 100;
     const Characteristic = this.platform.Characteristic;
 
     this.service.getCharacteristic(Characteristic.Brightness).on(
@@ -75,7 +85,18 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.Brightness)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
-          Object.assign(this.state, await this.client.getBrightnessPercent(this.device));
+          this.client
+            .getBrightnessPercent(this.device)
+            .then(s => {
+              Object.assign(this.state, s);
+              this.service.updateCharacteristic(
+                Characteristic.Brightness,
+                this.state.brightness_percent
+              );
+            })
+            .catch(e => {
+              this.log.error(e.message);
+            });
           callback(null, this.state.brightness_percent);
         } catch (e) {
           callback(e);
@@ -85,6 +106,7 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
   }
 
   public withColorTemperature(): LighbulbServiceBuilder {
+    this.state.color_temp = 366;
     const Characteristic = this.platform.Characteristic;
 
     this.service
@@ -107,7 +129,18 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.ColorTemperature)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
-          Object.assign(this.state, await this.client.getColorTemperature(this.device));
+          this.client
+            .getColorTemperature(this.device)
+            .then(s => {
+              Object.assign(this.state, s);
+              this.service.updateCharacteristic(
+                Characteristic.ColorTemperature,
+                this.state.color_temp
+              );
+            })
+            .catch(e => {
+              this.log.error(e.message);
+            });
           callback(null, this.state.color_temp);
         } catch (e) {
           callback(e);

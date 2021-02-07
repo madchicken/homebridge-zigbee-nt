@@ -7,7 +7,9 @@ export type ServiceType =
   | 'unknown'
   | 'contact-sensor'
   | 'light-sensor'
-  | 'bulb' // lights, switches and dimmers
+  | 'bulb' // for backward compatibility
+  | 'light-bulb' // lights and dimmers
+  | 'switch' // switches and dimmers
   | 'motion-sensor'
   | 'leak-sensor' // to use with water, gas or smoke sensors
   | 'vibration-sensor'
