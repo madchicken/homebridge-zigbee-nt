@@ -38,7 +38,6 @@ import { difference } from 'lodash';
 
 const PERMIT_JOIN_ACCESSORY_NAME = 'zigbee:permit-join';
 const TOUCH_LINK_ACCESSORY_NAME = 'zigbee:touchlink';
-
 const DEFAULT_PAN_ID = 0x1a62;
 
 export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
@@ -102,7 +101,6 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     const panId =
       this.config.panId && this.config.panId < 0xffff ? this.config.panId : DEFAULT_PAN_ID;
     const database = this.config.database || path.join(this.api.user.storagePath(), './zigBee.db');
-    //this.backupDatabase(database);
     await this.client.start({
       channel: this.config.channel,
       secondaryChannel: this.config.secondaryChannel,
@@ -372,7 +370,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       if (!this.getAccessoryByIeeeAddr(ieeeAddr)) {
         // Wait a little bit for a database sync
         await sleep(1500);
-        this.initDevice(message.device);
+        await this.initDevice(message.device);
         await this.mountDevice(ieeeAddr);
       } else {
         this.log.warn(
@@ -420,12 +418,4 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
         ?.friendlyName || ieeeAddr
     );
   }
-  /*
-  private backupDatabase(database: string) {
-    if (fs.existsSync(database)) {
-      this.log.debug('Creating copy of existing database');
-      fs.copyFileSync(database, `${database}.${Date.now()}`);
-    }
-  }
-*/
 }
