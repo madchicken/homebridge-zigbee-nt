@@ -1,19 +1,9 @@
+import { ZigBeeAccessory } from '../zig-bee-accessory';
 import { LighbulbServiceBuilder } from '../../builders/lighbulb-service-builder';
-import { IkeaTradfriDim } from '../ikea/ikea-tradfri-dim';
-import { ZigbeeNTHomebridgePlatform } from '../../platform';
-import { PlatformAccessory } from 'homebridge';
-import { ZigBeeClient } from '../../zigbee/zig-bee-client';
-import { Device } from 'zigbee-herdsman/dist/controller/model';
+import { Service } from 'homebridge';
 
 export class LedvanceFlexRgbwZ3 extends ZigBeeAccessory {
-  constructor(
-    platform: ZigbeeNTHomebridgePlatform,
-    accessory: PlatformAccessory,
-    client: ZigBeeClient,
-    device: Device
-  ) {
-    super(platform, accessory, client, device);
-  }
+  protected lightbulbService: Service;
 
   getAvailableServices() {
     this.lightbulbService = new LighbulbServiceBuilder(
