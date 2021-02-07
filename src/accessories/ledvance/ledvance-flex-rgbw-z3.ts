@@ -5,7 +5,7 @@ import { PlatformAccessory } from 'homebridge';
 import { ZigBeeClient } from '../../zigbee/zig-bee-client';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
 
-export class LedvanceFlexRgbwZ3 extends IkeaTradfriDim {
+export class LedvanceFlexRgbwZ3 extends ZigBeeAccessory {
   constructor(
     platform: ZigbeeNTHomebridgePlatform,
     accessory: PlatformAccessory,
