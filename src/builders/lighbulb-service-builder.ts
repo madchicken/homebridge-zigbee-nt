@@ -25,7 +25,7 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
   }
 
   public withOnOff(): LighbulbServiceBuilder {
-    const Characteristic = this.platform.Characteristic;
+    const Characteristic = this.Characteristic;
 
     this.service
       .getCharacteristic(Characteristic.On)
@@ -63,8 +63,10 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
   }
 
   public withBrightness(): LighbulbServiceBuilder {
-    this.state.brightness_percent = 100;
-    const Characteristic = this.platform.Characteristic;
+    const Characteristic = this.Characteristic;
+    this.state.brightness_percent = this.service.getCharacteristic(
+      Characteristic.Brightness
+    ).props.minValue;
 
     this.service.getCharacteristic(Characteristic.Brightness).on(
       CharacteristicEventTypes.SET,
@@ -106,8 +108,8 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
   }
 
   public withColorTemperature(): LighbulbServiceBuilder {
-    this.state.color_temp = 366;
-    const Characteristic = this.platform.Characteristic;
+    const Characteristic = this.Characteristic;
+    this.state.color_temp = 140;
 
     this.service
       .getCharacteristic(Characteristic.ColorTemperature)
@@ -138,9 +140,7 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
                 this.state.color_temp
               );
             })
-            .catch(e => {
-              this.log.error(e.message);
-            });
+            .catch(e => this.log.error(e.message));
           callback(null, this.state.color_temp);
         } catch (e) {
           callback(e);
@@ -151,7 +151,11 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
   }
 
   public withHue(): LighbulbServiceBuilder {
-    const Characteristic = this.platform.Characteristic;
+    const Characteristic = this.Characteristic;
+    this.state.color = {
+      ...this.state.color,
+      hue: this.service.getCharacteristic(Characteristic.Hue).props.minValue,
+    };
 
     this.service
       .getCharacteristic(Characteristic.Hue)
@@ -170,7 +174,14 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.Hue)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
-          Object.assign(this.state, await this.client.getHue(this.device));
+          this.client
+            .getHue(this.device)
+            .then(s => {
+              Object.assign(this.state, s);
+              this.service.updateCharacteristic(Characteristic.Hue, s.color.hue);
+            })
+            .catch(e => this.log.error(e.message));
+
           callback(null, this.state.color.hue);
         } catch (e) {
           callback(e);
@@ -185,7 +196,15 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
    * HomeKit only knows about HSB, so we need to manually convert values
    */
   public withColorXY(): LighbulbServiceBuilder {
-    const Characteristic = this.platform.Characteristic;
+    const Characteristic = this.Characteristic;
+    this.state.brightness_percent = this.service.getCharacteristic(
+      Characteristic.Brightness
+    ).props.minValue;
+    this.state.color = {
+      ...this.state.color,
+      s: this.service.getCharacteristic(Characteristic.Saturation).props.minValue,
+      hue: this.service.getCharacteristic(Characteristic.Hue).props.minValue,
+    };
 
     this.service
       .getCharacteristic(Characteristic.Hue)
@@ -205,12 +224,24 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.Hue)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
-          Object.assign(this.state, await this.client.getColorXY(this.device));
-          const Y =
-            (this.service.getCharacteristic(Characteristic.Brightness).value as number) / 100;
-          const hsbType = HSBType.fromXY(this.state.color.x, this.state.color.y, Y);
-          this.state.color.hue = hsbType.hue;
-          this.service.updateCharacteristic(Characteristic.Saturation, hsbType.saturation);
+          this.client
+            .getColorXY(this.device)
+            .then(s => {
+              Object.assign(this.state, s);
+              const Y =
+                (this.service.getCharacteristic(Characteristic.Brightness).value as number) / 100;
+              const hsbType = HSBType.fromXY(this.state.color.x, this.state.color.y, Y);
+              this.state.color.hue = hsbType.hue;
+              this.state.color.s = hsbType.saturation;
+              this.state.brightness_percent = hsbType.brightness;
+              this.service.updateCharacteristic(Characteristic.Hue, this.state.color.hue);
+              this.service.updateCharacteristic(Characteristic.Saturation, this.state.color.s);
+              this.service.updateCharacteristic(
+                Characteristic.Brightness,
+                this.state.brightness_percent
+              );
+            })
+            .catch(e => this.log.error(e.message));
           callback(null, this.state.color.hue);
         } catch (e) {
           callback(e);
@@ -238,12 +269,22 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.Saturation)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
-          Object.assign(this.state, await this.client.getColorXY(this.device));
-          const Y =
-            (this.service.getCharacteristic(Characteristic.Brightness).value as number) / 100;
-          const hsbType = HSBType.fromXY(this.state.color.x, this.state.color.y, Y);
-          this.service.updateCharacteristic(Characteristic.Hue, hsbType.hue);
-          callback(null, hsbType.saturation);
+          this.client
+            .getColorXY(this.device)
+            .then(s => {
+              Object.assign(this.state, s);
+              const Y =
+                (this.service.getCharacteristic(Characteristic.Brightness).value as number) / 100;
+              const hsbType = HSBType.fromXY(this.state.color.x, this.state.color.y, Y);
+              this.state.color.hue = hsbType.hue;
+              this.state.color.s = hsbType.saturation;
+              this.state.brightness = hsbType.brightness;
+              this.service.updateCharacteristic(Characteristic.Hue, this.state.color.hue);
+              this.service.updateCharacteristic(Characteristic.Saturation, this.state.color.s);
+              this.service.updateCharacteristic(Characteristic.Brightness, this.state.brightness);
+            })
+            .catch(e => this.log.error(e.message));
+          callback(null, this.state.color.s);
         } catch (e) {
           callback(e);
         }
@@ -254,6 +295,10 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
 
   public withSaturation(): LighbulbServiceBuilder {
     const Characteristic = this.platform.Characteristic;
+    this.state.color = {
+      ...this.state.color,
+      hue: this.service.getCharacteristic(Characteristic.Hue).props.minValue,
+    };
 
     this.service
       .getCharacteristic(Characteristic.Saturation)
@@ -272,8 +317,14 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.Saturation)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
-          const response = await this.client.getSaturation(this.device);
-          callback(null, response.color.s);
+          this.client
+            .getSaturation(this.device)
+            .then(s => {
+              Object.assign(this.state, s);
+              this.service.updateCharacteristic(Characteristic.Saturation, this.state.color.s);
+            })
+            .catch(e => this.log.error(e.message));
+          callback(null, this.state.color.s);
         } catch (e) {
           callback(e);
         }

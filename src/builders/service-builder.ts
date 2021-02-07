@@ -34,4 +34,8 @@ export abstract class ServiceBuilder {
   public build(): Service {
     return this.service;
   }
+
+  get Characteristic() {
+    return this.platform.Characteristic;
+  }
 }
