@@ -56,21 +56,25 @@ export function registerAccessoryFactory(
 }
 
 export function createAccessoryInstance<T extends ZigBeeAccessory>(
-  manufacturer: string,
-  model: string,
   platform: ZigbeeNTHomebridgePlatform,
   accessory: PlatformAccessory,
   client: ZigBeeClient,
   device: Device
 ): T {
-  const key = find(device);
-  const factory = factoryRegistry.get(key) || guessAccessoryFromDevice(device);
-  if (factory) {
-    return factory(platform, accessory, client, device) as T;
-  }
-  const Clazz = classRegistry.get(key);
-  if (Clazz) {
-    return new Clazz(platform, accessory, client, device) as T;
+  if (device) {
+    const key = find(device);
+    const factory = factoryRegistry.get(key);
+    if (factory) {
+      return factory(platform, accessory, client, device) as T;
+    }
+    const Clazz = classRegistry.get(key);
+    if (Clazz) {
+      return new Clazz(platform, accessory, client, device) as T;
+    }
+    const autoDiscover = guessAccessoryFromDevice(device);
+    if (autoDiscover) {
+      return autoDiscover(platform, accessory, client, device) as T;
+    }
   }
   return null;
 }

@@ -102,7 +102,7 @@ function getServiceFromCapabilityType(capability: Capability, definition: ZigBee
     case 'cover':
     case 'climate':
     case 'text':
-      return serviceConfig; //unsupported
+      return serviceConfig; // still unsupported
   }
   return serviceConfig;
 }
@@ -124,7 +124,18 @@ export function guessAccessoryFromDevice(device: Device): ZigBeeAccessoryFactory
           ? getServiceFromCapabilityType(capability, definition)
           : serviceFromCapabilityName(capability)
       )
-      .filter(s => s.type !== 'unknown'); // filter out unknown services
+      .filter(s => s.type !== 'unknown') // filter out unknown services
+      .reduce((array, s) => {
+        // remove duplicates
+        const existingConfig = array.find(x => x.type === s.type);
+        if (!existingConfig) {
+          array.push(s);
+        } else {
+          // merge meta properties
+          existingConfig.meta = { ...existingConfig.meta, ...s.meta };
+        }
+        return array;
+      }, [] as ServiceConfig[]);
     if (services.length) {
       return (platform, accessory, client, device) =>
         new ConfigurableAccessory(platform, accessory, client, device, services);
