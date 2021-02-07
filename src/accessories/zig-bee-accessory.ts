@@ -8,7 +8,7 @@ import {
   isDeviceRouter,
   MAX_POLL_INTERVAL,
   MIN_POLL_INTERVAL,
-} from '../utils/router-polling';
+} from '../utils/device';
 import retry from 'async-retry';
 import assert from 'assert';
 
@@ -29,6 +29,8 @@ export type ZigBeeAccessoryFactory = (
 ) => ZigBeeAccessory;
 
 const MAX_PING_ATTEMPTS = 3;
+
+const MAX_NAME_LENGTH = 64;
 
 export abstract class ZigBeeAccessory {
   public readonly ieeeAddr: string;
@@ -53,7 +55,7 @@ export abstract class ZigBeeAccessory {
     this.ieeeAddr = device.ieeeAddr;
     this.platform = platform;
     this.log = this.platform.log;
-    this.state = { state: 'OFF' };
+    this.state = {};
     this.accessory = accessory;
     this.accessory.context = device;
     this.entity = this.client.resolveEntity(device);
@@ -66,12 +68,7 @@ export abstract class ZigBeeAccessory {
       .setCharacteristic(Characteristic.SerialNumber, device.ieeeAddr)
       .setCharacteristic(Characteristic.SoftwareRevision, device.softwareBuildID)
       .setCharacteristic(Characteristic.HardwareRevision, device.hardwareVersion)
-      .setCharacteristic(
-        Characteristic.Name,
-        `${this.zigBeeDefinition.description.substr(0, 64 - 1 - device.ieeeAddr.length)}-${
-          device.ieeeAddr
-        }`
-      );
+      .setCharacteristic(Characteristic.Name, this.friendlyName);
     this.accessory.on('identify', () => this.handleAccessoryIdentify());
   }
 
@@ -94,33 +91,40 @@ export abstract class ZigBeeAccessory {
     return this.entity.definition;
   }
 
-  public get name() {
-    return this.zigBeeDefinition?.description;
+  public get friendlyName() {
+    const ieeeAddr = this.zigBeeDeviceDescriptor.ieeeAddr;
+    return (
+      this.entity?.settings?.friendlyName ||
+      `${this.zigBeeDefinition.description.substr(
+        0,
+        MAX_NAME_LENGTH - 1 - ieeeAddr.length
+      )}-${ieeeAddr}`
+    );
   }
 
   public abstract getAvailableServices(): Service[];
 
   public async onDeviceMount() {
-    this.log.info(`Mounting device ${this.name}...`);
-    try {
-      await this.zigBeeDeviceDescriptor.interview();
-    } catch (e) {
-      this.log.debug(`Interview failed: ${e.message}`);
-      // ignore
-    }
+    this.log.info(`Mounting device ${this.friendlyName}...`);
     if (
       isDeviceRouter(this.zigBeeDeviceDescriptor) &&
       this.platform.config.disableRoutingPolling !== true
     ) {
-      this.log.info(`Device ${this.name} is a router, install ping`);
-      this.interval = this.platform.config.routerPollingInterval * 1000 || DEFAULT_POLL_INTERVAL;
-      if (this.interval < MIN_POLL_INTERVAL || this.interval > MAX_POLL_INTERVAL) {
-        this.interval = DEFAULT_POLL_INTERVAL;
-      }
+      this.log.info(`Device ${this.friendlyName} is a router, install ping`);
+      this.interval = this.getPollingInterval();
       await this.ping();
     } else {
       await this.configureDevice();
     }
+  }
+
+  private getPollingInterval(): number {
+    let interval = this.platform.config.routerPollingInterval * 1000 || DEFAULT_POLL_INTERVAL;
+    if (this.interval < MIN_POLL_INTERVAL || this.interval > MAX_POLL_INTERVAL) {
+      interval = DEFAULT_POLL_INTERVAL;
+    }
+
+    return interval;
   }
 
   public async ping() {
@@ -128,14 +132,15 @@ export abstract class ZigBeeAccessory {
       await this.zigBeeDeviceDescriptor.ping();
       await this.configureDevice();
       this.zigBeeDeviceDescriptor.updateLastSeen();
+      this.zigBeeDeviceDescriptor.save();
       this.missedPing = 0;
       setTimeout(() => this.ping(), this.interval);
     } catch (e) {
-      this.log.warn(`No response from ${this.zigBeeDefinition.description}. Is it online?`);
+      this.log.warn(`No response from ${this.entity.settings.friendlyName}. Is it online?`);
       this.missedPing++;
       if (this.missedPing > MAX_PING_ATTEMPTS) {
         this.log.error(
-          `Device is not responding after ${this.missedPing} ping, sending it offline...`
+          `Device is not responding after ${MAX_PING_ATTEMPTS} ping, sending it offline...`
         );
         this.isConfiguring = false;
         this.isConfigured = false;
@@ -155,7 +160,9 @@ export abstract class ZigBeeAccessory {
           await this.zigBeeDefinition.configure(this.zigBeeDeviceDescriptor, coordinatorEndpoint);
           this.isConfigured = true;
           this.zigBeeDeviceDescriptor.save();
-          this.log.info(`Device ${this.name} successfully configured on attempt ${attempt}!`);
+          this.log.info(
+            `Device ${this.friendlyName} successfully configured on attempt ${attempt}!`
+          );
           return true;
         },
         {
@@ -171,6 +178,10 @@ export abstract class ZigBeeAccessory {
       );
     }
     return false;
+  }
+
+  private get isOnline() {
+    return this.isConfigured || !this.shouldConfigure();
   }
 
   private get isConfigured() {
@@ -195,15 +206,19 @@ export abstract class ZigBeeAccessory {
   }
 
   public internalUpdate(state: DeviceState) {
-    this.log.debug(`Updating state of device ${this.name} with `, state);
-    this.state = Object.assign(this.state, { ...state });
-    this.log.debug(`Updated state for device ${this.name} is now `, this.state);
-    this.zigBeeDeviceDescriptor.updateLastSeen();
-    this.configureDevice().then(configured =>
-      configured ? this.log.debug(`${this.name} configured after state update`) : null
-    );
-    this.update({ ...this.state });
-    delete this.state.action;
+    try {
+      this.log.debug(`Updating state of device ${this.friendlyName} with `, state);
+      this.state = Object.assign(this.state, { ...state });
+      this.log.debug(`Updated state for device ${this.friendlyName} is now `, this.state);
+      this.zigBeeDeviceDescriptor.updateLastSeen();
+      this.configureDevice().then(configured =>
+        configured ? this.log.debug(`${this.friendlyName} configured after state update`) : null
+      );
+      this.update({ ...this.state });
+      delete this.state.action;
+    } catch (e) {
+      this.log.error(e.message, e);
+    }
   }
 
   /**

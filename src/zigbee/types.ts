@@ -169,6 +169,11 @@ interface ConverterResult {
   linkquality?: number;
 }
 
+export interface DeviceSetting {
+  friendlyName?: string;
+  legacy?: boolean;
+}
+
 export interface ToConverter {
   key: string[];
   convertSet?: (
@@ -187,7 +192,7 @@ export interface FromConverter {
     model,
     message: MessagePayload,
     publish: (...args) => void,
-    options: any,
+    options: DeviceSetting,
     meta: Meta
   ) => Partial<DeviceState>;
 }
@@ -281,7 +286,7 @@ export interface ZigBeeEntity {
   endpoint?: Endpoint;
   definition?: ZigBeeDefinition;
   name: string;
-  settings: any;
+  settings: DeviceSetting;
 }
 
 export interface BindInfo {

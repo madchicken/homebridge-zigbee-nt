@@ -32,6 +32,6 @@ export class IkeaTradfriDimColor extends IkeaTradfriDim {
   async onDeviceMount() {
     await super.onDeviceMount();
     const color = await this.client.getColorCapabilities(this.zigBeeDeviceDescriptor);
-    this.log.info(`Re-read color capabilities for ${this.name}`, color);
+    this.log.info(`Re-read color capabilities for ${this.friendlyName}`, color);
   }
 }

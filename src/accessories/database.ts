@@ -97,4 +97,16 @@ export const DATABASE_ACCESSORIES: DeviceConfig[] = [
       },
     ],
   },
+  {
+    manufacturer: 'TUYATEC-p9HCE8pZ',
+    models: ['TS0011'],
+    services: [
+      {
+        type: 'bulb',
+        meta: {
+          brightness: true,
+        },
+      },
+    ],
+  },
 ];

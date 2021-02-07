@@ -12,12 +12,12 @@ export class IkeaMotionSensor extends ZigBeeAccessory {
     this.sensorService =
       this.accessory.getService(Service.MotionSensor) ||
       this.accessory.addService(Service.MotionSensor);
-    this.sensorService.setCharacteristic(Characteristic.Name, this.name);
+    this.sensorService.setCharacteristic(Characteristic.Name, this.friendlyName);
     this.sensorService
       .getCharacteristic(Characteristic.MotionDetected)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
         if (this.state.occupancy) {
-          this.log.debug(`Motion detected for sensor ${this.name}`);
+          this.log.debug(`Motion detected for sensor ${this.friendlyName}`);
         }
         callback(null, this.state.occupancy);
       });
