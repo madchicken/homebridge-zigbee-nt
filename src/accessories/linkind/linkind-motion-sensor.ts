@@ -11,12 +11,12 @@ export class LinkindMotionSensor extends ZigBeeAccessory {
     this.sensorService =
       this.accessory.getService(Service.OccupancySensor) ||
       this.accessory.addService(Service.OccupancySensor);
-    this.sensorService.setCharacteristic(Characteristic.Name, this.name);
+    this.sensorService.setCharacteristic(Characteristic.Name, this.friendlyName);
     this.sensorService
       .getCharacteristic(Characteristic.OccupancyDetected)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
         if (this.state.contact) {
-          this.log.debug(`Motion detected for sensor ${this.name}`);
+          this.log.debug(`Motion detected for sensor ${this.friendlyName}`);
         }
         callback(
           null,

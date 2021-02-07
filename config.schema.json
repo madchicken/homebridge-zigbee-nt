@@ -124,6 +124,11 @@
         "title": "Custom configured devices",
         "type": "object",
         "required": false
+      },
+      "customDeviceSettings": {
+        "title": "Custom device settings",
+        "type": "object",
+        "required": false
       }
     }
   },

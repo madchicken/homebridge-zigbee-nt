@@ -146,6 +146,7 @@ export class ZigBeeController {
           adapter: config.adapter,
         },
         databasePath: config.databasePath,
+        databaseBackupPath: `${config.databasePath}.${Date.now()}`,
         acceptJoiningDeviceHandler: ieeeAddr => this.acceptJoiningDeviceHandler(ieeeAddr),
         network: {
           panID: config.panId || 0x1a62,
