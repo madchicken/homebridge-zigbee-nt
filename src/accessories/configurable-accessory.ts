@@ -13,6 +13,7 @@ import { TemperatureSensorServiceBuilder } from '../builders/temperature-sensor-
 import { OutletServiceBuilder } from '../builders/outlet-service-builder';
 import { LeakSensorServiceBuilder } from '../builders/leak-sensor-service-builder';
 import { AmbientLightServiceBuilder } from '../builders/ambient-light-service-builder';
+import { SwitchServiceBuilder } from '../builders/switch-service-builder';
 
 function createLightBulbService(
   platform: ZigbeeNTHomebridgePlatform,
@@ -165,6 +166,18 @@ function createOutletService(
   return builder.build();
 }
 
+function createSwitchService(
+  platform: ZigbeeNTHomebridgePlatform,
+  accessory: PlatformAccessory,
+  client: ZigBeeClient,
+  zigBeeDeviceDescriptor: Device,
+  _serviceConfig: ServiceConfig
+) {
+  const builder = new SwitchServiceBuilder(platform, accessory, client, zigBeeDeviceDescriptor);
+  builder.withOnOff();
+  return builder.build();
+}
+
 function createLeakSensorService(
   platform: ZigbeeNTHomebridgePlatform,
   accessory: PlatformAccessory,
@@ -242,7 +255,8 @@ export class ConfigurableAccessory extends ZigBeeAccessory {
             zigBeeDeviceDescriptor,
             serviceConfig
           );
-        case 'bulb': {
+        case 'bulb':
+        case 'light-bulb':
           return createLightBulbService(
             platform,
             accessory,
@@ -250,7 +264,14 @@ export class ConfigurableAccessory extends ZigBeeAccessory {
             zigBeeDeviceDescriptor,
             serviceConfig
           );
-        }
+        case 'switch':
+          return createSwitchService(
+            platform,
+            accessory,
+            client,
+            zigBeeDeviceDescriptor,
+            serviceConfig
+          );
         case 'motion-sensor':
           return createMotionSensorService(
             platform,

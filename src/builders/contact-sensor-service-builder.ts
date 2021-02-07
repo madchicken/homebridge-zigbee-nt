@@ -12,6 +12,7 @@ export class ContactSensorServiceBuilder extends SensorServiceBuilder {
     state: DeviceState
   ) {
     super(platform.Service.ContactSensor, platform, accessory, client, state);
+    state.contact = false;
   }
 
   public withContact(): ContactSensorServiceBuilder {
@@ -23,6 +24,24 @@ export class ContactSensorServiceBuilder extends SensorServiceBuilder {
         callback(
           null,
           this.state.contact
+            ? Characteristic.ContactSensorState.CONTACT_DETECTED
+            : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED
+        );
+      });
+
+    return this;
+  }
+
+  public withVibration(): ContactSensorServiceBuilder {
+    const Characteristic = this.platform.Characteristic;
+
+    this.service
+      .getCharacteristic(Characteristic.ContactSensorState)
+      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
+        const vibrationDetected = this.state.strength || this.state.action;
+        callback(
+          null,
+          vibrationDetected
             ? Characteristic.ContactSensorState.CONTACT_DETECTED
             : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED
         );

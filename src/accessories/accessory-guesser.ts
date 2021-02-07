@@ -32,6 +32,7 @@ function serviceFromCapabilityName(capability: Capability) {
     case 'battery_low':
       serviceConfig.meta.batteryLow = true;
       break;
+    case 'presence':
     case 'occupancy':
       serviceConfig.type = 'motion-sensor';
       break;
@@ -53,6 +54,26 @@ function serviceFromCapabilityName(capability: Capability) {
     case 'temperature':
       serviceConfig.type = 'temperature-sensor';
       break;
+    case 'humidity':
+      serviceConfig.type = 'humidity-sensor';
+      break;
+    case 'voltage':
+      serviceConfig.meta.voltage = true;
+      break;
+    case 'energy':
+      serviceConfig.meta.current = true;
+      break;
+    case 'power':
+      serviceConfig.meta.power = true;
+      break;
+    case 'vibration':
+    case 'contact':
+      serviceConfig.type = 'contact-sensor';
+      break;
+    case 'tamper':
+      serviceConfig.meta.tamper = true;
+      break;
+    case 'illuminance':
     case 'illuminance_lux':
       serviceConfig.type = 'light-sensor';
       break;
@@ -63,13 +84,25 @@ function serviceFromCapabilityName(capability: Capability) {
   return serviceConfig;
 }
 
-function getServiceFromCapabilityType(capability: Capability) {
+function getServiceFromCapabilityType(capability: Capability, definition: ZigBeeDefinition) {
   const serviceConfig: ServiceConfig = { type: 'unknown', meta: {} };
   switch (capability.type) {
     case 'light':
-    case 'switch':
-      serviceConfig.type = 'bulb';
+      serviceConfig.type = 'light-bulb';
       serviceConfig.meta = getMetaFromFeatures(capability.features);
+      break;
+    case 'switch':
+      serviceConfig.type = /plug|outlet/.test(definition.description.toLowerCase())
+        ? 'outlet'
+        : 'switch';
+      serviceConfig.meta = getMetaFromFeatures(capability.features);
+      break;
+    case 'lock':
+    case 'fan':
+    case 'cover':
+    case 'climate':
+    case 'text':
+      return serviceConfig; //unsupported
   }
   return serviceConfig;
 }
@@ -88,7 +121,7 @@ export function guessAccessoryFromDevice(device: Device): ZigBeeAccessoryFactory
     const services: ServiceConfig[] = definition.exposes
       .map(capability =>
         SUPPORTED_TYPES.includes(capability.type)
-          ? getServiceFromCapabilityType(capability)
+          ? getServiceFromCapabilityType(capability, definition)
           : serviceFromCapabilityName(capability)
       )
       .filter(s => s.type !== 'unknown'); // filter out unknown services
