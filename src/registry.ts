@@ -63,6 +63,12 @@ export function createAccessoryInstance<T extends ZigBeeAccessory>(
 ): T {
   if (device) {
     const key = find(device);
+    if (platform.config.preferAutoDiscover) {
+      const autoDiscover = guessAccessoryFromDevice(device);
+      if (autoDiscover) {
+        return autoDiscover(platform, accessory, client, device) as T;
+      }
+    }
     const factory = factoryRegistry.get(key);
     if (factory) {
       return factory(platform, accessory, client, device) as T;
