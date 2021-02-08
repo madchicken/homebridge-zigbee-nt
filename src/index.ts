@@ -42,7 +42,7 @@ import { LedvanceFlexRgbwZ3 } from './accessories/ledvance/ledvance-flex-rgbw-z3
 import { LedvancePlugZ3 } from './accessories/ledvance/ledvance-plug-z3';
 
 function registerSupportedDevices(): void {
-  registerAccessoryClass('LEDVANCE', ['Flex RGBW Z3'], LedvanceFlexRgbwZ3);
+  registerAccessoryClass('LEDVANCE', ['FLEX RGBW Z3'], LedvanceFlexRgbwZ3);
   registerAccessoryClass('LEDVANCE', ['PLUG Z3'], LedvancePlugZ3);
   registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
   registerAccessoryClass(
