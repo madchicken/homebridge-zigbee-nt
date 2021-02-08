@@ -33,7 +33,7 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
         CharacteristicEventTypes.SET,
         async (yes: boolean, callback: CharacteristicSetCallback) => {
           try {
-            Object.assign(this.state, await this.client.setOn(this.device, yes));
+            Object.assign(this.state, await this.client.setOnState(this.device, yes));
             callback();
           } catch (e) {
             callback(e);

@@ -291,12 +291,20 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     return this.zigBee.interview(ieeeAddr);
   }
 
-  setOn(device: Device, on: boolean): Promise<DeviceState> {
+  setOnState(device: Device, on: boolean): Promise<DeviceState> {
     return this.writeDeviceState(device, { state: on ? 'ON' : 'OFF' });
   }
 
   getOnOffState(device: Device): Promise<DeviceState> {
-    return this.readDeviceState(device, { state: 'ON' });
+    return this.readDeviceState(device, { state: '' });
+  }
+
+  setLockState(device: Device, on: boolean): Promise<DeviceState> {
+    return this.writeDeviceState(device, { state: on ? 'LOCK' : 'UNLOCK' });
+  }
+
+  getLockState(device: Device): Promise<DeviceState> {
+    return this.readDeviceState(device, { state: '' });
   }
 
   getPowerState(device: Device): Promise<DeviceState> {

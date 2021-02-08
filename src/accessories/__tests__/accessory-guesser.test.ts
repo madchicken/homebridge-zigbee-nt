@@ -14,7 +14,7 @@ import * as fs from 'fs';
 const LIGHT = {
   ID: 7,
   type: 'Router',
-  ieeeAddr: '0x0017880106ef25c4',
+  ieeeAddr: '0x0000000000000000',
   networkAddress: 33948,
   manufacturerID: 4107,
   endpoints: [
@@ -25,7 +25,7 @@ const LIGHT = {
       inputClusters: [],
       outputClusters: [],
       deviceNetworkAddress: 33948,
-      deviceIeeeAddress: '0x0017880106ef25c4',
+      deviceIeeeAddress: '0x0000000000000000',
       clusters: [],
       binds: [],
       configuredReportings: [],
@@ -38,7 +38,7 @@ const LIGHT = {
       inputClusters: [],
       outputClusters: [],
       deviceNetworkAddress: 33948,
-      deviceIeeeAddress: '0x0017880106ef25c4',
+      deviceIeeeAddress: '0x0000000000000000',
       clusters: {},
       binds: [],
       configuredReportings: [],
@@ -63,7 +63,7 @@ const LIGHT = {
 const SENSOR = {
   ID: 8,
   type: 'EndDevice',
-  ieeeAddr: '0x00158d0001e4ab40',
+  ieeeAddr: '0x0000000000000000',
   networkAddress: 59864,
   manufacturerID: 4151,
   endpoints: [
@@ -74,7 +74,7 @@ const SENSOR = {
       inputClusters: [],
       outputClusters: [],
       deviceNetworkAddress: 59864,
-      deviceIeeeAddress: '0x00158d0001e4ab40',
+      deviceIeeeAddress: '0x0000000000000000',
       clusters: [],
       binds: [],
       configuredReportings: [],
@@ -84,6 +84,42 @@ const SENSOR = {
   manufacturerName: 'LUMI',
   powerSource: 'Battery',
   modelID: 'lumi.sensor_motion.aq2',
+  applicationVersion: 5,
+  stackVersion: 2,
+  zclVersion: 1,
+  hardwareVersion: 1,
+  dateCode: '20170627',
+  softwareBuildID: '3000-0001',
+  interviewCompleted: true,
+  interviewing: false,
+  meta: {},
+  lastSeen: 1612619445909,
+};
+
+const LOCK = {
+  ID: 8,
+  type: 'EndDevice',
+  ieeeAddr: '0x0000000000000000',
+  networkAddress: 59864,
+  manufacturerID: 4151,
+  endpoints: [
+    {
+      ID: 1,
+      profileID: 260,
+      deviceID: 263,
+      inputClusters: [],
+      outputClusters: [],
+      deviceNetworkAddress: 59864,
+      deviceIeeeAddress: '0x0000000000000000',
+      clusters: [],
+      binds: [],
+      configuredReportings: [],
+      meta: {},
+    },
+  ],
+  manufacturerName: 'Yale',
+  powerSource: 'Battery',
+  modelID: 'YRD446 BLE TSDB',
   applicationVersion: 5,
   stackVersion: 2,
   zclVersion: 1,
@@ -117,15 +153,19 @@ const config: ZigBeeNTPlatformConfig = {
 
 const zigBeeClient = new ZigBeeClient(log);
 const zigbeeNTHomebridgePlatform = new ZigbeeNTHomebridgePlatform(log, config, API);
+const dbPath: string = `${__dirname}/test.db`;
 
 describe('Device Guesser', () => {
   beforeEach(() => {
-    const db: Database = Database.open(`${__dirname}/test.db`);
+    if (fs.existsSync(dbPath)) {
+      fs.unlinkSync(dbPath);
+    }
+    const db: Database = Database.open(dbPath);
     Device.injectDatabase(db);
   });
 
   afterEach(() => {
-    fs.unlinkSync(`${__dirname}/test.db`);
+    fs.unlinkSync(dbPath);
   });
 
   it('should recognize LUMI motion sensor given the device descriptor', () => {
@@ -181,5 +221,32 @@ describe('Device Guesser', () => {
     const availableServices = accessory.getAvailableServices();
     expect(availableServices.length).toBe(1);
     expect(availableServices.map(s => s.UUID)).toContain(API.hap.Service.Lightbulb.UUID);
+  });
+
+  it('should recognize Yale YRD426NRSC lock given the device descriptor', () => {
+    const device = Device.create(
+      LOCK.type as DeviceType,
+      LOCK.ieeeAddr,
+      LOCK.networkAddress,
+      LOCK.manufacturerID,
+      LOCK.manufacturerName,
+      LOCK.powerSource,
+      LOCK.modelID,
+      LOCK.interviewCompleted,
+      LOCK.endpoints
+    );
+    const factory: ZigBeeAccessoryFactory = guessAccessoryFromDevice(device);
+    expect(factory).not.toBeNull();
+    const accessory = factory(
+      zigbeeNTHomebridgePlatform,
+      new API.platformAccessory('test', API.hap.uuid.generate('test')),
+      zigBeeClient,
+      device
+    );
+    expect(accessory).toBeInstanceOf(ConfigurableAccessory);
+    const availableServices = accessory.getAvailableServices();
+    expect(availableServices.length).toBe(2);
+    expect(availableServices.map(s => s.UUID)).toContain(API.hap.Service.LockMechanism.UUID);
+    expect(availableServices.map(s => s.UUID)).toContain(API.hap.Service.BatteryService.UUID);
   });
 });

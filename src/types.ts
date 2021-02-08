@@ -18,6 +18,7 @@ export type ServiceType =
   | 'humidity-sensor'
   | 'temperature-sensor'
   | 'outlet'
+  | 'lock'
   | 'climate'; // thermostats
 
 export type ServiceMeta = {
