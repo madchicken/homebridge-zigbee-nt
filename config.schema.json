@@ -139,19 +139,47 @@
       }
     }
   },
-  "form": [
-    "name",
-    "port",
-    "panId",
-    "channel",
-    "secondaryChannel",
-    "adapter",
-    "database",
-    "disableRouterPolling",
-    "routerPollingInterval",
-    "disableHttpServer",
-    "httpPort",
-    "disableLed",
-    "preferAutoDiscover"
+  "layout": [
+    {
+      "type": "fieldset",
+      "title": "Standard Settings",
+      "expandable": true,
+      "expanded": true,
+      "items": ["name", "port", "channel", "secondaryChannel", "adapter", "disableLed"]
+    },
+    {
+      "type": "fieldset",
+      "title": "Advanced Settings",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "panId",
+        "database",
+        "disableRouterPolling",
+        "routerPollingInterval",
+        "disableHttpServer",
+        "httpPort",
+        "preferAutoDiscover"
+      ]
+    },
+    {
+      "type": "fieldset",
+      "title": "Custom Device Settings",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        {
+          "type": "array",
+          "items": [
+            {
+              "ieeeAddr": "customDeviceSettings[].ieeeAddr"
+            },
+            {
+              "friendlyName": "customDeviceSettings[].friendlyName"
+            }
+          ]
+        }
+      ]
+    }
   ]
 }
