@@ -25,7 +25,7 @@ const LIGHT = {
       inputClusters: [],
       outputClusters: [],
       deviceNetworkAddress: 33948,
-      deviceIeeeAddress: '0x0000000000000000',
+      deviceIeeeAddress: '0x0000000000000001',
       clusters: [],
       binds: [],
       configuredReportings: [],
@@ -38,7 +38,7 @@ const LIGHT = {
       inputClusters: [],
       outputClusters: [],
       deviceNetworkAddress: 33948,
-      deviceIeeeAddress: '0x0000000000000000',
+      deviceIeeeAddress: '0x0000000000000002',
       clusters: {},
       binds: [],
       configuredReportings: [],
@@ -63,7 +63,7 @@ const LIGHT = {
 const SENSOR = {
   ID: 8,
   type: 'EndDevice',
-  ieeeAddr: '0x0000000000000000',
+  ieeeAddr: '0x0000000000000003',
   networkAddress: 59864,
   manufacturerID: 4151,
   endpoints: [
@@ -74,7 +74,7 @@ const SENSOR = {
       inputClusters: [],
       outputClusters: [],
       deviceNetworkAddress: 59864,
-      deviceIeeeAddress: '0x0000000000000000',
+      deviceIeeeAddress: '0x0000000000000004',
       clusters: [],
       binds: [],
       configuredReportings: [],
@@ -99,7 +99,7 @@ const SENSOR = {
 const LOCK = {
   ID: 8,
   type: 'EndDevice',
-  ieeeAddr: '0x0000000000000000',
+  ieeeAddr: '0x0000000000000005',
   networkAddress: 59864,
   manufacturerID: 4151,
   endpoints: [
@@ -110,7 +110,7 @@ const LOCK = {
       inputClusters: [],
       outputClusters: [],
       deviceNetworkAddress: 59864,
-      deviceIeeeAddress: '0x0000000000000000',
+      deviceIeeeAddress: '0x0000000000000006',
       clusters: [],
       binds: [],
       configuredReportings: [],
@@ -156,11 +156,13 @@ const zigbeeNTHomebridgePlatform = new ZigbeeNTHomebridgePlatform(log, config, A
 const dbPath: string = `${__dirname}/test.db`;
 
 describe('Device Guesser', () => {
+  let db: Database;
+
   beforeEach(() => {
     if (fs.existsSync(dbPath)) {
       fs.unlinkSync(dbPath);
     }
-    const db: Database = Database.open(dbPath);
+    db = Database.open(dbPath);
     Device.injectDatabase(db);
   });
 
