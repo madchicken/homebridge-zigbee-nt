@@ -4,7 +4,7 @@ import Endpoint from 'zigbee-herdsman/dist/controller/model/endpoint';
 import { Zcl } from 'zigbee-herdsman';
 import { Logger } from 'homebridge';
 
-type State = 'ON' | 'OFF' | 'TOGGLE';
+type State = '' | 'ON' | 'OFF' | 'TOGGLE' | 'LOCK' | 'UNLOCK';
 export type SystemMode = 'off' | 'heat' | 'cool' | 'auto';
 
 export interface ZigBeeControllerConfig {
@@ -56,6 +56,7 @@ export interface DeviceState {
     | 'release';
   state_l1?: 'ON' | 'OFF' | 'TOGGLE';
   state_l2?: 'ON' | 'OFF' | 'TOGGLE';
+  lock_state?: '' | 'not_fully_locked' | 'locked' | 'unlocked';
   battery?: number;
   current?: number;
   power?: number;

@@ -1,3 +1,4 @@
+import { LockServiceBuilder } from '../builders/lock-service-builder';
 import { ZigBeeAccessory } from './zig-bee-accessory';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { PlatformAccessory, Service } from 'homebridge';
@@ -218,6 +219,17 @@ function createAmbientLightService(
   return builder.build();
 }
 
+function createLockService(
+  platform: ZigbeeNTHomebridgePlatform,
+  accessory: PlatformAccessory,
+  client: ZigBeeClient,
+  zigBeeDeviceDescriptor: Device,
+  _serviceConfig: ServiceConfig
+) {
+  const builder = new LockServiceBuilder(platform, accessory, client, zigBeeDeviceDescriptor);
+  return builder.withLockState().build();
+}
+
 /**
  * Generic device accessory builder
  */
@@ -306,6 +318,14 @@ export class ConfigurableAccessory extends ZigBeeAccessory {
           );
         case 'outlet':
           return createOutletService(
+            platform,
+            accessory,
+            client,
+            zigBeeDeviceDescriptor,
+            serviceConfig
+          );
+        case 'lock':
+          return createLockService(
             platform,
             accessory,
             client,

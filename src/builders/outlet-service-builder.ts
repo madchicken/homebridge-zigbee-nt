@@ -32,7 +32,7 @@ export class OutletServiceBuilder extends ServiceBuilder {
         CharacteristicEventTypes.SET,
         async (on: boolean, callback: CharacteristicSetCallback) => {
           try {
-            const status = await this.client.setOn(this.device, on);
+            const status = await this.client.setOnState(this.device, on);
             Object.assign(this.state, status);
             callback();
           } catch (e) {

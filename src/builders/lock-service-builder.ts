@@ -9,7 +9,7 @@ import {
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import { DeviceState } from '../zigbee/types';
 
-export class SwitchServiceBuilder extends ServiceBuilder {
+export class LockServiceBuilder extends ServiceBuilder {
   constructor(
     platform: ZigbeeNTHomebridgePlatform,
     accessory: PlatformAccessory,
@@ -18,20 +18,21 @@ export class SwitchServiceBuilder extends ServiceBuilder {
   ) {
     super(platform, accessory, client, state);
     this.service =
-      this.accessory.getService(platform.Service.Switch) ||
-      this.accessory.addService(platform.Service.Switch);
+      this.accessory.getService(platform.Service.LockMechanism) ||
+      this.accessory.addService(platform.Service.LockMechanism);
   }
 
-  public withOnOff(): SwitchServiceBuilder {
+  public withLockState(): LockServiceBuilder {
     const Characteristic = this.platform.Characteristic;
+    this.state.state = 'LOCK';
 
     this.service
-      .getCharacteristic(Characteristic.On)
+      .getCharacteristic(Characteristic.LockTargetState)
       .on(
         CharacteristicEventTypes.SET,
         async (yes: boolean, callback: CharacteristicSetCallback) => {
           try {
-            Object.assign(this.state, await this.client.setOnState(this.device, yes));
+            Object.assign(this.state, await this.client.setLockState(this.device, yes));
             callback();
           } catch (e) {
             callback(e);
@@ -39,12 +40,20 @@ export class SwitchServiceBuilder extends ServiceBuilder {
         }
       );
     this.service
-      .getCharacteristic(Characteristic.On)
+      .getCharacteristic(Characteristic.LockCurrentState)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
-          Object.assign(this.state, await this.client.getOnOffState(this.device));
-          this.log.debug(`Reporting On for ${this.accessory.displayName}`, this.state);
-          callback(null, this.state.state === 'ON');
+          Object.assign(this.state, await this.client.getLockState(this.device));
+          const locked: boolean = this.state.state === 'LOCK' || this.state.lock_state === 'locked';
+          const notFullyLocked: boolean = this.state.lock_state === 'not_fully_locked';
+          callback(
+            null,
+            locked
+              ? Characteristic.LockCurrentState.SECURED
+              : notFullyLocked
+              ? Characteristic.LockCurrentState.JAMMED
+              : Characteristic.LockCurrentState.UNSECURED
+          );
         } catch (e) {
           callback(e);
         }
