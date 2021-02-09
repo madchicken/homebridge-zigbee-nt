@@ -15,6 +15,7 @@ export class LedvanceFlexRgbwZ3 extends ZigBeeAccessory {
       .withOnOff()
       .withBrightness()
       .withColorXY()
+      .withColorTemperature()
       .build();
     return [this.lightbulbService];
   }
