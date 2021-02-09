@@ -134,7 +134,30 @@
       },
       "customDeviceSettings": {
         "type": "array",
-        "required": false
+        "required": false,
+        "items": {
+          "type": "object",
+          "properties": {
+            "ieeeAddr": {
+              "flex": "1 1 50px",
+              "notitle": true,
+              "title": "Accessory IEEE Address",
+              "type": "string",
+              "required": true,
+              "key": "customDeviceSettings[].ieeeAddr",
+              "placeholder": "Enter IEEE address..."
+            },
+            "friendlyName": {
+              "flex": "1 1 50px",
+              "notitle": true,
+              "title": "Accessory friendly name",
+              "type": "string",
+              "required": true,
+              "key": "customDeviceSettings[].friendlyName",
+              "placeholder": "Enter friendly name..."
+            }
+          }
+        }
       }
     }
   },
@@ -167,6 +190,10 @@
       "expandable": true,
       "expanded": false,
       "items": [
+        {
+          "type": "help",
+          "helpvalue": "<em class='primary-text'>Enter friendly names for your devices</em>"
+        },
         {
           "type": "help",
           "helpvalue": "<em class='primary-text'>Enter friendly names for your devices</em>"
