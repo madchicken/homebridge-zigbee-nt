@@ -35,7 +35,7 @@
             "maximum": 16383
           }
         ],
-        "required": true
+        "required": false
       },
       "channel": {
         "title": "Channel",
@@ -133,8 +133,7 @@
         "required": false
       },
       "customDeviceSettings": {
-        "title": "Custom device settings",
-        "type": "object",
+        "type": "array",
         "required": false
       }
     }
@@ -169,13 +168,40 @@
       "expanded": false,
       "items": [
         {
+          "type": "help",
+          "helpvalue": "<em class='primary-text'>Enter friendly names for your devices</em>"
+        },
+        {
+          "nodescription": true,
+          "notitle": true,
+          "key": "customDeviceSettings",
           "type": "array",
+          "orderable": false,
           "items": [
             {
-              "ieeeAddr": "customDeviceSettings[].ieeeAddr"
-            },
-            {
-              "friendlyName": "customDeviceSettings[].friendlyName"
+              "type": "div",
+              "displayFlex": true,
+              "flex-direction": "row",
+              "items": [
+                {
+                  "flex": "1 1 50px",
+                  "notitle": true,
+                  "title": "Accessory IEEE Address",
+                  "type": "string",
+                  "required": true,
+                  "key": "customDeviceSettings[].ieeeAddr",
+                  "placeholder": "Enter IEEE address..."
+                },
+                {
+                  "flex": "1 1 50px",
+                  "notitle": true,
+                  "title": "Accessory friendly name",
+                  "type": "string",
+                  "required": true,
+                  "key": "customDeviceSettings[].friendlyName",
+                  "placeholder": "Enter friendly name..."
+                }
+              ]
             }
           ]
         }
