@@ -78,7 +78,11 @@ export abstract class ZigBeeAccessory {
    */
   public async initialize(): Promise<void> {
     this.mappedServices = this.getAvailableServices();
-    await this.onDeviceMount();
+    this.onDeviceMount()
+      .then(() => {
+        this.log.info(`Device ${this.friendlyName} mounted`);
+      })
+      .catch(e => this.log.error(`Error mounting device ${this.friendlyName}: ${e.message}`));
   }
 
   handleAccessoryIdentify() {}
