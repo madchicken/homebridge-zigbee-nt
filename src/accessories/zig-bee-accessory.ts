@@ -28,7 +28,7 @@ export type ZigBeeAccessoryFactory = (
   device: Device
 ) => ZigBeeAccessory;
 
-const MAX_PING_ATTEMPTS = 3;
+const MAX_PING_ATTEMPTS = 1;
 
 const MAX_NAME_LENGTH = 64;
 
@@ -116,9 +116,9 @@ export abstract class ZigBeeAccessory {
     ) {
       this.log.info(`Device ${this.friendlyName} is a router, install ping`);
       this.interval = this.getPollingInterval();
-      await this.ping();
+      this.ping();
     } else {
-      await this.configureDevice();
+      this.configureDevice();
     }
   }
 
