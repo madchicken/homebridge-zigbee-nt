@@ -237,6 +237,8 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     if (this.config.disableHttpServer !== true) {
       this.httpServer = new HttpServer(this.config.httpPort);
       this.httpServer.start(this);
+    } else {
+      this.log.info('WEB UI disabled.');
     }
   }
 
