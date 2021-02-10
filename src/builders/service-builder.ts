@@ -38,4 +38,8 @@ export abstract class ServiceBuilder {
   get Characteristic() {
     return this.platform.Characteristic;
   }
+
+  get isOnline() {
+    return this.platform.isDeviceOnline(this.device.ieeeAddr);
+  }
 }

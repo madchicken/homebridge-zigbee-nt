@@ -60,7 +60,7 @@ const LIGHT = {
   lastSeen: 1612474748836,
 };
 
-const SENSOR = {
+const MOTION_SENSOR = {
   ID: 8,
   type: 'EndDevice',
   ieeeAddr: '0x0000000000000003',
@@ -132,6 +132,114 @@ const LOCK = {
   lastSeen: 1612619445909,
 };
 
+const CONTACT_SENSOR = {
+  ID: 8,
+  type: 'EndDevice',
+  ieeeAddr: '0x0000000000000007',
+  networkAddress: 59864,
+  manufacturerID: 4151,
+  endpoints: [
+    {
+      ID: 1,
+      profileID: 260,
+      deviceID: 263,
+      inputClusters: [],
+      outputClusters: [],
+      deviceNetworkAddress: 59864,
+      deviceIeeeAddress: '0x0000000000000008',
+      clusters: [],
+      binds: [],
+      configuredReportings: [],
+      meta: {},
+    },
+  ],
+  manufacturerName: 'Xiaomi',
+  powerSource: 'Battery',
+  modelID: 'lumi.sensor_magnet.aq2',
+  applicationVersion: 5,
+  stackVersion: 2,
+  zclVersion: 1,
+  hardwareVersion: 1,
+  dateCode: '20170627',
+  softwareBuildID: '3000-0001',
+  interviewCompleted: true,
+  interviewing: false,
+  meta: {},
+  lastSeen: 1612619445909,
+};
+
+const VIBRATION_SENSOR = {
+  ID: 8,
+  type: 'EndDevice',
+  ieeeAddr: '0x0000000000000009',
+  networkAddress: 59864,
+  manufacturerID: 4151,
+  endpoints: [
+    {
+      ID: 1,
+      profileID: 260,
+      deviceID: 263,
+      inputClusters: [],
+      outputClusters: [],
+      deviceNetworkAddress: 59864,
+      deviceIeeeAddress: '0x0000000000000010',
+      clusters: [],
+      binds: [],
+      configuredReportings: [],
+      meta: {},
+    },
+  ],
+  manufacturerName: 'Xiaomi',
+  powerSource: 'Battery',
+  modelID: 'lumi.vibration.aq1',
+  applicationVersion: 5,
+  stackVersion: 2,
+  zclVersion: 1,
+  hardwareVersion: 1,
+  dateCode: '20170627',
+  softwareBuildID: '3000-0001',
+  interviewCompleted: true,
+  interviewing: false,
+  meta: {},
+  lastSeen: 1612619445909,
+};
+
+const VIBRATION_SENSOR_2 = {
+  ID: 8,
+  type: 'EndDevice',
+  ieeeAddr: '0x0000000000000011',
+  networkAddress: 59864,
+  manufacturerID: 4151,
+  endpoints: [
+    {
+      ID: 1,
+      profileID: 260,
+      deviceID: 263,
+      inputClusters: [],
+      outputClusters: [],
+      deviceNetworkAddress: 59864,
+      deviceIeeeAddress: '0x0000000000000012',
+      clusters: [],
+      binds: [],
+      configuredReportings: [],
+      meta: {},
+    },
+  ],
+  manufacturerName: '_TYZB01_3zv6oleo',
+  powerSource: 'Battery',
+  modelID: 'TS0210',
+  applicationVersion: 5,
+  stackVersion: 2,
+  zclVersion: 1,
+  hardwareVersion: 1,
+  dateCode: '20170627',
+  softwareBuildID: '3000-0001',
+  interviewCompleted: true,
+  interviewing: false,
+  meta: {},
+  lastSeen: 1612619445909,
+};
+
 const API = new HomebridgeAPI();
 const log: Logging = (() => {
   const l = (_message: string, ..._parameters: any[]): void => {};
@@ -155,6 +263,20 @@ const zigBeeClient = new ZigBeeClient(log);
 const zigbeeNTHomebridgePlatform = new ZigbeeNTHomebridgePlatform(log, config, API);
 const dbPath: string = `${__dirname}/test.db`;
 
+function getDevice(STRUCT): Device {
+  return Device.create(
+    STRUCT.type as DeviceType,
+    STRUCT.ieeeAddr,
+    STRUCT.networkAddress,
+    STRUCT.manufacturerID,
+    STRUCT.manufacturerName,
+    STRUCT.powerSource,
+    STRUCT.modelID,
+    STRUCT.interviewCompleted,
+    STRUCT.endpoints
+  );
+}
+
 describe('Device Guesser', () => {
   let db: Database;
 
@@ -171,17 +293,7 @@ describe('Device Guesser', () => {
   });
 
   it('should recognize LUMI motion sensor given the device descriptor', () => {
-    const device = Device.create(
-      SENSOR.type as DeviceType,
-      SENSOR.ieeeAddr,
-      SENSOR.networkAddress,
-      SENSOR.manufacturerID,
-      SENSOR.manufacturerName,
-      SENSOR.powerSource,
-      SENSOR.modelID,
-      SENSOR.interviewCompleted,
-      SENSOR.endpoints
-    );
+    const device = getDevice(MOTION_SENSOR);
     const factory: ZigBeeAccessoryFactory = guessAccessoryFromDevice(device);
     expect(factory).not.toBeNull();
     const accessory = factory(
@@ -200,17 +312,7 @@ describe('Device Guesser', () => {
   });
 
   it('should recognize Philips light bulb given the device descriptor', () => {
-    const device = Device.create(
-      LIGHT.type as DeviceType,
-      LIGHT.ieeeAddr,
-      LIGHT.networkAddress,
-      LIGHT.manufacturerID,
-      LIGHT.manufacturerName,
-      LIGHT.powerSource,
-      LIGHT.modelID,
-      LIGHT.interviewCompleted,
-      LIGHT.endpoints
-    );
+    const device = getDevice(LIGHT);
     const factory: ZigBeeAccessoryFactory = guessAccessoryFromDevice(device);
     expect(factory).not.toBeNull();
     const accessory = factory(
@@ -226,17 +328,7 @@ describe('Device Guesser', () => {
   });
 
   it('should recognize Yale YRD426NRSC lock given the device descriptor', () => {
-    const device = Device.create(
-      LOCK.type as DeviceType,
-      LOCK.ieeeAddr,
-      LOCK.networkAddress,
-      LOCK.manufacturerID,
-      LOCK.manufacturerName,
-      LOCK.powerSource,
-      LOCK.modelID,
-      LOCK.interviewCompleted,
-      LOCK.endpoints
-    );
+    const device = getDevice(LOCK);
     const factory: ZigBeeAccessoryFactory = guessAccessoryFromDevice(device);
     expect(factory).not.toBeNull();
     const accessory = factory(
@@ -250,5 +342,42 @@ describe('Device Guesser', () => {
     expect(availableServices.length).toBe(2);
     expect(availableServices.map(s => s.UUID)).toContain(API.hap.Service.LockMechanism.UUID);
     expect(availableServices.map(s => s.UUID)).toContain(API.hap.Service.BatteryService.UUID);
+  });
+
+  it('should recognize Xiaomi contact sensor given the device descriptor', () => {
+    const device = getDevice(CONTACT_SENSOR);
+    const factory: ZigBeeAccessoryFactory = guessAccessoryFromDevice(device);
+    expect(factory).not.toBeNull();
+    const accessory = factory(
+      zigbeeNTHomebridgePlatform,
+      new API.platformAccessory('test', API.hap.uuid.generate('test')),
+      zigBeeClient,
+      device
+    );
+    expect(accessory).toBeInstanceOf(ConfigurableAccessory);
+    const availableServices = accessory.getAvailableServices();
+    expect(availableServices.length).toBe(3);
+    expect(availableServices.map(s => s.UUID)).toContain(API.hap.Service.ContactSensor.UUID);
+    expect(availableServices.map(s => s.UUID)).toContain(API.hap.Service.BatteryService.UUID);
+    expect(availableServices.map(s => s.UUID)).toContain(API.hap.Service.TemperatureSensor.UUID);
+  });
+
+  it('should recognize vibration sensors given the device descriptor', () => {
+    for (const DEV of [VIBRATION_SENSOR, VIBRATION_SENSOR_2]) {
+      const device = getDevice(DEV);
+      const factory: ZigBeeAccessoryFactory = guessAccessoryFromDevice(device);
+      expect(factory).not.toBeNull();
+      const accessory = factory(
+        zigbeeNTHomebridgePlatform,
+        new API.platformAccessory('test', API.hap.uuid.generate('test')),
+        zigBeeClient,
+        device
+      );
+      expect(accessory).toBeInstanceOf(ConfigurableAccessory);
+      const availableServices = accessory.getAvailableServices();
+      expect(availableServices.length).toBe(2);
+      expect(availableServices.map(s => s.UUID)).toContain(API.hap.Service.ContactSensor.UUID);
+      expect(availableServices.map(s => s.UUID)).toContain(API.hap.Service.BatteryService.UUID);
+    }
   });
 });
