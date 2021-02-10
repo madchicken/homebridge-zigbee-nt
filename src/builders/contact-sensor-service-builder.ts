@@ -17,6 +17,7 @@ export class ContactSensorServiceBuilder extends SensorServiceBuilder {
 
   public withContact(): ContactSensorServiceBuilder {
     const Characteristic = this.platform.Characteristic;
+    this.state.contact = true; // default is closed
 
     this.service
       .getCharacteristic(Characteristic.ContactSensorState)

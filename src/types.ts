@@ -35,6 +35,7 @@ export type ServiceMeta = {
   gasLeak?: boolean; // gas leak detection
   smokeLeak?: boolean; // smoke leak detection
   tamper?: boolean; // tampered status detection
+  vibration?: boolean; // vibration sensor
 };
 
 /**

@@ -202,6 +202,28 @@ function createLeakSensorService(
   return builder.build();
 }
 
+function createVibrationSensorService(
+  platform: ZigbeeNTHomebridgePlatform,
+  accessory: PlatformAccessory,
+  client: ZigBeeClient,
+  zigBeeDeviceDescriptor: Device,
+  serviceConfig: ServiceConfig
+) {
+  const builder = new ContactSensorServiceBuilder(
+    platform,
+    accessory,
+    client,
+    zigBeeDeviceDescriptor
+  );
+  if (serviceConfig.meta?.tamper) {
+    builder.withTamper();
+  }
+  if (serviceConfig.meta?.vibration) {
+    builder.withVibration();
+  }
+  return builder.build();
+}
+
 function createAmbientLightService(
   platform: ZigbeeNTHomebridgePlatform,
   accessory: PlatformAccessory,
@@ -310,6 +332,14 @@ export class ConfigurableAccessory extends ZigBeeAccessory {
           );
         case 'leak-sensor':
           return createLeakSensorService(
+            platform,
+            accessory,
+            client,
+            zigBeeDeviceDescriptor,
+            serviceConfig
+          );
+        case 'vibration-sensor':
+          return createVibrationSensorService(
             platform,
             accessory,
             client,
