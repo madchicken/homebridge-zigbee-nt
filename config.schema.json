@@ -1,6 +1,7 @@
 {
   "pluginAlias": "ZigbeeHomebridgeNTPlatform",
   "pluginType": "platform",
+  "singular": true,
   "schema": {
     "type": "object",
     "properties": {
@@ -128,9 +129,113 @@
         "required": false
       },
       "devices": {
-        "title": "Custom configured devices",
-        "type": "object",
-        "required": false
+        "type": "array",
+        "items": [
+          {
+            "type": "object",
+            "properties": {
+              "manufacturers": {
+                "type": "array",
+                "items": {
+                  "title": "Manufacturer",
+                  "type": "string"
+                }
+              },
+              "models": {
+                "type": "array",
+                "items": {
+                  "title": "Model",
+                  "type": "string"
+                }
+              },
+              "services": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "unknown",
+                        "contact-sensor",
+                        "light-sensor",
+                        "bulb",
+                        "light-bulb",
+                        "switch",
+                        "motion-sensor",
+                        "leak-sensor",
+                        "vibration-sensor",
+                        "battery",
+                        "humidity-sensor",
+                        "temperature-sensor",
+                        "outlet",
+                        "lock",
+                        "climate"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "colorTemp": {
+                          "title": "Supports color temperature",
+                          "type": "boolean"
+                        },
+                        "batteryLow": {
+                          "title": "Supports battery low alert",
+                          "type": "boolean"
+                        },
+                        "colorXY": {
+                          "title": "Supports color XY",
+                          "type": "boolean"
+                        },
+                        "brightness": {
+                          "title": "Supports brightness",
+                          "type": "boolean"
+                        },
+                        "hue": {
+                          "title": "Supports hue",
+                          "type": "boolean"
+                        },
+                        "saturation": {
+                          "title": "Supports saturation",
+                          "type": "boolean"
+                        },
+                        "power": {
+                          "title": "Supports power consumption reporting",
+                          "type": "boolean"
+                        },
+                        "voltage": {
+                          "title": "Supports voltage reporting",
+                          "type": "boolean"
+                        },
+                        "current": {
+                          "title": "Supports current reporting",
+                          "type": "boolean"
+                        },
+                        "waterLeak": {
+                          "title": "Has a water leak sensor",
+                          "type": "boolean"
+                        },
+                        "gasLeak": {
+                          "title": "Has a gas leak sensor",
+                          "type": "boolean"
+                        },
+                        "smokeLeak": {
+                          "title": "Has a smoke leak sensor",
+                          "type": "boolean"
+                        },
+                        "tamper": {
+                          "title": "Can report tampered status",
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
       },
       "customDeviceSettings": {
         "type": "array",
@@ -139,8 +244,6 @@
           "type": "object",
           "properties": {
             "ieeeAddr": {
-              "flex": "1 1 50px",
-              "notitle": true,
               "title": "Accessory IEEE Address",
               "type": "string",
               "required": true,
@@ -148,8 +251,6 @@
               "placeholder": "Enter IEEE address..."
             },
             "friendlyName": {
-              "flex": "1 1 50px",
-              "notitle": true,
               "title": "Accessory friendly name",
               "type": "string",
               "required": true,
@@ -190,10 +291,6 @@
       "expandable": true,
       "expanded": false,
       "items": [
-        {
-          "type": "help",
-          "helpvalue": "<em class='primary-text'>Enter friendly names for your devices</em>"
-        },
         {
           "type": "help",
           "helpvalue": "<em class='primary-text'>Enter friendly names for your devices</em>"
