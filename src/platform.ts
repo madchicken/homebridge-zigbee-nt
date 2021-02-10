@@ -420,4 +420,12 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
         ?.friendlyName || ieeeAddr
     );
   }
+
+  public isDeviceOnline(ieeeAddr: string) {
+    const zigBeeAccessory: ZigBeeAccessory = this.getHomekitAccessoryByIeeeAddr(ieeeAddr);
+    if (zigBeeAccessory) {
+      return zigBeeAccessory.isOnline;
+    }
+    return false;
+  }
 }

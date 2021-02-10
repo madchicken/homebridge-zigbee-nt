@@ -26,9 +26,15 @@ function getMetaFromFeatures(features: Feature[]) {
   }, {} as ServiceMeta);
 }
 
-function serviceFromCapabilityName(capability: Capability) {
+function serviceFromFeatureName(feature: Feature) {
   const serviceConfig: ServiceConfig = { type: 'unknown', meta: {} };
-  switch (capability.name) {
+  switch (feature.name) {
+    case 'action':
+      if (feature.values.includes('vibration')) {
+        serviceConfig.type = 'contact-sensor';
+        serviceConfig.meta.vibration = true;
+      }
+      break;
     case 'battery_low':
       serviceConfig.meta.batteryLow = true;
       break;
@@ -67,8 +73,12 @@ function serviceFromCapabilityName(capability: Capability) {
       serviceConfig.meta.power = true;
       break;
     case 'vibration':
+      serviceConfig.type = 'contact-sensor';
+      serviceConfig.meta.vibration = true;
+      break;
     case 'contact':
       serviceConfig.type = 'contact-sensor';
+      serviceConfig.meta.contact = true;
       break;
     case 'tamper':
       serviceConfig.meta.tamper = true;
@@ -78,7 +88,7 @@ function serviceFromCapabilityName(capability: Capability) {
       serviceConfig.type = 'light-sensor';
       break;
     case 'composite':
-      serviceConfig.meta = getMetaFromFeatures(capability.features);
+      serviceConfig.meta = getMetaFromFeatures(feature.features);
       break;
   }
   return serviceConfig;
@@ -125,7 +135,7 @@ export function guessAccessoryFromDevice(device: Device): ZigBeeAccessoryFactory
       .map(capability =>
         SUPPORTED_TYPES.includes(capability.type)
           ? getServiceFromCapabilityType(capability, definition)
-          : serviceFromCapabilityName(capability)
+          : serviceFromFeatureName(capability as Feature)
       )
       .filter(s => s.type !== 'unknown') // filter out unknown services
       .reduce((array, s) => {

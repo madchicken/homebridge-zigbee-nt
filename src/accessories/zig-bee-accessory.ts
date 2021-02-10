@@ -184,7 +184,7 @@ export abstract class ZigBeeAccessory {
     return false;
   }
 
-  private get isOnline() {
+  public get isOnline() {
     return this.isConfigured || !this.shouldConfigure();
   }
 
