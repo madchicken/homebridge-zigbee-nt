@@ -36,7 +36,6 @@ import { AqaraOppleSwitch2Buttons } from './accessories/xiaomi/aqara-opple-switc
 import { AqaraOppleSwitch4Buttons } from './accessories/xiaomi/aqara-opple-switch';
 import { AqaraOppleSwitch6Buttons } from './accessories/xiaomi/aqara-opple-switch';
 import { NanoleafIvy } from './accessories/nanoleaf/nanoleaf-ivy';
-import { BlitzwolfOutlet } from './accessories/blitzwolf/blitzwolf-outlet';
 import { DATABASE_ACCESSORIES } from './accessories/database';
 import { ConfigurableAccessory } from './accessories/configurable-accessory';
 
@@ -194,7 +193,6 @@ function registerSupportedDevices(): void {
   registerAccessoryClass('_TZE200_ckud7u2l', ['TS0601'], TuyaThermostatControl);
   registerAccessoryClass('eWeLink', ['DS01'], SonoffContactSensor);
   registerAccessoryClass('Nanoleaf', ['NL08-0800'], NanoleafIvy);
-  registerAccessoryClass('_TZ3000_g5xawfcq', ['TS0121'], BlitzwolfOutlet);
 
   // Register devices defined in local database
   DATABASE_ACCESSORIES.forEach(deviceConfig =>
