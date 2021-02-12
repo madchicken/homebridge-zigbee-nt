@@ -64,28 +64,45 @@ export function createAccessoryInstance<T extends ZigBeeAccessory>(
   if (device) {
     const key = find(device);
     if (platform.config.preferAutoDiscover) {
+      platform.log.debug('preferAutoDiscover is true: guessing device from zigbee definition');
       const autoDiscover = guessAccessoryFromDevice(device);
       if (autoDiscover) {
-        return autoDiscover(platform, accessory, client, device) as T;
+        const zbAcc: ZigBeeAccessory = autoDiscover(platform, accessory, client, device);
+        platform.log.debug(
+          `Successfully auto discovered device: ${zbAcc.friendlyName}, ${zbAcc.zigBeeDefinition.description}`
+        );
+        return zbAcc as T;
       }
     }
     const factory = factoryRegistry.get(key);
     if (factory) {
+      platform.log.debug(`Found factory for device with key ${key}`);
       return factory(platform, accessory, client, device) as T;
     }
     const Clazz = classRegistry.get(key);
     if (Clazz) {
+      platform.log.debug(`Found class for device with key ${key}`);
       return new Clazz(platform, accessory, client, device) as T;
     }
     const autoDiscover = guessAccessoryFromDevice(device);
     if (autoDiscover) {
-      return autoDiscover(platform, accessory, client, device) as T;
+      const zbAcc: ZigBeeAccessory = autoDiscover(platform, accessory, client, device);
+      platform.log.debug(
+        `Successfully auto discovered device: ${zbAcc.friendlyName}, ${zbAcc.zigBeeDefinition.description}`
+      );
+      return zbAcc as T;
     }
+    platform.log.warn(
+      `Device with key ${key} not supported. Please open a Github issue for this at https://github.com/madchicken/homebridge-zigbee-nt/issues`,
+      device
+    );
+  } else {
+    platform.log.error(`Passed device is null, ignoring creation`);
   }
   return null;
 }
 
 export function isAccessorySupported(device: Device): boolean {
   const key = find(device);
-  return factoryRegistry.has(key) || classRegistry.has(key);
+  return factoryRegistry.has(key) || classRegistry.has(key) || findByDevice(device) != null;
 }
