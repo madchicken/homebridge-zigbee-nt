@@ -11,7 +11,7 @@ import { Logging } from 'homebridge';
 import serveStatic from 'serve-static';
 import { NextFunction, Request, Response } from 'express-serve-static-core';
 import * as url from 'url';
-import { withPrefix } from 'homebridge/lib/logger';
+import { Logger } from 'homebridge/lib/logger';
 
 const DEFAULT_WEB_PORT = 9000;
 const DEFAULT_WEB_HOST = '0.0.0.0';
@@ -86,7 +86,7 @@ export class HttpServer {
   constructor(port = DEFAULT_WEB_PORT, host = DEFAULT_WEB_HOST) {
     this.port = port;
     this.host = host;
-    this.log = withPrefix('ZigBee');
+    this.log = Logger.withPrefix('ZigBee');
     this.express = express();
   }
 
