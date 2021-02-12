@@ -2,6 +2,7 @@ import Device from 'zigbee-herdsman/dist/controller/model/device';
 import Database from 'zigbee-herdsman/dist/controller/database';
 import { HomebridgeAPI } from 'homebridge/lib/api';
 import { Logging, LogLevel } from 'homebridge/lib/logger';
+import { createAccessoryInstance } from '../../registry';
 import { guessAccessoryFromDevice } from '../accessory-guesser';
 import { ZigbeeNTHomebridgePlatform } from '../../platform';
 import { DeviceType } from 'zigbee-herdsman/dist/adapter/tstype';
@@ -218,7 +219,7 @@ const VIBRATION_SENSOR_2 = {
       inputClusters: [],
       outputClusters: [],
       deviceNetworkAddress: 59864,
-      deviceIeeeAddress: '0x0000000000000012',
+      deviceIeeeAddress: '0x0000000000000011',
       clusters: [],
       binds: [],
       configuredReportings: [],
@@ -238,6 +239,44 @@ const VIBRATION_SENSOR_2 = {
   interviewing: false,
   meta: {},
   lastSeen: 1612619445909,
+};
+
+const IKEA_LIGHT = {
+  ID: 7,
+  type: 'Router',
+  ieeeAddr: '0x0000000000000012',
+  networkAddress: 30884,
+  manufacturerID: 4476,
+  endpoints: [
+    {
+      ID: 1,
+      profileID: 260,
+      deviceID: 257,
+      inputClusters: [0, 3, 4, 5, 6, 8, 4096],
+      outputClusters: [5, 25, 32, 4096],
+      deviceNetworkAddress: 30884,
+      deviceIeeeAddress: '0x0000000000000012',
+      clusters: { genBasic: [] },
+      binds: [],
+      configuredReportings: [],
+      meta: {},
+    },
+  ],
+  manufacturerName: 'IKEA of Sweden',
+  powerSource: 'Mains (single phase)',
+  modelID: 'TRADFRI bulb GU10 WW 400lm',
+  applicationVersion: 33,
+  stackVersion: 99,
+  zclVersion: 3,
+  hardwareVersion: 2,
+  dateCode: '20181203',
+  softwareBuildID: '2.1.022',
+  interviewCompleted: true,
+  interviewing: false,
+  skipDefaultResponse: false,
+  meta: {},
+  lastSeen: 1613115188438,
+  linkquality: 26,
 };
 
 const API = new HomebridgeAPI();
@@ -319,6 +358,20 @@ describe('Device Guesser', () => {
       zigbeeNTHomebridgePlatform,
       new API.platformAccessory('test', API.hap.uuid.generate('test')),
       zigBeeClient,
+      device
+    );
+    expect(accessory).toBeInstanceOf(ConfigurableAccessory);
+    const availableServices = accessory.getAvailableServices();
+    expect(availableServices.length).toBe(1);
+    expect(availableServices.map(s => s.UUID)).toContain(API.hap.Service.Lightbulb.UUID);
+  });
+
+  it('should recognize IKEA light bulb given the device descriptor', () => {
+    const device = getDevice(IKEA_LIGHT);
+    const accessory = createAccessoryInstance(
+      new ZigbeeNTHomebridgePlatform(log, config, API),
+      new API.platformAccessory('test', API.hap.uuid.generate('test')),
+      new ZigBeeClient(log),
       device
     );
     expect(accessory).toBeInstanceOf(ConfigurableAccessory);
