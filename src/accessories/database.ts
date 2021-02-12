@@ -97,4 +97,18 @@ export const DATABASE_ACCESSORIES: DeviceConfig[] = [
       },
     ],
   },
+  {
+    manufacturer: '_TZ3000_g5xawfcq',
+    models: ['TS0121'],
+    services: [
+      {
+        type: 'outlet',
+        meta: {
+          power: true,
+          current: true,
+          voltage: true,
+        },
+      },
+    ],
+  },
 ];
