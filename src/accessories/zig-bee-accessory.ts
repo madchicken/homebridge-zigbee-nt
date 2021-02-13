@@ -196,7 +196,7 @@ export abstract class ZigBeeAccessory {
     if (val === true) {
       this.zigBeeDefinition.meta.configured = this.zigBeeDefinition.meta.configureKey;
     } else {
-      delete this.zigBeeDefinition.meta.configured;
+      delete this.zigBeeDefinition.meta?.configured;
     }
   }
 
