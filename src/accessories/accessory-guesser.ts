@@ -111,16 +111,19 @@ function getServiceFromCapabilityType(capability: Capability, definition: ZigBee
       serviceConfig.type = 'lock';
       serviceConfig.meta = getMetaFromFeatures(capability.features);
       break;
+    case 'climate':
+      serviceConfig.type = 'thermostat';
+      serviceConfig.meta = getMetaFromFeatures(capability.features);
+      break;
     case 'fan':
     case 'cover':
-    case 'climate':
     case 'text':
       return serviceConfig; // still unsupported
   }
   return serviceConfig;
 }
 
-const SUPPORTED_TYPES = ['light', 'switch', 'lock'];
+const SUPPORTED_TYPES = ['light', 'switch', 'lock', 'climate'];
 
 /**
  * Guess the accessory configuration by scanning the device definition and exposed capabilities.

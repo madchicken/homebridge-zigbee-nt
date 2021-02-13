@@ -19,7 +19,7 @@ export type ServiceType =
   | 'temperature-sensor'
   | 'outlet'
   | 'lock'
-  | 'climate'; // thermostats
+  | 'thermostat'; // thermostats
 
 export type ServiceMeta = {
   colorTemp?: boolean; // light temperature control
