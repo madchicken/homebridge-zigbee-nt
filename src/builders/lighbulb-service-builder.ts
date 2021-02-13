@@ -113,6 +113,9 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
               .catch(e => {
                 this.log.error(e.message);
               });
+            this.log.debug(
+              `Reading Brightness for ${this.friendlyName}: ${this.state.brightness_percent}`
+            );
             callback(null, this.state.brightness_percent);
           } else {
             callback(new Error('Device is offline'));
@@ -163,6 +166,7 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
                 );
               })
               .catch(e => this.log.error(e.message));
+            this.log.debug(`Reading Color temp for ${this.friendlyName}: ${this.state.color_temp}`);
             callback(null, this.state.color_temp);
           } else {
             callback(new Error('Device is offline'));
@@ -211,7 +215,7 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
                 this.service.updateCharacteristic(Characteristic.Hue, s.color.hue);
               })
               .catch(e => this.log.error(e.message));
-
+            this.log.debug(`Reading HUE for ${this.friendlyName}: ${this.state.color.hue}`);
             callback(null, this.state.color.hue);
           } else {
             callback(new Error('Device is offline'));
@@ -280,6 +284,7 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
                 );
               })
               .catch(e => this.log.error(e.message));
+            this.log.debug(`Reading HUE for ${this.friendlyName}: ${this.state.color.hue}`);
             callback(null, this.state.color.hue);
           } else {
             callback(new Error('Device is offline'));
@@ -330,6 +335,7 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
                 this.service.updateCharacteristic(Characteristic.Brightness, this.state.brightness);
               })
               .catch(e => this.log.error(e.message));
+            this.log.debug(`Reading Saturation for ${this.friendlyName}: ${this.state.color.s}`);
             callback(null, this.state.color.s);
           } else {
             callback(new Error('Device is offline'));
@@ -346,7 +352,7 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
     const Characteristic = this.platform.Characteristic;
     this.state.color = {
       ...this.state.color,
-      hue: this.service.getCharacteristic(Characteristic.Hue).getDefaultValue() as number,
+      s: this.service.getCharacteristic(Characteristic.Saturation).getDefaultValue() as number,
     };
 
     this.service
@@ -378,6 +384,7 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
                 this.service.updateCharacteristic(Characteristic.Saturation, this.state.color.s);
               })
               .catch(e => this.log.error(e.message));
+            this.log.debug(`Reading Saturation for ${this.friendlyName}: ${this.state.color.s}`);
             callback(null, this.state.color.s);
           } else {
             callback(new Error('Device is offline'));

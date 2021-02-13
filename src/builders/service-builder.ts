@@ -42,4 +42,8 @@ export abstract class ServiceBuilder {
   get isOnline() {
     return this.platform.isDeviceOnline(this.device.ieeeAddr);
   }
+
+  get friendlyName() {
+    return this.platform.getDeviceFriendlyName(this.device.ieeeAddr);
+  }
 }
