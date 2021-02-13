@@ -72,9 +72,9 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
 
   public withBrightness(): LighbulbServiceBuilder {
     const Characteristic = this.Characteristic;
-    this.state.brightness_percent = this.service.getCharacteristic(
-      Characteristic.Brightness
-    ).props.minValue;
+    this.state.brightness_percent = this.service
+      .getCharacteristic(Characteristic.Brightness)
+      .getDefaultValue() as number;
 
     this.service
       .getCharacteristic(Characteristic.Brightness)
@@ -179,7 +179,7 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
     const Characteristic = this.Characteristic;
     this.state.color = {
       ...this.state.color,
-      hue: this.service.getCharacteristic(Characteristic.Hue).props.minValue,
+      hue: this.service.getCharacteristic(Characteristic.Hue).getDefaultValue() as number,
     };
 
     this.service
@@ -230,13 +230,13 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
    */
   public withColorXY(): LighbulbServiceBuilder {
     const Characteristic = this.Characteristic;
-    this.state.brightness_percent = this.service.getCharacteristic(
-      Characteristic.Brightness
-    ).props.minValue;
+    this.state.brightness_percent = this.service
+      .getCharacteristic(Characteristic.Brightness)
+      .getDefaultValue() as number;
     this.state.color = {
       ...this.state.color,
-      s: this.service.getCharacteristic(Characteristic.Saturation).props.minValue,
-      hue: this.service.getCharacteristic(Characteristic.Hue).props.minValue,
+      s: this.service.getCharacteristic(Characteristic.Saturation).getDefaultValue() as number,
+      hue: this.service.getCharacteristic(Characteristic.Hue).getDefaultValue() as number,
     };
 
     this.service
@@ -346,7 +346,7 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
     const Characteristic = this.platform.Characteristic;
     this.state.color = {
       ...this.state.color,
-      hue: this.service.getCharacteristic(Characteristic.Hue).props.minValue,
+      hue: this.service.getCharacteristic(Characteristic.Hue).getDefaultValue() as number,
     };
 
     this.service
