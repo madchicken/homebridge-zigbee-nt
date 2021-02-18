@@ -44,7 +44,7 @@ export abstract class ZigBeeAccessory {
   private isConfiguring = false;
   private interval: number;
   private mappedServices: Service[];
-  private isOnline: boolean;
+  public isOnline: boolean;
 
   constructor(
     platform: ZigbeeNTHomebridgePlatform,
