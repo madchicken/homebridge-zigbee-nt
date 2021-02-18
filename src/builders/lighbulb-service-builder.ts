@@ -183,7 +183,7 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
     const Characteristic = this.Characteristic;
     this.state.color = {
       ...this.state.color,
-      hue: this.service.getCharacteristic(Characteristic.Hue).getDefaultValue() as number,
+      hue: 360,
     };
 
     this.service
@@ -234,13 +234,11 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
    */
   public withColorXY(): LighbulbServiceBuilder {
     const Characteristic = this.Characteristic;
-    this.state.brightness_percent = this.service
-      .getCharacteristic(Characteristic.Brightness)
-      .getDefaultValue() as number;
+    this.state.brightness_percent = 100;
     this.state.color = {
       ...this.state.color,
-      s: this.service.getCharacteristic(Characteristic.Saturation).getDefaultValue() as number,
-      hue: this.service.getCharacteristic(Characteristic.Hue).getDefaultValue() as number,
+      s: 100,
+      hue: 360,
     };
 
     this.service
@@ -352,7 +350,7 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
     const Characteristic = this.platform.Characteristic;
     this.state.color = {
       ...this.state.color,
-      s: this.service.getCharacteristic(Characteristic.Saturation).getDefaultValue() as number,
+      s: 100,
     };
 
     this.service
