@@ -20,7 +20,7 @@ export class MotionSensorServiceBuilder extends SensorServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.MotionDetected)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
-        callback(null, this.state.occupancy);
+        callback(null, this.state.occupancy === true);
       });
 
     return this;
