@@ -3,6 +3,7 @@ import { CharacteristicEventTypes, CharacteristicGetCallback, PlatformAccessory 
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { DeviceState } from '../zigbee/types';
 import { SensorServiceBuilder } from './sensor-service-builder';
+import { get } from 'lodash';
 
 export class HumiditySensorServiceBuilder extends SensorServiceBuilder {
   constructor(
@@ -20,7 +21,7 @@ export class HumiditySensorServiceBuilder extends SensorServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.CurrentRelativeHumidity)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
-        callback(null, Math.round(this.state.humidity || 0));
+        callback(null, Math.round(get(this.state, 'humidity', 0)));
       });
 
     return this;

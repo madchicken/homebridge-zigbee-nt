@@ -1,3 +1,4 @@
+import { get } from 'lodash';
 import { ServiceBuilder } from './service-builder';
 import { CharacteristicEventTypes, CharacteristicGetCallback, PlatformAccessory } from 'homebridge';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
@@ -29,7 +30,7 @@ export class BatteryServiceBuilder extends ServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.BatteryLevel)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
-        callback(null, this.state.battery);
+        callback(null, get(this.state, 'battery', 0));
       });
     this.service
       .getCharacteristic(Characteristic.StatusLowBattery)

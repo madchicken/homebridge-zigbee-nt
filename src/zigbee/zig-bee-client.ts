@@ -97,7 +97,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     messages: DeferredMessage<string, MessagePayload>[],
     response: MessagePayload
   ): boolean {
-    const key = `${response.device.ieeeAddr}|${response.endpoint.ID}`;
+    const key = `IEEE_ADDR:${response.device.ieeeAddr}|ID:${response.endpoint.ID}`;
     const deferredMessage = this.consumeMessage(key);
     if (deferredMessage) {
       this.log.debug(`Found message in queue for key ${key}, resolving`, response);
@@ -123,9 +123,12 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
     return this.deviceSettingsMap.get(device.ieeeAddr) || { friendlyName: device.ieeeAddr };
   }
 
-  public decodeMessage(message: MessagePayload, callback: StatePublisher): void {
+  public decodeMessage(
+    message: MessagePayload,
+    resolvedEntity: ZigBeeEntity,
+    callback: StatePublisher
+  ): void {
     const state = {} as DeviceState;
-    const resolvedEntity: ZigBeeEntity = this.resolveEntity(message.device);
     if (resolvedEntity) {
       const meta: Meta = { device: message.device };
       const converters = resolvedEntity.definition.fromZigbee.filter(c => {
@@ -164,14 +167,15 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
         // Use a converter only once (e.g. light_onoff_brightness converters can convert state and brightness)
         continue;
       }
-      const messageKey = `${device.ieeeAddr}|${target.ID}`;
+      const messageKey = `IEEE_ADDR:${device.ieeeAddr}:ID:${target.ID}`;
       this.log.debug(
-        `Reading '${key}' from '${resolvedEntity.settings.friendlyName ||
-          resolvedEntity.device.ieeeAddr}, message in queue ${messageKey}'`
+        `Reading '${key}' from '${resolvedEntity.settings.friendlyName}, message in queue ${messageKey}'`
       );
       promises.push(this.enqueue(messageKey));
 
-      converter.convertGet(target, key, { device, message: state }).catch(error => {
+      try {
+        await converter.convertGet(target, key, { device, message: state });
+      } catch (error) {
         this.log.error(
           `Reading '${key}' for '${resolvedEntity.settings.friendlyName}' failed: '${error}'`
         );
@@ -180,7 +184,7 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
         if (deferredMessage) {
           deferredMessage.promise.reject(error);
         }
-      });
+      }
       if (!usedConverters.has(target.ID)) {
         usedConverters.set(target.ID, []);
       }
@@ -191,9 +195,13 @@ export class ZigBeeClient extends PromiseBasedQueue<string, MessagePayload> {
       promises.map(async promise => {
         try {
           const response: MessagePayload = await promise;
-          this.log.debug(`Got response messages for device ${device.modelID}: `, response);
-          this.decodeMessage(response, (ieeeAddr, state) => {
-            this.log.debug(`Decoded message for ${response.device.modelID}`, state);
+          const resolvedEntity = this.resolveEntity(response.device);
+          this.log.debug(
+            `Got response messages for device ${resolvedEntity.settings.friendlyName}: `,
+            response
+          );
+          this.decodeMessage(response, resolvedEntity, (ieeeAddr, state) => {
+            this.log.debug(`Decoded message for ${resolvedEntity.settings.friendlyName}`, state);
             Object.assign(deviceState, state);
           });
         } catch (e) {
