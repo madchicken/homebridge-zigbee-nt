@@ -5,7 +5,6 @@ import {
   CharacteristicGetCallback,
   CharacteristicSetCallback,
   PlatformAccessory,
-  Service,
 } from 'homebridge';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { ServiceBuilder } from './service-builder';

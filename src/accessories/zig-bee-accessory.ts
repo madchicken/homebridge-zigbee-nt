@@ -44,6 +44,7 @@ export abstract class ZigBeeAccessory {
   private isConfiguring = false;
   private interval: number;
   private mappedServices: Service[];
+  private isOnline: boolean;
 
   constructor(
     platform: ZigbeeNTHomebridgePlatform,
@@ -59,6 +60,7 @@ export abstract class ZigBeeAccessory {
     this.accessory = accessory;
     this.accessory.context = device;
     this.entity = this.client.resolveEntity(device);
+    this.isOnline = true;
     assert(this.entity !== null, 'ZigBee Entity resolution failed');
     const Characteristic = platform.Characteristic;
     this.accessory
@@ -138,6 +140,7 @@ export abstract class ZigBeeAccessory {
       this.zigBeeDeviceDescriptor.updateLastSeen();
       this.zigBeeDeviceDescriptor.save();
       this.missedPing = 0;
+      this.isOnline = true;
       setTimeout(() => this.ping(), this.interval);
     } catch (e) {
       this.log.warn(`No response from ${this.entity.settings.friendlyName}. Is it online?`);
@@ -146,8 +149,7 @@ export abstract class ZigBeeAccessory {
         this.log.error(
           `Device is not responding after ${MAX_PING_ATTEMPTS} ping, sending it offline...`
         );
-        this.isConfiguring = false;
-        this.isConfigured = false;
+        this.isOnline = false;
         this.zigBeeDeviceDescriptor.save();
       } else {
         setTimeout(() => this.ping(), this.interval);
@@ -182,10 +184,6 @@ export abstract class ZigBeeAccessory {
       );
     }
     return false;
-  }
-
-  public get isOnline() {
-    return this.isConfigured || !this.shouldConfigure();
   }
 
   private get isConfigured() {
