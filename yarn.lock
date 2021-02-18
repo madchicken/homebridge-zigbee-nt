@@ -10005,21 +10005,21 @@ yn@3.1.1:
   resolved "https://registry.yarnpkg.com/yn/-/yn-3.1.1.tgz#1e87401a09d767c1d5eab26a6e4c185182d2eb50"
   integrity sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==
 
-zigbee-herdsman-converters@^14.0.56:
-  version "14.0.56"
-  resolved "https://registry.yarnpkg.com/zigbee-herdsman-converters/-/zigbee-herdsman-converters-14.0.56.tgz#55a2d73d7f4376a7ba028d09bfd989b945714121"
-  integrity sha512-+hnb9VkQKW515Y1I8xUj5ta+/ZPqQinzsSlHG1Gncu0IFmPXPQLeUVbHlPY+p6VSUpNQpeO03XNSyGf5EpBfag==
+zigbee-herdsman-converters@^14.0.60:
+  version "14.0.60"
+  resolved "https://registry.yarnpkg.com/zigbee-herdsman-converters/-/zigbee-herdsman-converters-14.0.60.tgz#adc8fb6ee56515ebdcd56510d268039eb1dd4216"
+  integrity sha512-dR/eNdAsSJM/J6iK7P9qDwVQC3pAD2IJ3f/7GMSMiD5ecLmc5z9rRtQtAi38ubP4vJs8y63tnWDZAa89wv2FUw==
   dependencies:
     axios "^0.21.1"
     buffer-crc32 "^0.2.13"
     https-proxy-agent "^5.0.0"
     tar-stream "^2.2.0"
-    zigbee-herdsman "^0.13.64"
+    zigbee-herdsman "^0.13.68"
 
-zigbee-herdsman@^0.13.64:
-  version "0.13.65"
-  resolved "https://registry.yarnpkg.com/zigbee-herdsman/-/zigbee-herdsman-0.13.65.tgz#d06a1b2c825571ab8f087dabbaa3cb209e434477"
-  integrity sha512-2GKVUD1Pw0iifui4SS9SnPG5ZoYtMV210PcBIMp2hjZn/fisxTW5Lu2KePs1e5X4U7wMuWvdNm96cn3JIMC1Hw==
+zigbee-herdsman@^0.13.68:
+  version "0.13.68"
+  resolved "https://registry.yarnpkg.com/zigbee-herdsman/-/zigbee-herdsman-0.13.68.tgz#01e71fab5bd188d2125a795ee065b3d174485eef"
+  integrity sha512-obdVuX+1QAEYRUlGDaSZZzacgb+LiXaZsFFbqB2+igKfJbo2qkDD/43r9xatFPNkUiz3EpXE4lxIhL4IWS0ZSw==
   dependencies:
     debounce "^1.2.0"
     debug "^4.3.1"
@@ -10028,10 +10028,10 @@ zigbee-herdsman@^0.13.64:
     serialport "9.0.6"
     slip "^1.0.2"
 
-zigbee-herdsman@^0.13.68:
-  version "0.13.68"
-  resolved "https://registry.yarnpkg.com/zigbee-herdsman/-/zigbee-herdsman-0.13.68.tgz#01e71fab5bd188d2125a795ee065b3d174485eef"
-  integrity sha512-obdVuX+1QAEYRUlGDaSZZzacgb+LiXaZsFFbqB2+igKfJbo2qkDD/43r9xatFPNkUiz3EpXE4lxIhL4IWS0ZSw==
+zigbee-herdsman@^0.13.71:
+  version "0.13.71"
+  resolved "https://registry.yarnpkg.com/zigbee-herdsman/-/zigbee-herdsman-0.13.71.tgz#9829576a95f6f1a66158d3f297a8f77d22bfd30c"
+  integrity sha512-fraLNLzA/eT9OERIJHyeGTT7ySJ91/WaCArPja/Or0t2HE2vDSgOaRoN9WhmWU2vd1nsoXGAwzrTMFnM02ECxA==
   dependencies:
     debounce "^1.2.0"
     debug "^4.3.1"
