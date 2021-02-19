@@ -403,11 +403,15 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       this.client.processQueue(message);
     } else {
       if (this.homekitAccessoryExists(message.device.ieeeAddr)) {
-        this.client.decodeMessage(message, (ieeeAddr: string, state: DeviceState) => {
-          const zigBeeAccessory = this.getHomekitAccessoryByIeeeAddr(ieeeAddr);
-          this.log.debug(`Decoded state from incoming message`, state);
-          zigBeeAccessory.internalUpdate(state);
-        }); // if the message is decoded, it will call the statePublisher function
+        this.client.decodeMessage(
+          message,
+          this.client.resolveEntity(message.device),
+          (ieeeAddr: string, state: DeviceState) => {
+            const zigBeeAccessory = this.getHomekitAccessoryByIeeeAddr(ieeeAddr);
+            this.log.debug(`Decoded state from incoming message`, state);
+            zigBeeAccessory.internalUpdate(state);
+          }
+        ); // if the message is decoded, it will call the statePublisher function
       } else {
         this.log.warn(`No device found from message`, message);
       }
