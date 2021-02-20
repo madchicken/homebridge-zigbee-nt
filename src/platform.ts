@@ -254,10 +254,6 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     return this.homekitAccessories.get(this.generateUUID(ieeeAddr));
   }
 
-  private homekitAccessoryExists(ieeeAddr: string): boolean {
-    return this.homekitAccessories.has(this.generateUUID(ieeeAddr));
-  }
-
   private async initDevice(device: Device): Promise<string> {
     const model = parseModelName(device.modelID);
     const manufacturer = device.manufacturerName;
@@ -278,7 +274,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     } else {
       const accessory = this.createHapAccessory(ieeeAddr);
       const homeKitAccessory = createAccessoryInstance(this, accessory, this.client, device);
-      this.log.info('Registered device:', ieeeAddr, manufacturer, model);
+      this.log.info('Registered device:', homeKitAccessory.friendlyName, manufacturer, model);
       await homeKitAccessory.initialize(); // init services
       this.homekitAccessories.set(accessory.UUID, homeKitAccessory);
       return accessory.UUID;
@@ -327,15 +323,16 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   private createHapAccessory(name: string) {
     const uuid = this.generateUUID(name);
     const existingAccessory = this.getAccessoryByUUID(uuid);
-    const accessory = existingAccessory || new this.PlatformAccessory(name, uuid);
     if (existingAccessory) {
       this.log.info(`Reuse accessory from cache with uuid ${uuid} and name ${name}`);
+      return existingAccessory;
     } else {
-      this.log.info(`Registering new accessory with uuid ${uuid} and name ${name}`);
+      const accessory = new this.PlatformAccessory(name, uuid);
+      this.log.warn(`Registering new accessory with uuid ${uuid} and name ${name}`);
       this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
       this.accessories.set(uuid, accessory);
+      return accessory;
     }
-    return accessory;
   }
 
   private removeAccessory(ieeeAddr: string) {
@@ -398,23 +395,16 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       `Zigbee message from ${this.getDeviceFriendlyName(message.device.ieeeAddr)}`,
       message
     );
-    if (message.type === 'readResponse') {
-      // only process messages that we wait for
-      this.client.processQueue(message);
-    } else {
-      if (this.homekitAccessoryExists(message.device.ieeeAddr)) {
-        this.client.decodeMessage(
-          message,
-          this.client.resolveEntity(message.device),
-          (ieeeAddr: string, state: DeviceState) => {
-            const zigBeeAccessory = this.getHomekitAccessoryByIeeeAddr(ieeeAddr);
-            this.log.debug(`Decoded state from incoming message`, state);
-            zigBeeAccessory.internalUpdate(state);
-          }
-        ); // if the message is decoded, it will call the statePublisher function
-      } else {
-        this.log.warn(`No device found from message`, message);
-      }
+    const zigBeeAccessory = this.getHomekitAccessoryByIeeeAddr(message.device.ieeeAddr);
+    if (zigBeeAccessory) {
+      this.client.decodeMessage(
+        message,
+        this.client.resolveEntity(message.device),
+        (ieeeAddr: string, state: DeviceState) => {
+          this.log.debug(`Decoded state from incoming message`, state);
+          zigBeeAccessory.internalUpdate(state);
+        }
+      ); // if the message is decoded, it will call the statePublisher function
     }
   }
 

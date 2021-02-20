@@ -25,9 +25,8 @@ export type ServiceMeta = {
   colorTemp?: boolean; // light temperature control
   batteryLow?: boolean; // battery low warning
   colorXY?: boolean; // XY light color control
+  colorHS?: boolean; // HS light color control
   brightness?: boolean; // brightness control
-  hue?: boolean; // hue control
-  saturation?: boolean; // saturation control
   power?: boolean; // consumption information (Wh)
   voltage?: boolean; // consumption information (a)
   current?: boolean; // consumption information (mWh)

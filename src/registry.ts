@@ -1,3 +1,4 @@
+import { ConfigurableAccessory } from './accessories/configurable-accessory';
 import {
   ZigBeeAccessory,
   ZigBeeAccessoryCtor,
@@ -69,7 +70,8 @@ export function createAccessoryInstance<T extends ZigBeeAccessory>(
       if (autoDiscover) {
         const zbAcc: ZigBeeAccessory = autoDiscover(platform, accessory, client, device);
         platform.log.debug(
-          `Successfully auto discovered device: ${zbAcc.friendlyName}, ${zbAcc.zigBeeDefinition.description}`
+          `Successfully auto discovered device: ${zbAcc.friendlyName}, ${zbAcc.zigBeeDefinition.description}`,
+          (zbAcc as ConfigurableAccessory).accessoryConfig
         );
         return zbAcc as T;
       }

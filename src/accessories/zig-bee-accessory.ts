@@ -1,5 +1,7 @@
 import { Logger, PlatformAccessory, Service } from 'homebridge';
+import { isNull, isUndefined } from 'lodash';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
+import { HSBType } from '../utils/hsb-type';
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { DeviceState, ZigBeeDefinition, ZigBeeEntity } from '../zigbee/types';
@@ -31,6 +33,10 @@ export type ZigBeeAccessoryFactory = (
 const MAX_PING_ATTEMPTS = 1;
 
 const MAX_NAME_LENGTH = 64;
+
+function isValidValue(v: any) {
+  return !isNull(v) && !isUndefined(v);
+}
 
 export abstract class ZigBeeAccessory {
   public readonly ieeeAddr: string;
@@ -80,11 +86,11 @@ export abstract class ZigBeeAccessory {
    */
   public async initialize(): Promise<void> {
     this.mappedServices = this.getAvailableServices();
-    this.onDeviceMount()
-      .then(() => {
-        this.log.info(`Device ${this.friendlyName} mounted`);
-      })
-      .catch(e => this.log.error(`Error mounting device ${this.friendlyName}: ${e.message}`));
+    try {
+      this.onDeviceMount();
+    } catch (e) {
+      this.log.error(`Error mounting device ${this.friendlyName}: ${e.message}`);
+    }
   }
 
   handleAccessoryIdentify() {}
@@ -110,12 +116,13 @@ export abstract class ZigBeeAccessory {
 
   public abstract getAvailableServices(): Service[];
 
-  public async onDeviceMount() {
+  public onDeviceMount() {
     this.log.info(`Mounting device ${this.friendlyName}...`);
     if (
       isDeviceRouter(this.zigBeeDeviceDescriptor) &&
       this.platform.config.disableRoutingPolling !== true
     ) {
+      this.isOnline = false; // wait until we can ping the device
       this.log.info(`Device ${this.friendlyName} is a router, install ping`);
       this.interval = this.getPollingInterval();
       this.ping();
@@ -232,7 +239,10 @@ export abstract class ZigBeeAccessory {
     const Service = this.platform.Service;
     const Characteristic = this.platform.Characteristic;
     this.mappedServices.forEach(service => {
-      this.log.debug(`Updating service ${service.displayName} (UUID: ${service.UUID})`);
+      this.log.debug(
+        `Updating service ${service.UUID} for device ${this.friendlyName} with state`,
+        state
+      );
       if (this.supports('battery_low')) {
         service.updateCharacteristic(
           Characteristic.StatusLowBattery,
@@ -253,11 +263,13 @@ export abstract class ZigBeeAccessory {
 
       switch (service.UUID) {
         case Service.BatteryService.UUID:
-          service.updateCharacteristic(Characteristic.BatteryLevel, state.battery || 0);
-          service.updateCharacteristic(
-            Characteristic.StatusLowBattery,
-            state.battery && state.battery < 10
-          );
+          if (isValidValue(state.battery)) {
+            service.updateCharacteristic(Characteristic.BatteryLevel, state.battery || 0);
+            service.updateCharacteristic(
+              Characteristic.StatusLowBattery,
+              state.battery && state.battery < 10
+            );
+          }
           break;
         case Service.ContactSensor.UUID:
           service.updateCharacteristic(
@@ -288,28 +300,61 @@ export abstract class ZigBeeAccessory {
           }
           break;
         case Service.Switch.UUID:
-          service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
+          if (isValidValue(state.state)) {
+            service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
+          }
           break;
         case Service.Lightbulb.UUID:
-          service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
-          if (this.supports('brightness')) {
-            service.updateCharacteristic(
-              this.platform.Characteristic.Brightness,
-              state.brightness_percent
-            );
+          if (isValidValue(state.state)) {
+            service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
           }
-          if (this.supports('color_temp')) {
+          if (this.supports('brightness')) {
+            if (isValidValue(state.brightness_percent)) {
+              service.updateCharacteristic(
+                this.platform.Characteristic.Brightness,
+                state.brightness_percent
+              );
+            } else if (isValidValue(state.brightness)) {
+              service.updateCharacteristic(
+                this.platform.Characteristic.Brightness,
+                Math.round(Number(state.brightness) / 2.55)
+              );
+            }
+          }
+          if (this.supports('color_temp') && isValidValue(state.color_temp)) {
             service.updateCharacteristic(
               this.platform.Characteristic.ColorTemperature,
               state.color_temp
             );
           }
+          if (this.supports('color_hs') && isValidValue(state.color?.s)) {
+            if (isValidValue(state.color?.s)) {
+              service.updateCharacteristic(this.platform.Characteristic.Saturation, state.color.s);
+            }
+            if (isValidValue(state.color?.hue)) {
+              service.updateCharacteristic(this.platform.Characteristic.Hue, state.color.hue);
+            }
+          } else if (this.supports('color_xy') && isValidValue(state.color?.x)) {
+            const hsbType = HSBType.fromXY(state.color.x, state.color.y);
+            state.color.hue = hsbType.hue;
+            state.color.s = hsbType.saturation;
+            service.updateCharacteristic(Characteristic.Hue, state.color.hue);
+            service.updateCharacteristic(Characteristic.Saturation, state.color.s);
+          }
           break;
         case Service.LightSensor.UUID:
-          service.updateCharacteristic(
-            Characteristic.CurrentAmbientLightLevel,
-            state.illuminance_lux
-          );
+          if (this.supports('illuminance_lux') && isValidValue(state.illuminance_lux)) {
+            service.updateCharacteristic(
+              Characteristic.CurrentAmbientLightLevel,
+              state.illuminance_lux
+            );
+          }
+          if (this.supports('illuminance') && isValidValue(state.illuminance)) {
+            service.updateCharacteristic(
+              Characteristic.CurrentAmbientLightLevel,
+              state.illuminance
+            );
+          }
           break;
         case Service.MotionSensor.UUID:
           service.updateCharacteristic(
@@ -318,7 +363,9 @@ export abstract class ZigBeeAccessory {
           );
           break;
         case Service.Outlet.UUID:
-          service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
+          if (isValidValue(state.state)) {
+            service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
+          }
           if (this.supports('power') || this.supports('voltage') || this.supports('energy')) {
             service.updateCharacteristic(
               this.platform.Characteristic.InUse,
@@ -327,16 +374,20 @@ export abstract class ZigBeeAccessory {
           }
           break;
         case Service.TemperatureSensor.UUID:
-          service.updateCharacteristic(
-            this.platform.Characteristic.CurrentTemperature,
-            state.temperature
-          );
+          if (isValidValue(state.temperature)) {
+            service.updateCharacteristic(
+              this.platform.Characteristic.CurrentTemperature,
+              state.temperature
+            );
+          }
           break;
         case Service.HumiditySensor.UUID:
-          service.updateCharacteristic(
-            this.platform.Characteristic.CurrentRelativeHumidity,
-            state.humidity
-          );
+          if (isValidValue(state.humidity)) {
+            service.updateCharacteristic(
+              this.platform.Characteristic.CurrentRelativeHumidity,
+              state.humidity
+            );
+          }
           break;
       }
     });

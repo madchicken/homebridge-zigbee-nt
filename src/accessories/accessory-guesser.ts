@@ -12,8 +12,7 @@ function getMetaFromFeatures(features: Feature[]) {
         meta.colorXY = true;
         break;
       case 'color_hs':
-        meta.hue = true;
-        meta.saturation = true;
+        meta.colorHS = true;
         break;
       case 'color_temp':
         meta.colorTemp = true;
