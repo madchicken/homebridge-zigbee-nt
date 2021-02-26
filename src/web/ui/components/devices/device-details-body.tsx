@@ -8,8 +8,8 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { CoordinatorModel, DeviceModel } from '../../../common/types';
 dayjs.extend(relativeTime);
 
-const TABS = ['Info', 'Endpoints', 'State'];
-const COORDINATOR_TABS = ['Info', 'Endpoints'];
+const TABS = ['Info', 'Structure', 'State'];
+const COORDINATOR_TABS = ['Info', 'Structure'];
 
 interface Props {
   device: DeviceModel;
@@ -70,16 +70,9 @@ function renderCoordinatorInfo(device: CoordinatorModel) {
   );
 }
 
-function renderEndpoints(device: DeviceModel) {
-  const endpoints = device.endpoints;
+function renderDeviceStructure(device: DeviceModel) {
   return (
-    <ReactJson
-      src={endpoints}
-      onAdd={false}
-      onDelete={false}
-      onEdit={false}
-      enableClipboard={false}
-    />
+    <ReactJson src={device} onAdd={false} onDelete={false} onEdit={false} enableClipboard={true} />
   );
 }
 
@@ -95,8 +88,8 @@ function renderSelectedTab(selectedTab: string, device: DeviceModel) {
         ? renderCoordinatorInfo(device as CoordinatorModel)
         : renderInfo(device);
       break;
-    case 'Endpoints':
-      content = renderEndpoints(device);
+    case 'Structure':
+      content = renderDeviceStructure(device);
       break;
     case 'State':
       content = renderCustomState(device);

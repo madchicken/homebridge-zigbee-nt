@@ -279,6 +279,61 @@ const IKEA_LIGHT = {
   linkquality: 26,
 };
 
+const IKEA_ONOFF = {
+  type: 'EndDevice',
+  ieeeAddr: '0xccccccfffee404b7',
+  networkAddress: 35876,
+  manufacturerID: 4476,
+  manufacturerName: 'IKEA of Sweden',
+  powerSource: 'Battery',
+  modelID: 'TRADFRI on/off switch',
+  interviewCompleted: true,
+  softwareBuildID: '2.2.008',
+  lastSeen: 1614204061701,
+  endpoints: [
+    {
+      ID: 1,
+      profileID: 260,
+      deviceID: 2080,
+      inputClusters: [0, 1, 3, 9, 32, 4096, 64636],
+      outputClusters: [3, 4, 6, 8, 25, 258, 4096],
+      deviceNetworkAddress: 35876,
+      deviceIeeeAddress: '0xccccccfffee404b7',
+      clusters: {
+        genPowerCfg: {
+          attributes: {
+            batteryPercentageRemaining: 34,
+          },
+        },
+      },
+      binds: [
+        {
+          cluster: 6,
+          groupID: 901,
+          type: 'group',
+        },
+        {
+          cluster: 1,
+          type: 'endpoint',
+          deviceIeeeAddress: '0x00124b001cd478c0',
+          endpointID: 1,
+        },
+      ],
+      configuredReportings: [
+        {
+          cluster: 1,
+          attrId: 33,
+          minRepIntval: 3600,
+          maxRepIntval: 62000,
+          repChange: 0,
+        },
+      ],
+      meta: {},
+    },
+  ],
+  otaAvailable: true,
+};
+
 const API = new HomebridgeAPI();
 const log: Logging = (() => {
   const l = (_message: string, ..._parameters: any[]): void => {};
@@ -432,5 +487,20 @@ describe('Device Guesser', () => {
       expect(availableServices.map(s => s.UUID)).toContain(API.hap.Service.ContactSensor.UUID);
       expect(availableServices.map(s => s.UUID)).toContain(API.hap.Service.BatteryService.UUID);
     }
+  });
+
+  it('should recognize IKEA On/OFF button given the device descriptor', () => {
+    const device = getDevice(IKEA_ONOFF);
+    const factory: ZigBeeAccessoryFactory = guessAccessoryFromDevice(device);
+    expect(factory).not.toBeNull();
+    const accessory = factory(
+      zigbeeNTHomebridgePlatform,
+      new API.platformAccessory('test', API.hap.uuid.generate('test')),
+      zigBeeClient,
+      device
+    );
+    expect(accessory).toBeInstanceOf(ConfigurableAccessory);
+    const availableServices = accessory.getAvailableServices();
+    expect(availableServices.length).toBe(2);
   });
 });
