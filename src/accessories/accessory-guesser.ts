@@ -86,6 +86,14 @@ function serviceFromFeatureName(feature: Feature) {
     case 'illuminance_lux':
       serviceConfig.type = 'light-sensor';
       break;
+    case 'local_temperature':
+      serviceConfig.meta.localTemperature = true;
+      break;
+    case 'current_heating_setpoint':
+    case 'occupied_heating_setpoint':
+    case 'occupied_cooling_setpoint':
+      serviceConfig.meta.currentHeatingSetpoint = [feature.value_min, feature.value_max];
+      break;
     case 'composite':
       serviceConfig.meta = getMetaFromFeatures(feature.features);
       break;
@@ -122,7 +130,7 @@ function getServiceFromCapabilityType(capability: Capability, definition: ZigBee
   return serviceConfig;
 }
 
-const SUPPORTED_TYPES = ['light', 'switch', 'lock', 'climate'];
+const SUPPORTED_TYPES = ['light', 'switch', 'lock'];
 
 /**
  * Guess the accessory configuration by scanning the device definition and exposed capabilities.

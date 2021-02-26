@@ -43,7 +43,7 @@ export class LockServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.LockCurrentState)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
-          Object.assign(this.state, await this.client.getLockState(this.device));
+          this.client.getLockState(this.device).catch(e => this.log.error(e.message));
           const locked: boolean = this.state.state === 'LOCK' || this.state.lock_state === 'locked';
           const notFullyLocked: boolean = this.state.lock_state === 'not_fully_locked';
           callback(

@@ -74,3 +74,21 @@ All notable changes to this project will be documented in this file. This projec
 
 - Let manufacturer name be an array to map multiple devices all at once ([#111](https://github.com/madchicken/homebridge-zigbee-nt/pull/111))
 - Add Tuya Thermostat model TS0601 with manufacturer `_TZE200_2dpplnsn`
+
+## 2.1.0 (2021-2-22)
+
+## [Version 2.1.0](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.0.5...v2.1.0)
+
+#### Changes
+
+- New auto discovery for devices: with the new system of device mapping, many ZigBee accessories will just work. Supported type (ATM) are
+  - lights
+  - switches (only on/off switches, not multi buttons)
+  - locks
+    Coming soon devices
+  - thermostats
+  - complex switches
+  - fan
+- Update of devices is now done in background: all the GET request to the plugin will return immediately the last read value
+- Ability to set friendly names for your devices: just add them through the homebridge plugin setting window.
+- Many other small improvements and fixes

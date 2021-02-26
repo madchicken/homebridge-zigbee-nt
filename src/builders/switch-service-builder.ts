@@ -41,13 +41,8 @@ export class SwitchServiceBuilder extends ServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.On)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
-        try {
-          Object.assign(this.state, await this.client.getOnOffState(this.device));
-          this.log.debug(`Reporting On for ${this.accessory.displayName}`, this.state);
-          callback(null, this.state.state === 'ON');
-        } catch (e) {
-          callback(e);
-        }
+        this.client.getOnOffState(this.device).catch(e => this.log.error(e.message));
+        callback(null, this.state.state === 'ON');
       });
 
     return this;

@@ -1,4 +1,5 @@
 import { LockServiceBuilder } from '../builders/lock-service-builder';
+import { ThermostatServiceBuilder } from '../builders/thermostat-service-builder';
 import { ZigBeeAccessory } from './zig-bee-accessory';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { PlatformAccessory, Service } from 'homebridge';
@@ -259,6 +260,27 @@ function createLockService(
   return builder.withLockState().build();
 }
 
+function createThermostatService(
+  platform: ZigbeeNTHomebridgePlatform,
+  accessory: PlatformAccessory,
+  client: ZigBeeClient,
+  zigBeeDeviceDescriptor: Device,
+  serviceConfig: ServiceConfig
+) {
+  const builder = new ThermostatServiceBuilder(platform, accessory, client, zigBeeDeviceDescriptor);
+  if (serviceConfig.meta.localTemperature) {
+    builder.withCurrentTemperature();
+  }
+  if (serviceConfig.meta.currentHeatingSetpoint) {
+    builder.withTargetTemperature(
+      serviceConfig.meta.currentHeatingSetpoint[0],
+      serviceConfig.meta.currentHeatingSetpoint[1]
+    );
+  }
+
+  return builder.build();
+}
+
 /**
  * Generic device accessory builder
  */
@@ -363,6 +385,14 @@ export class ConfigurableAccessory extends ZigBeeAccessory {
           );
         case 'lock':
           return createLockService(
+            platform,
+            accessory,
+            client,
+            zigBeeDeviceDescriptor,
+            serviceConfig
+          );
+        case 'thermostat':
+          return createThermostatService(
             platform,
             accessory,
             client,
