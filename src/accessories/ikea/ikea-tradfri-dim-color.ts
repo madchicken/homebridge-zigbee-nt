@@ -23,7 +23,6 @@ export class IkeaTradfriDimColor extends IkeaTradfriDim {
       this.state
     )
       .withOnOff()
-      .withBrightness()
       .withColorXY()
       .build();
     return [this.lightbulbService];
