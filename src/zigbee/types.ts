@@ -4,7 +4,7 @@ import Endpoint from 'zigbee-herdsman/dist/controller/model/endpoint';
 import { Zcl } from 'zigbee-herdsman';
 import { Logger } from 'homebridge';
 
-type State = 'ON' | 'OFF' | 'TOGGLE';
+type State = '' | 'ON' | 'OFF' | 'TOGGLE' | 'LOCK' | 'UNLOCK';
 export type SystemMode = 'off' | 'heat' | 'cool' | 'auto';
 
 export interface ZigBeeControllerConfig {
@@ -56,6 +56,7 @@ export interface DeviceState {
     | 'release';
   state_l1?: 'ON' | 'OFF' | 'TOGGLE';
   state_l2?: 'ON' | 'OFF' | 'TOGGLE';
+  lock_state?: '' | 'not_fully_locked' | 'locked' | 'unlocked';
   battery?: number;
   current?: number;
   power?: number;
@@ -169,6 +170,11 @@ interface ConverterResult {
   linkquality?: number;
 }
 
+export interface DeviceSetting {
+  friendlyName?: string;
+  legacy?: boolean;
+}
+
 export interface ToConverter {
   key: string[];
   convertSet?: (
@@ -187,14 +193,48 @@ export interface FromConverter {
     model,
     message: MessagePayload,
     publish: (...args) => void,
-    options: any,
+    options: DeviceSetting,
     meta: Meta
   ) => Partial<DeviceState>;
 }
 
-interface Capability {
-  type: string;
+enum AccessType {
+  STATE = 1,
+  SET = 2,
+  STATE_SET = 3,
+  STATE_GET = 5,
+  ALL = 7,
+}
+
+type Value = string | boolean | number;
+
+export interface Capability {
+  type?:
+    | 'light'
+    | 'switch'
+    | 'cover'
+    | 'fan'
+    | 'lock'
+    | 'climate'
+    | 'composite'
+    | 'binary'
+    | 'numeric'
+    | 'enum'
+    | 'text';
   name: string;
+  features: Feature[];
+}
+
+export interface Feature extends Capability {
+  property?: string;
+  access: AccessType;
+  value_on?: Value;
+  value_off?: Value;
+  values?: Value[];
+  value_toggle?: Value;
+  value_max?: number;
+  value_min?: number;
+  value_step?: number;
 }
 
 export interface ZigBeeDefinition {
@@ -218,6 +258,7 @@ export interface ZigBeeDefinition {
   toZigbee: ToConverter[];
   exposes: Capability[];
   interviewing?: boolean;
+  fingerprint?: [{ modelID: string; manufacturerName: string }];
   ota?: {
     isUpdateAvailable: (
       device: Device,
@@ -246,7 +287,7 @@ export interface ZigBeeEntity {
   endpoint?: Endpoint;
   definition?: ZigBeeDefinition;
   name: string;
-  settings: any;
+  settings: DeviceSetting;
 }
 
 export interface BindInfo {

@@ -1,3 +1,4 @@
+import assert from 'assert';
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import { Logger, PlatformAccessory, Service } from 'homebridge';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
@@ -17,6 +18,9 @@ export abstract class ServiceBuilder {
     client: ZigBeeClient,
     state: DeviceState
   ) {
+    assert(client !== null, 'ZigBee client must be initialized');
+    assert(platform !== null, 'Platform plugin must be initialized');
+    assert(accessory !== null, 'Platform Accessory must be initialized');
     this.platform = platform;
     this.accessory = accessory;
     this.client = client;
@@ -33,5 +37,17 @@ export abstract class ServiceBuilder {
 
   public build(): Service {
     return this.service;
+  }
+
+  get Characteristic() {
+    return this.platform.Characteristic;
+  }
+
+  get isOnline() {
+    return this.platform.isDeviceOnline(this.device.ieeeAddr);
+  }
+
+  get friendlyName() {
+    return this.platform.getDeviceFriendlyName(this.device.ieeeAddr);
   }
 }

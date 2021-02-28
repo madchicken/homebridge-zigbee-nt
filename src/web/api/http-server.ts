@@ -131,13 +131,13 @@ export class HttpServer {
     // handle specific listen errors with friendly messages
     switch (error.name) {
       case 'EACCES':
-        console.error(`${bind} requires elevated privileges`);
+        this.log.error(`WEB UI error: ${bind} requires elevated privileges`);
         break;
       case 'EADDRINUSE':
-        console.error(`${bind} is already in use`);
+        this.log.error(`WEB UI error: ${bind} is already in use`);
         break;
       default:
-        console.error(error);
+        this.log.error(`WEB UI error: ${error.message}`);
     }
   }
 

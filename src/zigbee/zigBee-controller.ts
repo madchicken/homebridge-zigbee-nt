@@ -146,6 +146,7 @@ export class ZigBeeController {
           adapter: config.adapter,
         },
         databasePath: config.databasePath,
+        databaseBackupPath: `${config.databasePath}.${Date.now()}`,
         acceptJoiningDeviceHandler: ieeeAddr => this.acceptJoiningDeviceHandler(ieeeAddr),
         network: {
           panID: config.panId || 0x1a62,
@@ -290,12 +291,16 @@ export class ZigBeeController {
       // FIXME: handle groups
       return null;
     } else if (key.constructor.name === 'Device') {
+      const definition: ZigBeeDefinition = findByDevice(key);
+      if (!definition) {
+        return null;
+      }
       return {
         type: 'device',
         device: key,
         endpoint: key.endpoints[0],
         name: key.type === 'Coordinator' ? 'Coordinator' : key.ieeeAddr,
-        definition: findByDevice(key) as ZigBeeDefinition,
+        definition,
         settings: { friendlyName: key.ieeeAddr },
       };
     } else {

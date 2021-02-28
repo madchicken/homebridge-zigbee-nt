@@ -9,6 +9,7 @@ import {
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { ServiceBuilder } from './service-builder';
 import { DeviceState } from '../zigbee/types';
+import { get } from 'lodash';
 
 export class OutletServiceBuilder extends ServiceBuilder {
   constructor(
@@ -32,7 +33,7 @@ export class OutletServiceBuilder extends ServiceBuilder {
         CharacteristicEventTypes.SET,
         async (on: boolean, callback: CharacteristicSetCallback) => {
           try {
-            const status = await this.client.setOn(this.device, on);
+            const status = await this.client.setOnState(this.device, on);
             Object.assign(this.state, status);
             callback();
           } catch (e) {
@@ -43,12 +44,8 @@ export class OutletServiceBuilder extends ServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.On)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
-        try {
-          const state = await this.client.getOnOffState(this.device);
-          callback(null, state.state === 'ON');
-        } catch (e) {
-          callback(e);
-        }
+        this.client.getOnOffState(this.device).catch(e => this.log.error(e.message));
+        callback(null, get(this.state, 'state', 'OFF') === 'ON');
       });
 
     return this;
@@ -60,12 +57,8 @@ export class OutletServiceBuilder extends ServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.OutletInUse)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
-        try {
-          const state = await this.client.getPowerState(this.device);
-          callback(null, state.power > 0);
-        } catch (e) {
-          callback(e);
-        }
+        this.client.getPowerState(this.device).catch(e => this.log.error(e.message));
+        callback(null, get(this.state, 'power', 0) > 0);
       });
 
     return this;
@@ -77,12 +70,8 @@ export class OutletServiceBuilder extends ServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.OutletInUse)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
-        try {
-          const state = await this.client.getVoltageState(this.device);
-          callback(null, state.voltage > 0);
-        } catch (e) {
-          callback(e);
-        }
+        this.client.getVoltageState(this.device).catch(e => this.log.error(e.message));
+        callback(null, get(this.state, 'voltage', 0) > 0);
       });
 
     return this;
@@ -93,13 +82,9 @@ export class OutletServiceBuilder extends ServiceBuilder {
 
     this.service
       .getCharacteristic(Characteristic.OutletInUse)
-      .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
-        try {
-          const state = await this.client.getCurrentState(this.device);
-          callback(null, state.current > 0);
-        } catch (e) {
-          callback(e);
-        }
+      .on(CharacteristicEventTypes.GET, (callback: CharacteristicGetCallback) => {
+        this.client.getCurrentState(this.device).catch(e => this.log.error(e.message));
+        callback(null, get(this.state, 'current', 0) > 0);
       });
 
     return this;

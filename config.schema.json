@@ -1,6 +1,7 @@
 {
   "pluginAlias": "ZigbeeHomebridgeNTPlatform",
   "pluginType": "platform",
+  "singular": true,
   "schema": {
     "type": "object",
     "properties": {
@@ -35,7 +36,7 @@
             "maximum": 16383
           }
         ],
-        "required": true
+        "required": false
       },
       "channel": {
         "title": "Channel",
@@ -120,25 +121,215 @@
         "default": false,
         "required": false
       },
-      "devices": {
-        "title": "Custom configured devices",
-        "type": "object",
+      "preferAutoDiscover": {
+        "title": "Prefer Auto discover over mapped devices",
+        "description": "Prefer Auto discover of devices when looking for accessories (ignore internally mapped devices). Warning: don't use this if you have devices that are not supported by autodiscovery, like thermostats or complex switches",
+        "type": "boolean",
+        "default": false,
         "required": false
+      },
+      "devices": {
+        "type": "array",
+        "items": [
+          {
+            "type": "object",
+            "properties": {
+              "manufacturers": {
+                "type": "array",
+                "items": {
+                  "title": "Manufacturer",
+                  "type": "string"
+                }
+              },
+              "models": {
+                "type": "array",
+                "items": {
+                  "title": "Model",
+                  "type": "string"
+                }
+              },
+              "services": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "unknown",
+                        "contact-sensor",
+                        "light-sensor",
+                        "bulb",
+                        "light-bulb",
+                        "switch",
+                        "motion-sensor",
+                        "leak-sensor",
+                        "vibration-sensor",
+                        "battery",
+                        "humidity-sensor",
+                        "temperature-sensor",
+                        "outlet",
+                        "lock",
+                        "climate"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "colorTemp": {
+                          "title": "Supports color temperature",
+                          "type": "boolean"
+                        },
+                        "batteryLow": {
+                          "title": "Supports battery low alert",
+                          "type": "boolean"
+                        },
+                        "colorXY": {
+                          "title": "Supports color XY",
+                          "type": "boolean"
+                        },
+                        "brightness": {
+                          "title": "Supports brightness",
+                          "type": "boolean"
+                        },
+                        "hue": {
+                          "title": "Supports hue",
+                          "type": "boolean"
+                        },
+                        "saturation": {
+                          "title": "Supports saturation",
+                          "type": "boolean"
+                        },
+                        "power": {
+                          "title": "Supports power consumption reporting",
+                          "type": "boolean"
+                        },
+                        "voltage": {
+                          "title": "Supports voltage reporting",
+                          "type": "boolean"
+                        },
+                        "current": {
+                          "title": "Supports current reporting",
+                          "type": "boolean"
+                        },
+                        "waterLeak": {
+                          "title": "Has a water leak sensor",
+                          "type": "boolean"
+                        },
+                        "gasLeak": {
+                          "title": "Has a gas leak sensor",
+                          "type": "boolean"
+                        },
+                        "smokeLeak": {
+                          "title": "Has a smoke leak sensor",
+                          "type": "boolean"
+                        },
+                        "tamper": {
+                          "title": "Can report tampered status",
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "customDeviceSettings": {
+        "type": "array",
+        "required": false,
+        "items": {
+          "type": "object",
+          "properties": {
+            "ieeeAddr": {
+              "title": "Accessory IEEE Address",
+              "type": "string",
+              "required": true,
+              "key": "customDeviceSettings[].ieeeAddr",
+              "placeholder": "Enter IEEE address..."
+            },
+            "friendlyName": {
+              "title": "Accessory friendly name",
+              "type": "string",
+              "required": true,
+              "key": "customDeviceSettings[].friendlyName",
+              "placeholder": "Enter friendly name..."
+            }
+          }
+        }
       }
     }
   },
-  "form": [
-    "name",
-    "port",
-    "panId",
-    "channel",
-    "secondaryChannel",
-    "adapter",
-    "database",
-    "disableRouterPolling",
-    "routerPollingInterval",
-    "disableHttpServer",
-    "httpPort",
-    "disableLed"
+  "layout": [
+    {
+      "type": "fieldset",
+      "title": "Standard Settings",
+      "expandable": true,
+      "expanded": true,
+      "items": ["name", "port", "channel", "secondaryChannel", "adapter", "disableLed"]
+    },
+    {
+      "type": "fieldset",
+      "title": "Advanced Settings",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "panId",
+        "database",
+        "disableRouterPolling",
+        "routerPollingInterval",
+        "disableHttpServer",
+        "httpPort",
+        "preferAutoDiscover"
+      ]
+    },
+    {
+      "type": "fieldset",
+      "title": "Custom Device Settings",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        {
+          "type": "help",
+          "helpvalue": "<em class='primary-text'>Enter friendly names for your devices</em>"
+        },
+        {
+          "nodescription": true,
+          "notitle": true,
+          "key": "customDeviceSettings",
+          "type": "array",
+          "orderable": false,
+          "items": [
+            {
+              "type": "div",
+              "displayFlex": true,
+              "flex-direction": "row",
+              "items": [
+                {
+                  "flex": "1 1 50px",
+                  "notitle": true,
+                  "title": "Accessory IEEE Address",
+                  "type": "string",
+                  "required": true,
+                  "key": "customDeviceSettings[].ieeeAddr",
+                  "placeholder": "Enter IEEE address..."
+                },
+                {
+                  "flex": "1 1 50px",
+                  "notitle": true,
+                  "title": "Accessory friendly name",
+                  "type": "string",
+                  "required": true,
+                  "key": "customDeviceSettings[].friendlyName",
+                  "placeholder": "Enter friendly name..."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   ]
 }

@@ -39,7 +39,7 @@ import { NanoleafIvy } from './accessories/nanoleaf/nanoleaf-ivy';
 import { DATABASE_ACCESSORIES } from './accessories/database';
 import { ConfigurableAccessory } from './accessories/configurable-accessory';
 
-function registerSupportedDevices(): void {
+export function registerSupportedDevices(): void {
   registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
   registerAccessoryClass(
     ['Philips', 'Signify Netherlands B.V.'],
@@ -106,8 +106,12 @@ function registerSupportedDevices(): void {
   );
   registerAccessoryClass('IKEA of Sweden', ['E1603/E1702'], IkeaTradfriOutlet);
   registerAccessoryClass('IKEA of Sweden', ['LED1624G9'], IkeaTradfriDimColor);
-  registerAccessoryClass('IKEA of Sweden', ['E1743'], IkeaOnoffSwitch);
-  registerAccessoryClass('IKEA of Sweden', ['E1812'], IkeaShurtcutSwitch);
+  registerAccessoryClass('IKEA of Sweden', ['E1743', 'TRADFRI on/off switch'], IkeaOnoffSwitch);
+  registerAccessoryClass(
+    'IKEA of Sweden',
+    ['E1812', 'TRADFRI SHORTCUT Button'],
+    IkeaShurtcutSwitch
+  );
   registerAccessoryClass('IKEA of Sweden', ['E1524/E1810'], IkeaRemoteSwitch);
   registerAccessoryClass(
     'IKEA of Sweden',

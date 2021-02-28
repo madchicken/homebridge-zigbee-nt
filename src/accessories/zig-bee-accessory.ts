@@ -1,7 +1,8 @@
 import { Logger, PlatformAccessory, Service } from 'homebridge';
+import { isNull, isUndefined } from 'lodash';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
+import { HSBType } from '../utils/hsb-type';
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
-import { findByDevice } from 'zigbee-herdsman-converters';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { DeviceState, ZigBeeDefinition, ZigBeeEntity } from '../zigbee/types';
 import {
@@ -9,8 +10,9 @@ import {
   isDeviceRouter,
   MAX_POLL_INTERVAL,
   MIN_POLL_INTERVAL,
-} from '../utils/router-polling';
+} from '../utils/device';
 import retry from 'async-retry';
+import assert from 'assert';
 
 export interface ZigBeeAccessoryCtor {
   new (
@@ -28,7 +30,13 @@ export type ZigBeeAccessoryFactory = (
   device: Device
 ) => ZigBeeAccessory;
 
-const MAX_PING_ATTEMPTS = 3;
+const MAX_PING_ATTEMPTS = 1;
+
+const MAX_NAME_LENGTH = 64;
+
+function isValidValue(v: any) {
+  return !isNull(v) && !isUndefined(v);
+}
 
 export abstract class ZigBeeAccessory {
   public readonly ieeeAddr: string;
@@ -42,6 +50,7 @@ export abstract class ZigBeeAccessory {
   private isConfiguring = false;
   private interval: number;
   private mappedServices: Service[];
+  public isOnline: boolean;
 
   constructor(
     platform: ZigbeeNTHomebridgePlatform,
@@ -53,24 +62,21 @@ export abstract class ZigBeeAccessory {
     this.ieeeAddr = device.ieeeAddr;
     this.platform = platform;
     this.log = this.platform.log;
-    this.state = { state: 'OFF' };
+    this.state = {};
     this.accessory = accessory;
     this.accessory.context = device;
     this.entity = this.client.resolveEntity(device);
+    this.isOnline = true;
+    assert(this.entity !== null, 'ZigBee Entity resolution failed');
     const Characteristic = platform.Characteristic;
     this.accessory
       .getService(this.platform.Service.AccessoryInformation)
       .setCharacteristic(Characteristic.Manufacturer, device.manufacturerName)
       .setCharacteristic(Characteristic.Model, device.modelID)
       .setCharacteristic(Characteristic.SerialNumber, device.ieeeAddr)
-      .setCharacteristic(Characteristic.SoftwareRevision, device.softwareBuildID)
-      .setCharacteristic(Characteristic.HardwareRevision, device.hardwareVersion)
-      .setCharacteristic(
-        Characteristic.Name,
-        `${this.zigBeeDefinition.description.substr(0, 64 - 1 - device.ieeeAddr.length)}-${
-          device.ieeeAddr
-        }`
-      );
+      .setCharacteristic(Characteristic.SoftwareRevision, `${device.softwareBuildID}`)
+      .setCharacteristic(Characteristic.HardwareRevision, `${device.hardwareVersion}`)
+      .setCharacteristic(Characteristic.Name, this.friendlyName);
     this.accessory.on('identify', () => this.handleAccessoryIdentify());
   }
 
@@ -80,7 +86,11 @@ export abstract class ZigBeeAccessory {
    */
   public async initialize(): Promise<void> {
     this.mappedServices = this.getAvailableServices();
-    await this.onDeviceMount();
+    try {
+      this.onDeviceMount();
+    } catch (e) {
+      this.log.error(`Error mounting device ${this.friendlyName}: ${e.message}`);
+    }
   }
 
   handleAccessoryIdentify() {}
@@ -90,38 +100,44 @@ export abstract class ZigBeeAccessory {
   }
 
   public get zigBeeDefinition(): ZigBeeDefinition {
-    return this.entity
-      ? this.entity.definition
-      : (findByDevice(this.zigBeeDeviceDescriptor) as ZigBeeDefinition);
+    return this.entity.definition;
   }
 
-  public get name() {
-    return this.zigBeeDefinition?.description;
+  public get friendlyName() {
+    const ieeeAddr = this.zigBeeDeviceDescriptor.ieeeAddr;
+    return (
+      this.entity?.settings?.friendlyName ||
+      `${this.zigBeeDefinition.description.substr(
+        0,
+        MAX_NAME_LENGTH - 1 - ieeeAddr.length
+      )}-${ieeeAddr}`
+    );
   }
 
   public abstract getAvailableServices(): Service[];
 
-  public async onDeviceMount() {
-    this.log.info(`Mounting device ${this.name}...`);
-    try {
-      await this.zigBeeDeviceDescriptor.interview();
-    } catch (e) {
-      this.log.debug(`Interview failed: ${e.message}`);
-      // ignore
-    }
+  public onDeviceMount() {
+    this.log.info(`Mounting device ${this.friendlyName}...`);
     if (
       isDeviceRouter(this.zigBeeDeviceDescriptor) &&
       this.platform.config.disableRoutingPolling !== true
     ) {
-      this.log.info(`Device ${this.name} is a router, install ping`);
-      this.interval = this.platform.config.routerPollingInterval * 1000 || DEFAULT_POLL_INTERVAL;
-      if (this.interval < MIN_POLL_INTERVAL || this.interval > MAX_POLL_INTERVAL) {
-        this.interval = DEFAULT_POLL_INTERVAL;
-      }
-      await this.ping();
+      this.isOnline = false; // wait until we can ping the device
+      this.log.info(`Device ${this.friendlyName} is a router, install ping`);
+      this.interval = this.getPollingInterval();
+      this.ping();
     } else {
-      await this.configureDevice();
+      this.configureDevice();
     }
+  }
+
+  private getPollingInterval(): number {
+    let interval = this.platform.config.routerPollingInterval * 1000 || DEFAULT_POLL_INTERVAL;
+    if (this.interval < MIN_POLL_INTERVAL || this.interval > MAX_POLL_INTERVAL) {
+      interval = DEFAULT_POLL_INTERVAL;
+    }
+
+    return interval;
   }
 
   public async ping() {
@@ -129,17 +145,18 @@ export abstract class ZigBeeAccessory {
       await this.zigBeeDeviceDescriptor.ping();
       await this.configureDevice();
       this.zigBeeDeviceDescriptor.updateLastSeen();
+      this.zigBeeDeviceDescriptor.save();
       this.missedPing = 0;
+      this.isOnline = true;
       setTimeout(() => this.ping(), this.interval);
     } catch (e) {
-      this.log.warn(`No response from ${this.zigBeeDefinition.description}. Is it online?`);
+      this.log.warn(`No response from ${this.entity.settings.friendlyName}. Is it online?`);
       this.missedPing++;
       if (this.missedPing > MAX_PING_ATTEMPTS) {
         this.log.error(
-          `Device is not responding after ${this.missedPing} ping, sending it offline...`
+          `Device is not responding after ${MAX_PING_ATTEMPTS} ping, sending it offline...`
         );
-        this.isConfiguring = false;
-        this.isConfigured = false;
+        this.isOnline = false;
         this.zigBeeDeviceDescriptor.save();
       } else {
         setTimeout(() => this.ping(), this.interval);
@@ -156,7 +173,9 @@ export abstract class ZigBeeAccessory {
           await this.zigBeeDefinition.configure(this.zigBeeDeviceDescriptor, coordinatorEndpoint);
           this.isConfigured = true;
           this.zigBeeDeviceDescriptor.save();
-          this.log.info(`Device ${this.name} successfully configured on attempt ${attempt}!`);
+          this.log.info(
+            `Device ${this.friendlyName} successfully configured on attempt ${attempt}!`
+          );
           return true;
         },
         {
@@ -182,7 +201,7 @@ export abstract class ZigBeeAccessory {
     if (val === true) {
       this.zigBeeDefinition.meta.configured = this.zigBeeDefinition.meta.configureKey;
     } else {
-      delete this.zigBeeDefinition.meta.configured;
+      delete this.zigBeeDefinition.meta?.configured;
     }
   }
 
@@ -196,15 +215,19 @@ export abstract class ZigBeeAccessory {
   }
 
   public internalUpdate(state: DeviceState) {
-    this.log.debug(`Updating state of device ${this.name} with `, state);
-    this.state = Object.assign(this.state, { ...state });
-    this.log.debug(`Updated state for device ${this.name} is now `, this.state);
-    this.zigBeeDeviceDescriptor.updateLastSeen();
-    this.configureDevice().then(configured =>
-      configured ? this.log.debug(`${this.name} configured after state update`) : null
-    );
-    this.update({ ...this.state });
-    delete this.state.action;
+    try {
+      this.log.debug(`Updating state of device ${this.friendlyName} with `, state);
+      this.state = Object.assign(this.state, { ...state });
+      this.log.debug(`Updated state for device ${this.friendlyName} is now `, this.state);
+      this.zigBeeDeviceDescriptor.updateLastSeen();
+      this.configureDevice().then(configured =>
+        configured ? this.log.debug(`${this.friendlyName} configured after state update`) : null
+      );
+      this.update({ ...this.state });
+      delete this.state.action;
+    } catch (e) {
+      this.log.error(e.message, e);
+    }
   }
 
   /**
@@ -216,7 +239,10 @@ export abstract class ZigBeeAccessory {
     const Service = this.platform.Service;
     const Characteristic = this.platform.Characteristic;
     this.mappedServices.forEach(service => {
-      this.log.debug(`Updating service ${service.displayName} (UUID: ${service.UUID})`);
+      this.log.debug(
+        `Updating service ${service.UUID} for device ${this.friendlyName} with state`,
+        state
+      );
       if (this.supports('battery_low')) {
         service.updateCharacteristic(
           Characteristic.StatusLowBattery,
@@ -237,11 +263,13 @@ export abstract class ZigBeeAccessory {
 
       switch (service.UUID) {
         case Service.BatteryService.UUID:
-          service.updateCharacteristic(Characteristic.BatteryLevel, state.battery || 0);
-          service.updateCharacteristic(
-            Characteristic.StatusLowBattery,
-            state.battery && state.battery < 10
-          );
+          if (isValidValue(state.battery)) {
+            service.updateCharacteristic(Characteristic.BatteryLevel, state.battery || 0);
+            service.updateCharacteristic(
+              Characteristic.StatusLowBattery,
+              state.battery && state.battery < 10
+            );
+          }
           break;
         case Service.ContactSensor.UUID:
           service.updateCharacteristic(
@@ -272,28 +300,61 @@ export abstract class ZigBeeAccessory {
           }
           break;
         case Service.Switch.UUID:
-          service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
+          if (isValidValue(state.state)) {
+            service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
+          }
           break;
         case Service.Lightbulb.UUID:
-          service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
-          if (this.supports('brightness')) {
-            service.updateCharacteristic(
-              this.platform.Characteristic.Brightness,
-              state.brightness_percent
-            );
+          if (isValidValue(state.state)) {
+            service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
           }
-          if (this.supports('color_temp')) {
+          if (this.supports('brightness')) {
+            if (isValidValue(state.brightness_percent)) {
+              service.updateCharacteristic(
+                this.platform.Characteristic.Brightness,
+                state.brightness_percent
+              );
+            } else if (isValidValue(state.brightness)) {
+              service.updateCharacteristic(
+                this.platform.Characteristic.Brightness,
+                Math.round(Number(state.brightness) / 2.55)
+              );
+            }
+          }
+          if (this.supports('color_temp') && isValidValue(state.color_temp)) {
             service.updateCharacteristic(
               this.platform.Characteristic.ColorTemperature,
               state.color_temp
             );
           }
+          if (this.supports('color_hs') && isValidValue(state.color?.s)) {
+            if (isValidValue(state.color?.s)) {
+              service.updateCharacteristic(this.platform.Characteristic.Saturation, state.color.s);
+            }
+            if (isValidValue(state.color?.hue)) {
+              service.updateCharacteristic(this.platform.Characteristic.Hue, state.color.hue);
+            }
+          } else if (this.supports('color_xy') && isValidValue(state.color?.x)) {
+            const hsbType = HSBType.fromXY(state.color.x, state.color.y);
+            state.color.hue = hsbType.hue;
+            state.color.s = hsbType.saturation;
+            service.updateCharacteristic(Characteristic.Hue, state.color.hue);
+            service.updateCharacteristic(Characteristic.Saturation, state.color.s);
+          }
           break;
         case Service.LightSensor.UUID:
-          service.updateCharacteristic(
-            Characteristic.CurrentAmbientLightLevel,
-            state.illuminance_lux
-          );
+          if (this.supports('illuminance_lux') && isValidValue(state.illuminance_lux)) {
+            service.updateCharacteristic(
+              Characteristic.CurrentAmbientLightLevel,
+              state.illuminance_lux
+            );
+          }
+          if (this.supports('illuminance') && isValidValue(state.illuminance)) {
+            service.updateCharacteristic(
+              Characteristic.CurrentAmbientLightLevel,
+              state.illuminance
+            );
+          }
           break;
         case Service.MotionSensor.UUID:
           service.updateCharacteristic(
@@ -302,28 +363,31 @@ export abstract class ZigBeeAccessory {
           );
           break;
         case Service.Outlet.UUID:
-          service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
-          if (this.supports('power')) {
-            service.updateCharacteristic(this.platform.Characteristic.InUse, state.power > 0);
+          if (isValidValue(state.state)) {
+            service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
           }
-          if (this.supports('voltage')) {
-            service.updateCharacteristic(this.platform.Characteristic.InUse, state.voltage > 0);
-          }
-          if (this.supports('energy')) {
-            service.updateCharacteristic(this.platform.Characteristic.InUse, state.current > 0);
+          if (this.supports('power') || this.supports('voltage') || this.supports('energy')) {
+            service.updateCharacteristic(
+              this.platform.Characteristic.InUse,
+              state.power > 0 || state.voltage > 0 || state.current > 0
+            );
           }
           break;
         case Service.TemperatureSensor.UUID:
-          service.updateCharacteristic(
-            this.platform.Characteristic.CurrentTemperature,
-            state.temperature
-          );
+          if (isValidValue(state.temperature)) {
+            service.updateCharacteristic(
+              this.platform.Characteristic.CurrentTemperature,
+              state.temperature
+            );
+          }
           break;
         case Service.HumiditySensor.UUID:
-          service.updateCharacteristic(
-            this.platform.Characteristic.CurrentRelativeHumidity,
-            state.humidity
-          );
+          if (isValidValue(state.humidity)) {
+            service.updateCharacteristic(
+              this.platform.Characteristic.CurrentRelativeHumidity,
+              state.humidity
+            );
+          }
           break;
       }
     });

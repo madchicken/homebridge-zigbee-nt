@@ -43,7 +43,9 @@ export class TouchlinkAccessory {
     this.accessory.on('identify', () => this.handleAccessoryIdentify());
     const characteristic = this.switchService.getCharacteristic(this.platform.Characteristic.On);
     characteristic.on('get', callback => this.handleGetSwitchOn(callback));
-    characteristic.on('set', (value, callback) => this.handleSetSwitchOn(value, callback));
+    characteristic.on('set', (value, callback) =>
+      this.handleSetSwitchOn(value as boolean, callback)
+    );
   }
 
   handleAccessoryIdentify() {}

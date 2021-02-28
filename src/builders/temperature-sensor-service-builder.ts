@@ -16,6 +16,7 @@ export class TemperatureSensorServiceBuilder extends SensorServiceBuilder {
 
   public withTemperature(): TemperatureSensorServiceBuilder {
     const Characteristic = this.platform.Characteristic;
+    this.state.temperature = 0;
 
     this.service
       .getCharacteristic(Characteristic.CurrentTemperature)

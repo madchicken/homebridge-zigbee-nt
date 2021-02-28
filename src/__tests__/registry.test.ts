@@ -18,8 +18,8 @@ import { Logging, LogLevel } from 'homebridge/lib/logger';
 import { ZigBeeNTPlatformConfig } from '../types';
 import { ConfigurableAccessory } from '../accessories/configurable-accessory';
 import { PlatformAccessory } from 'homebridge';
-
-jest.mock('../zigbee/zig-bee-client');
+import { registerSupportedDevices } from '../index';
+import { PhilipsHueWhite } from '../accessories/philips/philips-hue-white';
 
 const API = new HomebridgeAPI();
 const log: Logging = (() => {
@@ -45,8 +45,6 @@ Device.injectDatabase(db);
 function getAccessoryInstance(ieeeAddr: string) {
   const device = Device.byIeeeAddr(ieeeAddr);
   return createAccessoryInstance(
-    device.manufacturerName,
-    device.modelID,
     new ZigbeeNTHomebridgePlatform(log, config, API),
     new API.platformAccessory('test', API.hap.uuid.generate('test')),
     new ZigBeeClient(log),
@@ -56,46 +54,37 @@ function getAccessoryInstance(ieeeAddr: string) {
 
 describe('Device Registry', () => {
   beforeEach(() => {
-    // Clear all instances and calls to constructor and all methods:
-    // @ts-ignore
-    ZigBeeClient.mockClear();
     clearRegistries();
   });
 
   it('should recognize Xiaomi temperature sensor', async () => {
-    registerAccessoryClass('LUMI', ['lumi.weather', 'lumi.sensor_ht.agl02'], XiaomiTempHumiSensor);
+    registerSupportedDevices();
     const ctor = getAccessoryInstance('0x00158d00047b5957');
     expect(ctor).toBeInstanceOf(XiaomiTempHumiSensor);
   });
 
   it('should recognize IKEA ON/OFF switch', () => {
-    registerAccessoryClass('IKEA of Sweden', ['E1743'], IkeaOnoffSwitch);
+    registerSupportedDevices();
     const ctor = getAccessoryInstance('0x14b457fffec8d738');
     expect(ctor).toBeInstanceOf(IkeaOnoffSwitch);
   });
 
   it('should recognize GLEDOPTO GL-C-009 bulb', () => {
-    registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
+    registerSupportedDevices();
     const ctor = getAccessoryInstance('0x00124b001f79d7f0');
     expect(ctor).toBeInstanceOf(GledoptoDim);
   });
 
   it('should recognize Philips LCT015 bulb', () => {
-    registerAccessoryClass('Philips', ['LCT015'], PhilipsHueWhiteAndColor);
+    registerSupportedDevices();
     const ctor = getAccessoryInstance('0x0017880106ef252d');
     expect(ctor).toBeInstanceOf(PhilipsHueWhiteAndColor);
   });
 
   it('should recognize Philips LWA001 bulb', () => {
-    registerAccessoryClass('Philips', ['LWA001'], PhilipsHueWhiteTemperature);
+    registerSupportedDevices();
     const ctor = getAccessoryInstance('0x0017880108206ff6');
-    expect(ctor).toBeInstanceOf(PhilipsHueWhiteTemperature);
-  });
-
-  it('should fail to recognize misconfigured device', () => {
-    registerAccessoryClass('Philipsss', ['LWA001'], PhilipsHueWhiteTemperature);
-    const ctor = getAccessoryInstance('0x0017880108206ff6');
-    expect(ctor).toBeNull();
+    expect(ctor).toBeInstanceOf(PhilipsHueWhite);
   });
 
   it('should recognize Philips LWA001 bulb registered as configurable device', () => {

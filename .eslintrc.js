@@ -1,14 +1,20 @@
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaVersion: 2020, // Allows for the parsing of modern ECMAScript features
+    sourceType: 'module', // Allows for the use of imports
+    ecmaFeatures: {
+      jsx: true, // Allows for the parsing of JSX
+    },
+  },
+  settings: {
+    react: {
+      version: 'detect', // Tells eslint-plugin-react to automatically detect the version of React to use
+    },
+  },
   plugins: ['@typescript-eslint', 'react', 'jest', 'react-hooks', '@emotion'],
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'prettier',
-    'prettier/@typescript-eslint',
-    'plugin:react/recommended',
-  ],
+  extends: ['eslint:recommended', 'prettier', 'plugin:react/recommended'],
   env: {
     browser: true,
     node: true,
@@ -34,9 +40,6 @@ module.exports = {
         allowTaggedTemplates: false,
       },
     ],
-    '@typescript-eslint/camelcase': ['error', { properties: 'never' }],
-    '@typescript-eslint/class-name-casing': 'error',
-
     '@typescript-eslint/no-empty-interface': 'error',
     '@typescript-eslint/no-inferrable-types': 'warn',
     '@typescript-eslint/explicit-function-return-type': 'off',

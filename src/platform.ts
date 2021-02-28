@@ -38,7 +38,6 @@ import { difference } from 'lodash';
 
 const PERMIT_JOIN_ACCESSORY_NAME = 'zigbee:permit-join';
 const TOUCH_LINK_ACCESSORY_NAME = 'zigbee:touchlink';
-
 const DEFAULT_PAN_ID = 0x1a62;
 
 export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
@@ -97,12 +96,11 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
 
   async startZigBee() {
     // Create client
-    this.client = new ZigBeeClient(this.log);
+    this.client = new ZigBeeClient(this.log, this.config.customDeviceSettings);
 
     const panId =
       this.config.panId && this.config.panId < 0xffff ? this.config.panId : DEFAULT_PAN_ID;
     const database = this.config.database || path.join(this.api.user.storagePath(), './zigBee.db');
-    this.backupDatabase(database);
     await this.client.start({
       channel: this.config.channel,
       secondaryChannel: this.config.secondaryChannel,
@@ -154,10 +152,14 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     const status = message.status;
     switch (status) {
       case 'failed':
-        this.log.error(`Interview progress ${status} for device ${ieeeAddr}`);
+        this.log.error(
+          `Interview progress ${status} for device ${this.getDeviceFriendlyName(ieeeAddr)}`
+        );
         break;
       case 'started':
-        this.log.info(`Interview progress ${status} for device ${ieeeAddr}`);
+        this.log.info(
+          `Interview progress ${status} for device ${this.getDeviceFriendlyName(ieeeAddr)}`
+        );
         break;
       case 'successful':
         this.log.info(
@@ -169,7 +171,9 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
 
   async handleZigBeeDevJoined(message: DeviceJoinedPayload) {
     this.log.info(
-      `Device joined, Adding ${message.device.ieeeAddr} (${message.device.manufacturerName} - ${message.device.modelID})`
+      `Device joined, Adding ${this.getDeviceFriendlyName(message.device.ieeeAddr)} (${
+        message.device.manufacturerName
+      } - ${message.device.modelID})`
     );
     await this.handleDeviceUpdate(message.device);
   }
@@ -183,7 +187,11 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       await this.initDevice(device);
       return true;
     } else {
-      this.log.debug(`Not initializing device ${device.ieeeAddr}: already mapped in Homebridge`);
+      this.log.debug(
+        `Not initializing device ${this.getDeviceFriendlyName(
+          device.ieeeAddr
+        )}: already mapped in Homebridge`
+      );
       accessory.internalUpdate({});
     }
     return false;
@@ -198,11 +206,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     // Stop permit join
     await this.permitJoinAccessory.setPermitJoin(false);
     this.log.info(`Device announced leaving and will be removed, id: ${ieeeAddr}`);
-    const accessory = this.getAccessoryByIeeeAddr(message.ieeeAddr);
-    // Sometimes we can unpair device which doesn't exist in HomeKit
-    if (accessory) {
-      await this.unpairDevice(ieeeAddr);
-    }
+    await this.unpairDevice(ieeeAddr);
   }
 
   async handleZigBeeReady() {
@@ -233,6 +237,8 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     if (this.config.disableHttpServer !== true) {
       this.httpServer = new HttpServer(this.config.httpPort);
       this.httpServer.start(this);
+    } else {
+      this.log.info('WEB UI disabled.');
     }
   }
 
@@ -248,31 +254,28 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     return this.homekitAccessories.get(this.generateUUID(ieeeAddr));
   }
 
-  private homekitAccessoryExists(ieeeAddr: string): boolean {
-    return this.homekitAccessories.has(this.generateUUID(ieeeAddr));
-  }
-
-  private initDevice(device: Device): string {
-    this.log.info(`Found ZigBee device: `, device);
+  private async initDevice(device: Device): Promise<string> {
     const model = parseModelName(device.modelID);
     const manufacturer = device.manufacturerName;
     const ieeeAddr = device.ieeeAddr;
+    this.log.info(
+      `Initializing ZigBee device: ${this.getDeviceFriendlyName(
+        ieeeAddr
+      )} - ${model} - ${manufacturer}`
+    );
 
-    if (!isAccessorySupported(manufacturer, model)) {
-      this.log.info('Unrecognized device:', ieeeAddr, manufacturer, model);
+    if (!isAccessorySupported(device)) {
+      this.log.info(
+        `Unsupported ZigBee device: ${this.getDeviceFriendlyName(
+          ieeeAddr
+        )} - ${model} - ${manufacturer}`
+      );
       return null;
     } else {
       const accessory = this.createHapAccessory(ieeeAddr);
-      const homeKitAccessory = createAccessoryInstance(
-        manufacturer,
-        model,
-        this,
-        accessory,
-        this.client,
-        device
-      );
-      this.log.info('Registered device:', ieeeAddr, manufacturer, model);
-      homeKitAccessory.initialize(); // init services
+      const homeKitAccessory = createAccessoryInstance(this, accessory, this.client, device);
+      this.log.info('Registered device:', homeKitAccessory.friendlyName, manufacturer, model);
+      await homeKitAccessory.initialize(); // init services
       this.homekitAccessories.set(accessory.UUID, homeKitAccessory);
       return accessory.UUID;
     }
@@ -287,7 +290,8 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       }
     } catch (error) {
       this.log.warn(
-        `Unable to initialize device ${ieeeAddr}, ` + 'try to remove it and add it again.\n'
+        `Unable to initialize device ${this.getDeviceFriendlyName(ieeeAddr)}, ` +
+          'try to remove it and add it again.\n'
       );
       this.log.warn('Reason:', error);
     }
@@ -319,15 +323,16 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   private createHapAccessory(name: string) {
     const uuid = this.generateUUID(name);
     const existingAccessory = this.getAccessoryByUUID(uuid);
-    const accessory = existingAccessory || new this.PlatformAccessory(name, uuid);
     if (existingAccessory) {
       this.log.info(`Reuse accessory from cache with uuid ${uuid} and name ${name}`);
+      return existingAccessory;
     } else {
-      this.log.info(`Registering new accessory with uuid ${uuid} and name ${name}`);
+      const accessory = new this.PlatformAccessory(name, uuid);
+      this.log.warn(`Registering new accessory with uuid ${uuid} and name ${name}`);
       this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
       this.accessories.set(uuid, accessory);
+      return accessory;
     }
-    return accessory;
   }
 
   private removeAccessory(ieeeAddr: string) {
@@ -343,10 +348,11 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     const result = await this.zigBeeClient.unpairDevice(ieeeAddr);
     if (result) {
       this.log.info('Device has been unpaired:', ieeeAddr);
-      this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
-        this.getAccessoryByIeeeAddr(ieeeAddr),
-      ]);
-      this.removeAccessory(ieeeAddr);
+      const accessory = this.getAccessoryByIeeeAddr(ieeeAddr);
+      if (accessory) {
+        this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+        this.removeAccessory(ieeeAddr);
+      }
     } else {
       this.log.error('Device has NOT been unpaired:', ieeeAddr);
     }
@@ -355,47 +361,65 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   private async handleDeviceAnnounce(message: DeviceAnnouncePayload) {
     const ieeeAddr = message.device.ieeeAddr;
     this.log.info(
-      `Device announce: ${ieeeAddr} (${message.device.manufacturerName} - ${message.device.modelID})`
+      `Device announce: ${this.getDeviceFriendlyName(ieeeAddr)} (${
+        message.device.manufacturerName
+      } - ${message.device.modelID})`
     );
     if (message.device.interviewCompleted) {
       if (!this.getAccessoryByIeeeAddr(ieeeAddr)) {
         // Wait a little bit for a database sync
         await sleep(1500);
-        this.initDevice(message.device);
+        await this.initDevice(message.device);
         await this.mountDevice(ieeeAddr);
       } else {
-        this.log.warn(`Not initializing device ${ieeeAddr}: already mapped in Homebridge`);
+        this.log.warn(
+          `Not initializing device ${this.getDeviceFriendlyName(
+            ieeeAddr
+          )}: already mapped in Homebridge`
+        );
         await this.homekitAccessories
           .get(this.getAccessoryByIeeeAddr(ieeeAddr).UUID)
           .onDeviceMount();
       }
     } else {
-      this.log.warn(`Not initializing device ${ieeeAddr}: interview process still not completed`);
+      this.log.warn(
+        `Not initializing device ${this.getDeviceFriendlyName(
+          ieeeAddr
+        )}: interview process still not completed`
+      );
     }
   }
 
   private handleZigBeeMessage(message: MessagePayload) {
-    this.log.debug(`Zigbee message from ${message.device.ieeeAddr}`, message.type);
-    if (message.type === 'readResponse') {
-      // only process messages that we wait for
-      this.client.processQueue(message);
-    } else {
-      if (this.homekitAccessoryExists(message.device.ieeeAddr)) {
-        this.client.decodeMessage(message, (ieeeAddr: string, state: DeviceState) => {
-          const zigBeeAccessory = this.getHomekitAccessoryByIeeeAddr(ieeeAddr);
+    this.log.debug(
+      `Zigbee message from ${this.getDeviceFriendlyName(message.device.ieeeAddr)}`,
+      message
+    );
+    const zigBeeAccessory = this.getHomekitAccessoryByIeeeAddr(message.device.ieeeAddr);
+    if (zigBeeAccessory) {
+      this.client.decodeMessage(
+        message,
+        this.client.resolveEntity(message.device),
+        (ieeeAddr: string, state: DeviceState) => {
           this.log.debug(`Decoded state from incoming message`, state);
           zigBeeAccessory.internalUpdate(state);
-        }); // if the message is decoded, it will call the statePublisher function
-      } else {
-        this.log.warn(`No device found from message`, message);
-      }
+        }
+      ); // if the message is decoded, it will call the statePublisher function
     }
   }
 
-  private backupDatabase(database: string) {
-    if (fs.existsSync(database)) {
-      this.log.debug('Creating copy of existing database');
-      fs.copyFileSync(database, `${database}.${Date.now()}`);
+  public getDeviceFriendlyName(ieeeAddr: string): string {
+    return (
+      this.config.customDeviceSettings?.find(config => config.ieeeAddr === ieeeAddr)
+        ?.friendlyName || ieeeAddr
+    );
+  }
+
+  public isDeviceOnline(ieeeAddr: string) {
+    const zigBeeAccessory: ZigBeeAccessory = this.getHomekitAccessoryByIeeeAddr(ieeeAddr);
+    if (zigBeeAccessory) {
+      return zigBeeAccessory.isOnline;
     }
+    return false;
   }
 }
