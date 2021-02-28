@@ -14,13 +14,7 @@ module.exports = {
     },
   },
   plugins: ['@typescript-eslint', 'react', 'jest', 'react-hooks', '@emotion'],
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:prettier/recommended',
-    'prettier/@typescript-eslint',
-    'plugin:react/recommended',
-  ],
+  extends: ['eslint:recommended', 'prettier', 'plugin:react/recommended'],
   env: {
     browser: true,
     node: true,
@@ -46,9 +40,6 @@ module.exports = {
         allowTaggedTemplates: false,
       },
     ],
-    '@typescript-eslint/camelcase': ['error', { properties: 'never' }],
-    '@typescript-eslint/class-name-casing': 'error',
-
     '@typescript-eslint/no-empty-interface': 'error',
     '@typescript-eslint/no-inferrable-types': 'warn',
     '@typescript-eslint/explicit-function-return-type': 'off',
