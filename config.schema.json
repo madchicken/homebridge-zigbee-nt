@@ -123,7 +123,7 @@
       },
       "preferAutoDiscover": {
         "title": "Prefer Auto discover over mapped devices",
-        "description": "Prefer Auto discover of devices when looking for accessories (ignore internally mapped devices)",
+        "description": "Prefer Auto discover of devices when looking for accessories (ignore internally mapped devices). Warning: don't use this if you have devices that are not supported by autodiscovery, like thermostats or complex switches",
         "type": "boolean",
         "default": false,
         "required": false
