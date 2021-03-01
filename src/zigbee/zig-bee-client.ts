@@ -121,13 +121,16 @@ export class ZigBeeClient {
         return c.cluster === message.cluster && type;
       });
       converters.forEach(converter => {
+        const options: CustomDeviceSetting = this.deviceSettingsMap.get(
+          message.device.ieeeAddr
+        ) || { ieeeAddr: message.device.ieeeAddr };
         const converted = converter.convert(
           resolvedEntity.definition,
           message,
           (state: DeviceState) => {
             callback(message.device.ieeeAddr, state);
           },
-          this.deviceSettingsMap.get(message.device.ieeeAddr),
+          options,
           meta
         );
         if (converted) {
