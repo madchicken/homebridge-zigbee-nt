@@ -92,3 +92,13 @@ All notable changes to this project will be documented in this file. This projec
 - Update of devices is now done in background: all the GET request to the plugin will return immediately the last read value
 - Ability to set friendly names for your devices: just add them through the homebridge plugin setting window.
 - Many other small improvements and fixes
+
+## 2.1.1 (2021-3-01)
+
+## [Version 2.1.1](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.1.0...v2.1.1)
+
+#### Changes
+
+- Fix a problem were options passed during message decoding could be null
+- Added first test for zigbee client
+- Review eslint configuration and settings
