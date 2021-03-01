@@ -1,22 +1,22 @@
-import { ZigBeeController } from './zigBee-controller';
-import { sleep } from '../utils/sleep';
+import retry from 'async-retry';
+import { Logger } from 'homebridge';
 import { MessagePayload } from 'zigbee-herdsman/dist/controller/events';
 import Device from 'zigbee-herdsman/dist/controller/model/device';
+import { CustomDeviceSetting } from '../types';
+import { findSerialPort } from '../utils/find-serial-port';
+import { sleep } from '../utils/sleep';
 import {
   ColorCapabilities,
   DeviceState,
   Meta,
   Options,
-  ToConverter,
   SystemMode,
+  ToConverter,
   ZigBeeControllerConfig,
-  ZigBeeEntity,
   ZigBeeDefinition,
+  ZigBeeEntity,
 } from './types';
-import { findSerialPort } from '../utils/find-serial-port';
-import retry from 'async-retry';
-import { Logger } from 'homebridge';
-import { CustomDeviceSetting } from '../types';
+import { ZigBeeController } from './zigBee-controller';
 
 export interface ZigBeeClientConfig {
   channel: number;
@@ -98,7 +98,7 @@ export class ZigBeeClient {
       this.log.error(`Entity '${device}' is unknown`);
       return null;
     }
-    resolvedEntity.settings = this.getDeviceSetting(device);
+    resolvedEntity.settings = this.getDeviceSetting(resolvedEntity.device);
     return resolvedEntity;
   }
 
@@ -106,11 +106,8 @@ export class ZigBeeClient {
     return this.deviceSettingsMap.get(device.ieeeAddr) || { friendlyName: device.ieeeAddr };
   }
 
-  public decodeMessage(
-    message: MessagePayload,
-    resolvedEntity: ZigBeeEntity,
-    callback: StatePublisher
-  ): void {
+  public decodeMessage(message: MessagePayload, callback: StatePublisher): void {
+    const resolvedEntity = this.resolveEntity(message.device);
     const state = {} as DeviceState;
     if (resolvedEntity) {
       const meta: Meta = { device: message.device };
@@ -121,13 +118,16 @@ export class ZigBeeClient {
         return c.cluster === message.cluster && type;
       });
       converters.forEach(converter => {
+        const options: CustomDeviceSetting = this.deviceSettingsMap.get(
+          message.device.ieeeAddr
+        ) || { ieeeAddr: message.device.ieeeAddr };
         const converted = converter.convert(
           resolvedEntity.definition,
           message,
           (state: DeviceState) => {
             callback(message.device.ieeeAddr, state);
           },
-          this.deviceSettingsMap.get(message.device.ieeeAddr),
+          options,
           meta
         );
         if (converted) {
@@ -256,7 +256,7 @@ export class ZigBeeClient {
     return keys;
   }
 
-  interview(ieeeAddr: string) {
+  interview(ieeeAddr: string): Promise<Device> {
     return this.zigBee.interview(ieeeAddr);
   }
 
