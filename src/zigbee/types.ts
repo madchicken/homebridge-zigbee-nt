@@ -295,3 +295,26 @@ export interface BindInfo {
   to: string;
   clusters?: string[];
 }
+
+export interface RawDevice {
+  readonly ID: number;
+  _applicationVersion?: string;
+  _dateCode?: string;
+  _endpoints: Endpoint[];
+  _hardwareVersion?: string;
+  _ieeeAddr: string;
+  _interviewCompleted: boolean;
+  _interviewing: boolean;
+  _lastSeen: number;
+  _manufacturerID?: string;
+  _manufacturerName?: string;
+  _modelID?: string;
+  _networkAddress: number;
+  _powerSource?: string;
+  _softwareBuildID?: string;
+  _stackVersion?: string;
+  _type?: string;
+  _zclVersion?: string;
+  _linkquality?: string;
+  _skipDefaultResponse: boolean;
+}

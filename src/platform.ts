@@ -90,11 +90,11 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     this.api.on(APIEvent.SHUTDOWN, () => this.stopZigbee());
   }
 
-  get zigBeeClient() {
+  get zigBeeClient(): ZigBeeClient {
     return this.client;
   }
 
-  async startZigBee() {
+  async startZigBee(): Promise<void> {
     // Create client
     this.client = new ZigBeeClient(this.log, this.config.customDeviceSettings);
 
@@ -126,7 +126,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     await this.handleZigBeeReady();
   }
 
-  async stopZigbee() {
+  async stopZigbee(): Promise<void> {
     try {
       this.log.info('Stopping zigbee service');
       await this.zigBeeClient?.stop();
@@ -142,12 +142,12 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
    * This function is invoked when homebridge restores cached accessories from disk at startup.
    * It should be used to setup event handlers for characteristics and update respective values.
    */
-  configureAccessory(accessory: PlatformAccessory) {
+  configureAccessory(accessory: PlatformAccessory): void {
     this.log.info('Loading accessory from cache:', accessory.displayName);
     this.accessories.set(accessory.UUID, accessory);
   }
 
-  async handleZigBeeDevInterview(message: DeviceInterviewPayload) {
+  async handleZigBeeDevInterview(message: DeviceInterviewPayload): Promise<void> {
     const ieeeAddr = message.device.ieeeAddr;
     const status = message.status;
     switch (status) {
@@ -169,13 +169,13 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     }
   }
 
-  async handleZigBeeDevJoined(message: DeviceJoinedPayload) {
+  async handleZigBeeDevJoined(message: DeviceJoinedPayload): Promise<boolean> {
     this.log.info(
       `Device joined, Adding ${this.getDeviceFriendlyName(message.device.ieeeAddr)} (${
         message.device.manufacturerName
       } - ${message.device.modelID})`
     );
-    await this.handleDeviceUpdate(message.device);
+    return await this.handleDeviceUpdate(message.device);
   }
 
   private async handleDeviceUpdate(device: Device): Promise<boolean> {
@@ -201,15 +201,15 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     return this.api.hap.uuid.generate(ieeeAddr);
   }
 
-  async handleZigBeeDevLeaving(message: DeviceLeavePayload) {
+  async handleZigBeeDevLeaving(message: DeviceLeavePayload): Promise<boolean> {
     const ieeeAddr = message.ieeeAddr;
     // Stop permit join
     await this.permitJoinAccessory.setPermitJoin(false);
     this.log.info(`Device announced leaving and will be removed, id: ${ieeeAddr}`);
-    await this.unpairDevice(ieeeAddr);
+    return await this.unpairDevice(ieeeAddr);
   }
 
-  async handleZigBeeReady() {
+  async handleZigBeeReady(): Promise<void> {
     const info: Device = this.zigBeeClient.getCoodinator();
     this.log.info(`ZigBee platform initialized @ ${info.ieeeAddr}`);
     // Set led indicator
@@ -344,7 +344,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     }
   }
 
-  public async unpairDevice(ieeeAddr: string) {
+  public async unpairDevice(ieeeAddr: string): Promise<boolean> {
     const result = await this.zigBeeClient.unpairDevice(ieeeAddr);
     if (result) {
       this.log.info('Device has been unpaired:', ieeeAddr);
@@ -352,10 +352,12 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       if (accessory) {
         this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
         this.removeAccessory(ieeeAddr);
+        return true;
       }
     } else {
       this.log.error('Device has NOT been unpaired:', ieeeAddr);
     }
+    return false;
   }
 
   private async handleDeviceAnnounce(message: DeviceAnnouncePayload) {
@@ -397,14 +399,10 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     );
     const zigBeeAccessory = this.getHomekitAccessoryByIeeeAddr(message.device.ieeeAddr);
     if (zigBeeAccessory) {
-      this.client.decodeMessage(
-        message,
-        this.client.resolveEntity(message.device),
-        (ieeeAddr: string, state: DeviceState) => {
-          this.log.debug(`Decoded state from incoming message`, state);
-          zigBeeAccessory.internalUpdate(state);
-        }
-      ); // if the message is decoded, it will call the statePublisher function
+      this.client.decodeMessage(message, (ieeeAddr: string, state: DeviceState) => {
+        this.log.debug(`Decoded state from incoming message`, state);
+        zigBeeAccessory.internalUpdate(state);
+      }); // if the message is decoded, it will call the statePublisher function
     }
   }
 
@@ -415,7 +413,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     );
   }
 
-  public isDeviceOnline(ieeeAddr: string) {
+  public isDeviceOnline(ieeeAddr: string): boolean {
     const zigBeeAccessory: ZigBeeAccessory = this.getHomekitAccessoryByIeeeAddr(ieeeAddr);
     if (zigBeeAccessory) {
       return zigBeeAccessory.isOnline;
