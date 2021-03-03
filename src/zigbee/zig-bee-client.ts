@@ -381,7 +381,7 @@ export class ZigBeeClient {
     return this.readDeviceState(device, { humidity: 1 });
   }
 
-  getCoodinator(): Device {
+  getCoordinator(): Device {
     return this.zigBee.coordinator();
   }
 

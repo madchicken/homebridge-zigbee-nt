@@ -167,7 +167,7 @@ export abstract class ZigBeeAccessory {
   public async configureDevice(): Promise<boolean> {
     if (this.shouldConfigure()) {
       this.isConfiguring = true;
-      const coordinatorEndpoint = this.client.getCoodinator().getEndpoint(1);
+      const coordinatorEndpoint = this.client.getCoordinator().getEndpoint(1);
       return await retry<boolean>(
         async (bail: (e: Error) => void, attempt: number) => {
           await this.zigBeeDefinition.configure(this.zigBeeDeviceDescriptor, coordinatorEndpoint);

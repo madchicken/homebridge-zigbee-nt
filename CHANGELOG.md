@@ -102,3 +102,12 @@ All notable changes to this project will be documented in this file. This projec
 - Fix a problem were options passed during message decoding could be null
 - Added first test for zigbee client
 - Review eslint configuration and settings
+
+## 2.1.2 (2021-3-03)
+
+## [Version 2.1.2](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.1.1...v2.1.2)
+
+#### Changes
+
+- More robust checks during startup
+- More logs when starting WEB UI (#131)

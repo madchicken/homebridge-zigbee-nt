@@ -1,7 +1,6 @@
 import Device from 'zigbee-herdsman/dist/controller/model/device';
 import Database from 'zigbee-herdsman/dist/controller/database';
 import { HomebridgeAPI } from 'homebridge/lib/api';
-import { Logging, LogLevel } from 'homebridge/lib/logger';
 import { createAccessoryInstance } from '../../registry';
 import { getDevice } from '../../utils/tests/device-builder';
 import { guessAccessoryFromDevice } from '../accessory-guesser';
@@ -11,20 +10,9 @@ import { ZigBeeClient } from '../../zigbee/zig-bee-client';
 import { ConfigurableAccessory } from '../configurable-accessory';
 import { ZigBeeAccessoryFactory } from '../zig-bee-accessory';
 import * as fs from 'fs';
+import { log } from '../../utils/tests/null-logger';
 
 const API = new HomebridgeAPI();
-const log: Logging = (() => {
-  const l = (_message: string, ..._parameters: any[]): void => {};
-
-  return Object.assign(l, {
-    prefix: 'none',
-    info: function(_message: string, ..._parameters: any[]): void {},
-    warn: function(_message: string, ..._parameters: any[]): void {},
-    error: function(_message: string, ..._parameters: any[]): void {},
-    debug: function(_message: string, ..._parameters: any[]): void {},
-    log: function(_level: LogLevel, _message: string, ..._parameters: any[]): void {},
-  }) as Logging;
-})();
 
 const config: ZigBeeNTPlatformConfig = {
   name: 'TEST',

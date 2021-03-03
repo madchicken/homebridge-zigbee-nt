@@ -91,6 +91,7 @@ export class HttpServer {
   }
 
   public start(zigBee: ZigbeeNTHomebridgePlatform) {
+    this.log.info(`Starting WEB UI on port ${this.port}, host is set to ${this.host}`);
     this.express.set('host', this.host);
     this.express.set('port', this.port);
     this.express.use(bodyParser.json());

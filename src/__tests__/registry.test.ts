@@ -14,7 +14,7 @@ import { PhilipsHueWhiteTemperature } from '../accessories/philips/philips-hue-w
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import { HomebridgeAPI } from 'homebridge/lib/api';
-import { Logging, LogLevel } from 'homebridge/lib/logger';
+import { log } from '../utils/tests/null-logger';
 import { ZigBeeNTPlatformConfig } from '../types';
 import { ConfigurableAccessory } from '../accessories/configurable-accessory';
 import { PlatformAccessory } from 'homebridge';
@@ -22,18 +22,6 @@ import { registerSupportedDevices } from '../index';
 import { PhilipsHueWhite } from '../accessories/philips/philips-hue-white';
 
 const API = new HomebridgeAPI();
-const log: Logging = (() => {
-  const l = (_message: string, ..._parameters: any[]): void => {};
-
-  return Object.assign(l, {
-    prefix: 'none',
-    info: function(_message: string, ..._parameters: any[]): void {},
-    warn: function(_message: string, ..._parameters: any[]): void {},
-    error: function(_message: string, ..._parameters: any[]): void {},
-    debug: function(_message: string, ..._parameters: any[]): void {},
-    log: function(_level: LogLevel, _message: string, ..._parameters: any[]): void {},
-  }) as Logging;
-})();
 
 const config: ZigBeeNTPlatformConfig = {
   name: 'TEST',
@@ -136,5 +124,16 @@ describe('Device Registry', () => {
     const availableServices = ctor.getAvailableServices();
     expect(availableServices.length).toBe(1);
     expect(availableServices[0].UUID).toBe(API.hap.Service.Lightbulb.UUID);
+  });
+
+  it('should not crash when a device is not supported', () => {
+    const device = Device.byIeeeAddr('0x00158d01028e2d8d');
+    const ctor = createAccessoryInstance(
+      new ZigbeeNTHomebridgePlatform(log, config, API),
+      new API.platformAccessory('test', API.hap.uuid.generate('test')),
+      new ZigBeeClient(log),
+      device
+    );
+    expect(ctor).toBeNull();
   });
 });

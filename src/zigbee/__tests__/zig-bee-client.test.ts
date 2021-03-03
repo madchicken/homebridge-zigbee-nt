@@ -1,24 +1,10 @@
 import * as fs from 'fs';
-import { Logging } from 'homebridge';
-import { LogLevel } from 'homebridge/lib/logger';
 import Database from 'zigbee-herdsman/dist/controller/database';
 import { MessagePayload } from 'zigbee-herdsman/dist/controller/events';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { getDevice } from '../../utils/tests/device-builder';
+import { log } from '../../utils/tests/null-logger';
 import { ZigBeeClient } from '../zig-bee-client';
-
-const log: Logging = (() => {
-  const l = (_message: string, ..._parameters: any[]): void => {};
-
-  return Object.assign(l, {
-    prefix: 'none',
-    info: function(_message: string, ..._parameters: any[]): void {},
-    warn: function(_message: string, ..._parameters: any[]): void {},
-    error: function(_message: string, ..._parameters: any[]): void {},
-    debug: function(_message: string, ..._parameters: any[]): void {},
-    log: function(_level: LogLevel, _message: string, ..._parameters: any[]): void {},
-  }) as Logging;
-})();
 
 const dbPath = `${__dirname}/test.db`;
 

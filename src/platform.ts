@@ -94,7 +94,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     return this.client;
   }
 
-  async startZigBee(): Promise<void> {
+  public async startZigBee(): Promise<void> {
     // Create client
     this.client = new ZigBeeClient(this.log, this.config.customDeviceSettings);
 
@@ -184,8 +184,8 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     if (!accessory) {
       // Wait a little bit for a database sync
       await sleep(1500);
-      await this.initDevice(device);
-      return true;
+      const uuid = await this.initDevice(device);
+      return uuid !== null;
     } else {
       this.log.debug(
         `Not initializing device ${this.getDeviceFriendlyName(
@@ -210,7 +210,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   }
 
   async handleZigBeeReady(): Promise<void> {
-    const info: Device = this.zigBeeClient.getCoodinator();
+    const info: Device = this.zigBeeClient.getCoordinator();
     this.log.info(`ZigBee platform initialized @ ${info.ieeeAddr}`);
     // Set led indicator
     await this.zigBeeClient.toggleLed(!this.config.disableLed);
@@ -219,9 +219,11 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     // Init switch to reset devices through Touchlink feature
     this.initTouchLinkAccessory();
     // Init devices
-    const paired = await Promise.all(
-      this.zigBeeClient.getAllPairedDevices().map(device => this.initDevice(device))
-    );
+    const paired = (
+      await Promise.all(
+        this.zigBeeClient.getAllPairedDevices().map(device => this.initDevice(device))
+      )
+    ).filter(uuid => uuid !== null);
 
     paired.push(this.permitJoinAccessory.accessory.UUID);
     paired.push(this.touchLinkAccessory.accessory.UUID);
@@ -235,23 +237,31 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     });
 
     if (this.config.disableHttpServer !== true) {
-      this.httpServer = new HttpServer(this.config.httpPort);
-      this.httpServer.start(this);
+      try {
+        this.httpServer = new HttpServer(this.config.httpPort);
+        this.httpServer.start(this);
+      } catch (e) {
+        this.log.error('WEB UI failed to start.', e);
+      }
     } else {
       this.log.info('WEB UI disabled.');
     }
   }
 
-  private getAccessoryByIeeeAddr(ieeeAddr: string) {
+  public getAccessoryByIeeeAddr(ieeeAddr: string): PlatformAccessory {
     return this.accessories.get(this.generateUUID(ieeeAddr));
   }
 
-  private getAccessoryByUUID(uuid: string) {
+  public getAccessoryByUUID(uuid: string): PlatformAccessory {
     return this.accessories.get(uuid);
   }
 
-  private getHomekitAccessoryByIeeeAddr(ieeeAddr: string): ZigBeeAccessory {
+  public getHomekitAccessoryByIeeeAddr(ieeeAddr: string): ZigBeeAccessory {
     return this.homekitAccessories.get(this.generateUUID(ieeeAddr));
+  }
+
+  public getHomekitAccessoryByUUID(uuid: string) {
+    return this.homekitAccessories.get(uuid);
   }
 
   private async initDevice(device: Device): Promise<string> {
@@ -274,17 +284,20 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     } else {
       const accessory = this.createHapAccessory(ieeeAddr);
       const homeKitAccessory = createAccessoryInstance(this, accessory, this.client, device);
-      this.log.info('Registered device:', homeKitAccessory.friendlyName, manufacturer, model);
-      await homeKitAccessory.initialize(); // init services
-      this.homekitAccessories.set(accessory.UUID, homeKitAccessory);
-      return accessory.UUID;
+      if (homeKitAccessory) {
+        this.log.info('Registered device:', homeKitAccessory.friendlyName, manufacturer, model);
+        await homeKitAccessory.initialize(); // init services
+        this.homekitAccessories.set(accessory.UUID, homeKitAccessory);
+        return accessory.UUID;
+      }
+      return null;
     }
   }
 
   private async mountDevice(ieeeAddr: string): Promise<void> {
     try {
       const UUID = this.generateUUID(ieeeAddr);
-      const zigBeeAccessory = this.homekitAccessories.get(UUID);
+      const zigBeeAccessory = this.getHomekitAccessoryByUUID(UUID);
       if (zigBeeAccessory) {
         return await zigBeeAccessory.onDeviceMount();
       }
@@ -360,7 +373,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     return false;
   }
 
-  private async handleDeviceAnnounce(message: DeviceAnnouncePayload) {
+  private async handleDeviceAnnounce(message: DeviceAnnouncePayload): Promise<void> {
     const ieeeAddr = message.device.ieeeAddr;
     this.log.info(
       `Device announce: ${this.getDeviceFriendlyName(ieeeAddr)} (${
@@ -368,21 +381,17 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       } - ${message.device.modelID})`
     );
     if (message.device.interviewCompleted) {
-      if (!this.getAccessoryByIeeeAddr(ieeeAddr)) {
+      let uuid = this.getAccessoryByIeeeAddr(ieeeAddr)?.UUID;
+      if (!uuid) {
         // Wait a little bit for a database sync
         await sleep(1500);
-        await this.initDevice(message.device);
-        await this.mountDevice(ieeeAddr);
-      } else {
-        this.log.warn(
-          `Not initializing device ${this.getDeviceFriendlyName(
-            ieeeAddr
-          )}: already mapped in Homebridge`
-        );
-        await this.homekitAccessories
-          .get(this.getAccessoryByIeeeAddr(ieeeAddr).UUID)
-          .onDeviceMount();
+        uuid = await this.initDevice(message.device);
+        if (!uuid) {
+          this.log.warn(`Device not recognized: `, message);
+          return;
+        }
       }
+      return this.getHomekitAccessoryByUUID(uuid).onDeviceMount();
     } else {
       this.log.warn(
         `Not initializing device ${this.getDeviceFriendlyName(
