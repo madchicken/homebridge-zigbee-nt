@@ -268,11 +268,10 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     const model = parseModelName(device.modelID);
     const manufacturer = device.manufacturerName;
     const ieeeAddr = device.ieeeAddr;
-    this.log.info(
-      `Initializing ZigBee device: ${this.getDeviceFriendlyName(
-        ieeeAddr
-      )} - ${model} - ${manufacturer}`
-    );
+    const deviceName: string = `${this.getDeviceFriendlyName(
+      ieeeAddr
+    )} - ${model} - ${manufacturer}`;
+    this.log.info(`Initializing ZigBee device: ${deviceName}`);
 
     if (!isAccessorySupported(device)) {
       this.log.info(
@@ -282,13 +281,17 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
       );
       return null;
     } else {
-      const accessory = this.createHapAccessory(ieeeAddr);
-      const homeKitAccessory = createAccessoryInstance(this, accessory, this.client, device);
-      if (homeKitAccessory) {
-        this.log.info('Registered device:', homeKitAccessory.friendlyName, manufacturer, model);
-        await homeKitAccessory.initialize(); // init services
-        this.homekitAccessories.set(accessory.UUID, homeKitAccessory);
-        return accessory.UUID;
+      try {
+        const accessory = this.createHapAccessory(ieeeAddr);
+        const homeKitAccessory = createAccessoryInstance(this, accessory, this.client, device);
+        if (homeKitAccessory) {
+          this.log.info('Registered device:', homeKitAccessory.friendlyName, manufacturer, model);
+          await homeKitAccessory.initialize(); // init services
+          this.homekitAccessories.set(accessory.UUID, homeKitAccessory);
+          return accessory.UUID;
+        }
+      } catch (e) {
+        this.log.error(`Error initializing device ${deviceName}`, e);
       }
       return null;
     }

@@ -195,7 +195,7 @@ export function registerSupportedDevices(): void {
   registerAccessoryClass('TuYa', ['TS0601_thermostat'], TuyaThermostatControl);
   registerAccessoryClass('Moes', ['HY369RT'], TuyaThermostatControl);
   registerAccessoryClass(
-    ['_TZE200_ckud7u2l', '_TZE200_2dpplnsn'],
+    ['_TZE200_ckud7u2l', '_TZE200_ywdxldoj'],
     ['TS0601'],
     TuyaThermostatControl
   );
