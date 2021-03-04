@@ -111,3 +111,14 @@ All notable changes to this project will be documented in this file. This projec
 
 - More robust checks during startup
 - More logs when starting WEB UI (#131)
+
+## 2.1.3 (2021-3-04)
+
+## [Version 2.1.3](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.1.2...v2.1.3)
+
+#### Changes
+
+- Device \_TZE200_2dpplnsn TS0601 is not compatible with herdsman lib, removing from supported accessories
+- Add support for \_TZE200_ywdxldoj.TS0601 thermostat (same as \_TZE200_ckud7u2l.TS0601)
+- Add a try/catch during accessory initialisation to avoid plugin problems at startup
+- Updated dependencies
