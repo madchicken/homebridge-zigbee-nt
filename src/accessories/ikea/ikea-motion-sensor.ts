@@ -19,7 +19,7 @@ export class IkeaMotionSensor extends ZigBeeAccessory {
         if (this.state.occupancy) {
           this.log.debug(`Motion detected for sensor ${this.friendlyName}`);
         }
-        callback(null, this.state.occupancy);
+        callback(null, this.state.occupancy === true);
       });
 
     this.sensorService

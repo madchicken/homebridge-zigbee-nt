@@ -1,18 +1,19 @@
+import assert from 'assert';
+import retry from 'async-retry';
 import { Logger, PlatformAccessory, Service } from 'homebridge';
 import { isNull, isUndefined } from 'lodash';
-import { ZigbeeNTHomebridgePlatform } from '../platform';
-import { HSBType } from '../utils/hsb-type';
-import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
-import { DeviceState, ZigBeeDefinition, ZigBeeEntity } from '../zigbee/types';
+import { translateFromSystemMode } from '../builders/thermostat-service-builder';
+import { ZigbeeNTHomebridgePlatform } from '../platform';
 import {
   DEFAULT_POLL_INTERVAL,
   isDeviceRouter,
   MAX_POLL_INTERVAL,
   MIN_POLL_INTERVAL,
 } from '../utils/device';
-import retry from 'async-retry';
-import assert from 'assert';
+import { HSBType } from '../utils/hsb-type';
+import { DeviceState, ZigBeeDefinition, ZigBeeEntity } from '../zigbee/types';
+import { ZigBeeClient } from '../zigbee/zig-bee-client';
 
 export interface ZigBeeAccessoryCtor {
   new (
@@ -262,6 +263,7 @@ export abstract class ZigBeeAccessory {
       }
 
       switch (service.UUID) {
+        case Service.Battery.UUID:
         case Service.BatteryService.UUID:
           if (isValidValue(state.battery)) {
             service.updateCharacteristic(Characteristic.BatteryLevel, state.battery || 0);
@@ -386,6 +388,15 @@ export abstract class ZigBeeAccessory {
             service.updateCharacteristic(
               this.platform.Characteristic.CurrentRelativeHumidity,
               state.humidity
+            );
+          }
+          break;
+        case Service.Thermostat.UUID:
+          if (isValidValue(state.system_mode)) {
+            const mode = translateFromSystemMode(this.state.system_mode);
+            service.updateCharacteristic(
+              this.platform.Characteristic.CurrentHeatingCoolingState,
+              mode
             );
           }
           break;

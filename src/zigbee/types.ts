@@ -15,6 +15,8 @@ export interface ZigBeeControllerConfig {
   adapter: 'zstack' | 'deconz' | 'zigate';
 }
 
+export type RunningState = 'idle' | 'heat' | 'cool';
+
 export interface DeviceState {
   state?: State;
   state_left?: State;
@@ -43,6 +45,7 @@ export interface DeviceState {
   local_temperature?: number;
   current_heating_setpoint?: number;
   system_mode?: SystemMode;
+  running_state?: RunningState;
   humidity?: number;
   click?:
     | 'on'

@@ -1,4 +1,3 @@
-import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import {
   Callback,
   CharacteristicEventTypes,
@@ -6,9 +5,64 @@ import {
   CharacteristicSetCallback,
   PlatformAccessory,
 } from 'homebridge';
+import {
+  CurrentHeatingCoolingState,
+  TargetHeatingCoolingState,
+} from '../../../HAP-NodeJS/dist/lib/gen/HomeKit';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
+import { DeviceState, RunningState, SystemMode } from '../zigbee/types';
+import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import { ServiceBuilder } from './service-builder';
-import { DeviceState, SystemMode } from '../zigbee/types';
+
+export function runningStateToCurrentHeatingCoolingState(val: RunningState): number {
+  switch (val) {
+    case 'heat':
+      return CurrentHeatingCoolingState.HEAT;
+    case 'cool':
+      return CurrentHeatingCoolingState.COOL;
+    case 'idle':
+    default:
+      return CurrentHeatingCoolingState.OFF;
+  }
+}
+
+export function translateFromSystemMode(val: SystemMode): number {
+  let result: number;
+  switch (val) {
+    case 'heat':
+      result = TargetHeatingCoolingState.HEAT;
+      break;
+    case 'cool':
+      result = TargetHeatingCoolingState.COOL;
+      break;
+    case 'auto':
+      result = TargetHeatingCoolingState.AUTO;
+      break;
+    default:
+      result = TargetHeatingCoolingState.OFF;
+      break;
+  }
+  return result;
+}
+
+export function translateToSystemMode(val: number): SystemMode {
+  let result: SystemMode;
+  switch (val) {
+    case 1:
+      result = 'heat';
+      break;
+    case 2:
+      result = 'cool';
+      break;
+    case 3:
+      result = 'auto';
+      break;
+    default:
+      result = 'off';
+      break;
+  }
+  return result;
+}
 
 export class ThermostatServiceBuilder extends ServiceBuilder {
   constructor(
@@ -30,7 +84,7 @@ export class ThermostatServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.CurrentHeatingCoolingState)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
-          callback(null, this.translateFromSystemMode(this.state.system_mode));
+          callback(null, translateFromSystemMode(this.state.system_mode));
         } catch (e) {
           callback(e);
         }
@@ -49,7 +103,7 @@ export class ThermostatServiceBuilder extends ServiceBuilder {
       .on(
         CharacteristicEventTypes.SET,
         async (system_mode: number, callback: CharacteristicSetCallback) => {
-          let translatedMode: SystemMode = this.translateToSystemMode(system_mode);
+          let translatedMode: SystemMode = translateToSystemMode(system_mode);
           if (
             asAuto &&
             Array.isArray(asAuto) &&
@@ -73,7 +127,7 @@ export class ThermostatServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.TargetHeatingCoolingState)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
-          callback(null, this.translateFromSystemMode(this.state.system_mode));
+          callback(null, translateFromSystemMode(this.state.system_mode));
         } catch (e) {
           callback(e);
         }
@@ -86,7 +140,20 @@ export class ThermostatServiceBuilder extends ServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.CurrentTemperature)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        callback(null, this.state.local_temperature);
+        this.client
+          .getLocalTemperature(this.device)
+          .then(state => {
+            this.state.local_temperature = state.local_temperature;
+          })
+          .catch(e => {
+            this.log.error(e.message);
+          });
+
+        if (typeof this.state.local_temperature === 'number') {
+          callback(null, this.state.local_temperature);
+        } else {
+          callback(new Error('Local temp not available'));
+        }
       });
     return this;
   }
@@ -118,48 +185,17 @@ export class ThermostatServiceBuilder extends ServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.TargetTemperature)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        callback(null, this.state.current_heating_setpoint);
+        this.client
+          .getCurrentHeatingSetpoint(this.device)
+          .then(state => {
+            this.state.current_heating_setpoint = state.current_heating_setpoint;
+          })
+          .catch(e => {
+            this.log.error(e.message);
+          });
+
+        callback(null, this.state.current_heating_setpoint || min);
       });
     return this;
-  }
-
-  public translateFromSystemMode(val: SystemMode): number {
-    let result: number;
-    switch (val) {
-      case 'heat':
-        result = 1;
-        break;
-      case 'cool':
-        result = 2;
-        break;
-      case 'auto':
-        result = 3;
-        break;
-      default:
-        result = 0;
-        break;
-    }
-    this.log.info('translateFromSystemMode(' + val + '): ' + result);
-    return result;
-  }
-
-  public translateToSystemMode(val: number): SystemMode {
-    let result: SystemMode;
-    switch (val) {
-      case 1:
-        result = 'heat';
-        break;
-      case 2:
-        result = 'cool';
-        break;
-      case 3:
-        result = 'auto';
-        break;
-      default:
-        result = 'off';
-        break;
-    }
-    this.log.info('translateToSystemMode(' + val + '): ' + result);
-    return result;
   }
 }
