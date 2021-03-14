@@ -5,10 +5,7 @@ import {
   CharacteristicSetCallback,
   PlatformAccessory,
 } from 'homebridge';
-import {
-  CurrentHeatingCoolingState,
-  TargetHeatingCoolingState,
-} from '../../../HAP-NodeJS/dist/lib/gen/HomeKit';
+import { HAP } from '../index';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { DeviceState, RunningState, SystemMode } from '../zigbee/types';
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
@@ -17,12 +14,12 @@ import { ServiceBuilder } from './service-builder';
 export function runningStateToCurrentHeatingCoolingState(val: RunningState): number {
   switch (val) {
     case 'heat':
-      return CurrentHeatingCoolingState.HEAT;
+      return HAP.Characteristic.CurrentHeatingCoolingState.HEAT;
     case 'cool':
-      return CurrentHeatingCoolingState.COOL;
+      return HAP.Characteristic.CurrentHeatingCoolingState.COOL;
     case 'idle':
     default:
-      return CurrentHeatingCoolingState.OFF;
+      return HAP.Characteristic.CurrentHeatingCoolingState.OFF;
   }
 }
 
@@ -30,16 +27,16 @@ export function translateFromSystemMode(val: SystemMode): number {
   let result: number;
   switch (val) {
     case 'heat':
-      result = TargetHeatingCoolingState.HEAT;
+      result = HAP.Characteristic.TargetHeatingCoolingState.HEAT;
       break;
     case 'cool':
-      result = TargetHeatingCoolingState.COOL;
+      result = HAP.Characteristic.TargetHeatingCoolingState.COOL;
       break;
     case 'auto':
-      result = TargetHeatingCoolingState.AUTO;
+      result = HAP.Characteristic.TargetHeatingCoolingState.AUTO;
       break;
     default:
-      result = TargetHeatingCoolingState.OFF;
+      result = HAP.Characteristic.TargetHeatingCoolingState.OFF;
       break;
   }
   return result;

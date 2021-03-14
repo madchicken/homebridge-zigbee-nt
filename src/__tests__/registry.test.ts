@@ -1,3 +1,4 @@
+import { registerSupportedDevices } from '../devices-registration';
 import {
   clearRegistries,
   createAccessoryInstance,
@@ -18,7 +19,6 @@ import { log } from '../utils/tests/null-logger';
 import { ZigBeeNTPlatformConfig } from '../types';
 import { ConfigurableAccessory } from '../accessories/configurable-accessory';
 import { PlatformAccessory } from 'homebridge';
-import { registerSupportedDevices } from '../index';
 import { PhilipsHueWhite } from '../accessories/philips/philips-hue-white';
 
 const API = new HomebridgeAPI();

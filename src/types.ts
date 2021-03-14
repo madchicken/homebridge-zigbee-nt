@@ -1,5 +1,28 @@
 import { PlatformConfig } from 'homebridge';
 import { DeviceSetting } from './zigbee/types';
+import { PlatformAccessory, Characteristic, Service } from 'homebridge';
+
+export interface FakegatoEntry {
+  time: number;
+  power: number;
+}
+
+export interface FakegatoHistoryService extends Service {
+  addEntry(config: FakegatoEntry);
+}
+
+export interface FakegatoService {
+  new (type: string, plugin: PlatformAccessory, config: any): FakegatoHistoryService;
+}
+
+export interface ExtraHAPTypes {
+  Service: typeof Service;
+  Characteristic: typeof Characteristic;
+  PlatformAccessory: typeof PlatformAccessory;
+  CurrentPowerConsumption: any;
+  TotalConsumption: any;
+  FakeGatoHistoryService: FakegatoService;
+}
 
 /**
  * Supported services for manually configured devices
