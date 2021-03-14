@@ -1,4 +1,6 @@
+import { ProgrammableSwitchEvent } from '../../../HAP-NodeJS/dist/lib/gen/HomeKit';
 import { LockServiceBuilder } from '../builders/lock-service-builder';
+import { ProgrammableSwitchServiceBuilder } from '../builders/programmable-switch-service-builder';
 import { ThermostatServiceBuilder } from '../builders/thermostat-service-builder';
 import { ZigBeeAccessory } from './zig-bee-accessory';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
@@ -281,6 +283,31 @@ function createThermostatService(
   return builder.build();
 }
 
+function createProgrammableSwitchService(
+  platform: ZigbeeNTHomebridgePlatform,
+  accessory: PlatformAccessory,
+  client: ZigBeeClient,
+  zigBeeDeviceDescriptor: Device,
+  serviceConfig: ServiceConfig
+): Service[] {
+  const builder = new ProgrammableSwitchServiceBuilder(
+    platform,
+    accessory,
+    client,
+    zigBeeDeviceDescriptor
+  );
+
+  serviceConfig.meta.buttonsMapping.forEach((button, index) => {
+    builder.withStatelessSwitch(button.toUpperCase(), button, index, [
+      ProgrammableSwitchEvent.SINGLE_PRESS,
+      ProgrammableSwitchEvent.DOUBLE_PRESS,
+      ProgrammableSwitchEvent.LONG_PRESS,
+    ]);
+  });
+
+  return builder.build();
+}
+
 /**
  * Generic device accessory builder
  */
@@ -300,108 +327,133 @@ export class ConfigurableAccessory extends ZigBeeAccessory {
 
   getAvailableServices(): Service[] {
     const { platform, accessory, client, zigBeeDeviceDescriptor } = this;
-    return this.accessoryConfig.map(serviceConfig => {
+    return this.accessoryConfig.reduce((services: Service[], serviceConfig) => {
       switch (serviceConfig.type) {
         case 'light-sensor':
-          return createAmbientLightService(
-            platform,
-            accessory,
-            client,
-            zigBeeDeviceDescriptor,
-            serviceConfig
+          services.push(
+            createAmbientLightService(
+              platform,
+              accessory,
+              client,
+              zigBeeDeviceDescriptor,
+              serviceConfig
+            )
           );
+          break;
         case 'contact-sensor':
-          return createContactService(
-            platform,
-            accessory,
-            client,
-            zigBeeDeviceDescriptor,
-            serviceConfig
+          services.push(
+            createContactService(platform, accessory, client, zigBeeDeviceDescriptor, serviceConfig)
           );
+          break;
         case 'bulb':
         case 'light-bulb':
-          return createLightBulbService(
-            platform,
-            accessory,
-            client,
-            zigBeeDeviceDescriptor,
-            serviceConfig
+          services.push(
+            createLightBulbService(
+              platform,
+              accessory,
+              client,
+              zigBeeDeviceDescriptor,
+              serviceConfig
+            )
           );
+          break;
         case 'switch':
-          return createSwitchService(
-            platform,
-            accessory,
-            client,
-            zigBeeDeviceDescriptor,
-            serviceConfig
+          services.push(
+            createSwitchService(platform, accessory, client, zigBeeDeviceDescriptor, serviceConfig)
           );
+          break;
         case 'motion-sensor':
-          return createMotionSensorService(
-            platform,
-            accessory,
-            client,
-            zigBeeDeviceDescriptor,
-            serviceConfig
+          services.push(
+            createMotionSensorService(
+              platform,
+              accessory,
+              client,
+              zigBeeDeviceDescriptor,
+              serviceConfig
+            )
           );
+          break;
         case 'humidity-sensor':
-          return createHumiditySensorService(
-            platform,
-            accessory,
-            client,
-            zigBeeDeviceDescriptor,
-            serviceConfig
+          services.push(
+            createHumiditySensorService(
+              platform,
+              accessory,
+              client,
+              zigBeeDeviceDescriptor,
+              serviceConfig
+            )
           );
+          break;
         case 'temperature-sensor':
-          return createTemperatureSensorService(
-            platform,
-            accessory,
-            client,
-            zigBeeDeviceDescriptor,
-            serviceConfig
+          services.push(
+            createTemperatureSensorService(
+              platform,
+              accessory,
+              client,
+              zigBeeDeviceDescriptor,
+              serviceConfig
+            )
           );
+          break;
         case 'leak-sensor':
-          return createLeakSensorService(
-            platform,
-            accessory,
-            client,
-            zigBeeDeviceDescriptor,
-            serviceConfig
+          services.push(
+            createLeakSensorService(
+              platform,
+              accessory,
+              client,
+              zigBeeDeviceDescriptor,
+              serviceConfig
+            )
           );
+          break;
         case 'vibration-sensor':
-          return createVibrationSensorService(
-            platform,
-            accessory,
-            client,
-            zigBeeDeviceDescriptor,
-            serviceConfig
+          services.push(
+            createVibrationSensorService(
+              platform,
+              accessory,
+              client,
+              zigBeeDeviceDescriptor,
+              serviceConfig
+            )
           );
+          break;
         case 'outlet':
-          return createOutletService(
-            platform,
-            accessory,
-            client,
-            zigBeeDeviceDescriptor,
-            serviceConfig
+          services.push(
+            createOutletService(platform, accessory, client, zigBeeDeviceDescriptor, serviceConfig)
           );
+          break;
         case 'lock':
-          return createLockService(
-            platform,
-            accessory,
-            client,
-            zigBeeDeviceDescriptor,
-            serviceConfig
+          services.push(
+            createLockService(platform, accessory, client, zigBeeDeviceDescriptor, serviceConfig)
           );
+          break;
         case 'thermostat':
-          return createThermostatService(
-            platform,
-            accessory,
-            client,
-            zigBeeDeviceDescriptor,
-            serviceConfig
+          services.push(
+            createThermostatService(
+              platform,
+              accessory,
+              client,
+              zigBeeDeviceDescriptor,
+              serviceConfig
+            )
           );
+          break;
         case 'battery':
-          return createBatteryService(platform, accessory, client, zigBeeDeviceDescriptor);
+          services.push(createBatteryService(platform, accessory, client, zigBeeDeviceDescriptor));
+          break;
+        case 'programmable-switch':
+          services.push(
+            ...createProgrammableSwitchService(
+              platform,
+              accessory,
+              client,
+              zigBeeDeviceDescriptor,
+              serviceConfig
+            )
+          );
+          break;
       }
-    });
+      return services;
+    }, []);
   }
 }

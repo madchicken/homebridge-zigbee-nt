@@ -1,10 +1,11 @@
-import { ZigBeeAccessory } from '../zig-bee-accessory';
 import { PlatformAccessory, Service } from 'homebridge';
-import { DeviceState } from '../../zigbee/types';
+import { Device } from 'zigbee-herdsman/dist/controller/model';
+import { BatteryServiceBuilder } from '../../builders/battery-service-builder';
 import { ProgrammableSwitchServiceBuilder } from '../../builders/programmable-switch-service-builder';
 import { ZigbeeNTHomebridgePlatform } from '../../platform';
+import { DeviceState } from '../../zigbee/types';
 import { ZigBeeClient } from '../../zigbee/zig-bee-client';
-import { Device } from 'zigbee-herdsman/dist/controller/model';
+import { ZigBeeAccessory } from '../zig-bee-accessory';
 
 export enum EventType {
   SINGLE,
@@ -44,11 +45,15 @@ abstract class AqaraOppleSwitch extends ZigBeeAccessory {
       ]);
     });
 
-    if (this.withBattery) {
-      builder.andBattery();
-    }
-
     this.services = builder.build();
+
+    if (this.withBattery) {
+      this.services.push(
+        new BatteryServiceBuilder(this.platform, this.accessory, this.client, this.state)
+          .withBatteryPercentage()
+          .build()
+      );
+    }
 
     return this.services;
   }
@@ -191,19 +196,16 @@ export class AqaraOppleSwitch6Buttons extends AqaraOppleSwitch {
         index: 4,
         displayName: 'middle right',
         subType: 'middle_right',
-
       },
       {
         index: 5,
         displayName: 'bottom left',
         subType: 'bottom_left',
-
       },
       {
         index: 6,
         displayName: 'bottom right',
         subType: 'bottom_right',
-
       },
       {
         index: 1,
@@ -214,7 +216,6 @@ export class AqaraOppleSwitch6Buttons extends AqaraOppleSwitch {
         index: 2,
         displayName: 'top right',
         subType: 'top_right',
-
       },
     ];
   }

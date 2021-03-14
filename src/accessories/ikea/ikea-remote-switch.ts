@@ -1,3 +1,4 @@
+import { BatteryServiceBuilder } from '../../builders/battery-service-builder';
 import { ZigBeeAccessory } from '../zig-bee-accessory';
 import { Service } from 'homebridge';
 import { DeviceState } from '../../zigbee/types';
@@ -27,7 +28,6 @@ export class IkeaRemoteSwitch extends ZigBeeAccessory {
       this.switchServiceBrightDown,
       this.switchServiceLeft,
       this.switchServiceRight,
-      this.batteryService,
     ] = builder
       .withStatelessSwitch('ON/OFF', 'toggle', 1, [ProgrammableSwitchEvent.SINGLE_PRESS])
       .withStatelessSwitch('Brightness up', 'brightness_up', 2, [
@@ -46,7 +46,15 @@ export class IkeaRemoteSwitch extends ZigBeeAccessory {
         ProgrammableSwitchEvent.SINGLE_PRESS,
         ProgrammableSwitchEvent.LONG_PRESS,
       ])
-      .andBattery()
+      .build();
+
+    this.batteryService = new BatteryServiceBuilder(
+      this.platform,
+      this.accessory,
+      this.client,
+      this.state
+    )
+      .withBatteryPercentage()
       .build();
 
     return [
@@ -59,7 +67,7 @@ export class IkeaRemoteSwitch extends ZigBeeAccessory {
     ];
   }
 
-  update(state: DeviceState) {
+  update(state: DeviceState): void {
     super.update(state);
     const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
     switch (state.action) {

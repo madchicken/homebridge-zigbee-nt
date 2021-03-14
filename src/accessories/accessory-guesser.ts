@@ -29,9 +29,15 @@ function serviceFromFeatureName(feature: Feature) {
   const serviceConfig: ServiceConfig = { type: 'unknown', meta: {} };
   switch (feature.name) {
     case 'action':
-      if (feature.values.includes('vibration')) {
-        serviceConfig.type = 'contact-sensor';
-        serviceConfig.meta.vibration = true;
+      if (feature.type === 'enum') {
+        if (feature.values.includes('vibration')) {
+          serviceConfig.type = 'contact-sensor';
+          serviceConfig.meta.vibration = true;
+        } else {
+          // switch
+          serviceConfig.type = 'programmable-switch';
+          serviceConfig.meta.buttonsMapping = feature.values as string[];
+        }
       }
       break;
     case 'battery_low':

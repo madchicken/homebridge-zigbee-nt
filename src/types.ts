@@ -34,6 +34,7 @@ export type ServiceType =
   | 'bulb' // for backward compatibility
   | 'light-bulb' // lights and dimmers
   | 'switch' // switches and dimmers
+  | 'programmable-switch' // multi buttons
   | 'motion-sensor'
   | 'leak-sensor' // to use with water, gas or smoke sensors
   | 'vibration-sensor'
@@ -61,6 +62,7 @@ export type ServiceMeta = {
   contact?: boolean; // simple contact sensor
   localTemperature?: boolean; // thermostat local temperature
   currentHeatingSetpoint?: number[];
+  buttonsMapping?: string[];
 };
 
 /**
