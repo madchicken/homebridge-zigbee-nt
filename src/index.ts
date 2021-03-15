@@ -16,11 +16,7 @@ export const HAP: ExtraHAPTypes = {
   FakeGatoHistoryService: null,
 };
 
-/**
- * This method registers the platform with Homebridge
- */
-export default function(homebridge: API): void {
-  HomebridgeAPI = homebridge;
+export function initCustomCharacteristics(homebridge: API): void {
   HAP.Service = homebridge.hap.Service;
   HAP.Characteristic = homebridge.hap.Characteristic;
   HAP.PlatformAccessory = homebridge.platformAccessory;
@@ -54,7 +50,14 @@ export default function(homebridge: API): void {
       });
     }
   };
+}
 
+/**
+ * This method registers the platform with Homebridge
+ */
+export default function(homebridge: API): void {
+  HomebridgeAPI = homebridge;
+  initCustomCharacteristics(homebridge);
   registerSupportedDevices();
   homebridge.registerPlatform(PLUGIN_IDENTIFIER, PLATFORM_NAME, ZigbeeNTHomebridgePlatform);
 }

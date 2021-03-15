@@ -1,7 +1,6 @@
 import { LockServiceBuilder } from '../builders/lock-service-builder';
 import { ProgrammableSwitchServiceBuilder } from '../builders/programmable-switch-service-builder';
 import { ThermostatServiceBuilder } from '../builders/thermostat-service-builder';
-import { HAP } from '../index';
 import { ZigBeeAccessory } from './zig-bee-accessory';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { PlatformAccessory, Service } from 'homebridge';
@@ -290,7 +289,7 @@ function createProgrammableSwitchService(
   zigBeeDeviceDescriptor: Device,
   serviceConfig: ServiceConfig
 ): Service[] {
-  const ProgrammableSwitchEvent = HAP.Characteristic.ProgrammableSwitchEvent;
+  const ProgrammableSwitchEvent = platform.Characteristic.ProgrammableSwitchEvent;
   const builder = new ProgrammableSwitchServiceBuilder(
     platform,
     accessory,
