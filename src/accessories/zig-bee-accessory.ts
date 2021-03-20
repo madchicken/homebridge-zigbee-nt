@@ -12,7 +12,7 @@ import {
   MIN_POLL_INTERVAL,
 } from '../utils/device';
 import { HSBType } from '../utils/hsb-type';
-import { DeviceState, ZigBeeDefinition, ZigBeeEntity } from '../zigbee/types';
+import { ButtonAction, DeviceState, ZigBeeDefinition, ZigBeeEntity } from '../zigbee/types';
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
 
 export interface ZigBeeAccessoryCtor {
@@ -94,7 +94,7 @@ export abstract class ZigBeeAccessory {
     }
   }
 
-  handleAccessoryIdentify() {}
+  handleAccessoryIdentify(): void {}
 
   public get zigBeeDeviceDescriptor(): Device {
     return this.accessory.context as Device;
@@ -104,7 +104,7 @@ export abstract class ZigBeeAccessory {
     return this.entity.definition;
   }
 
-  public get friendlyName() {
+  public get friendlyName(): string {
     const ieeeAddr = this.zigBeeDeviceDescriptor.ieeeAddr;
     return (
       this.entity?.settings?.friendlyName ||
@@ -117,7 +117,7 @@ export abstract class ZigBeeAccessory {
 
   public abstract getAvailableServices(): Service[];
 
-  public onDeviceMount() {
+  public onDeviceMount(): void {
     this.log.info(`Mounting device ${this.friendlyName}...`);
     if (
       isDeviceRouter(this.zigBeeDeviceDescriptor) &&
@@ -126,9 +126,11 @@ export abstract class ZigBeeAccessory {
       this.isOnline = false; // wait until we can ping the device
       this.log.info(`Device ${this.friendlyName} is a router, install ping`);
       this.interval = this.getPollingInterval();
-      this.ping();
+      this.ping().then(() => this.log.debug(`Ping received from ${this.friendlyName}`));
     } else {
-      this.configureDevice();
+      this.configureDevice()
+        .then(() => this.log.debug(`${this.friendlyName} successfully configured`))
+        .catch(e => this.log.error(e.message));
     }
   }
 
@@ -141,7 +143,7 @@ export abstract class ZigBeeAccessory {
     return interval;
   }
 
-  public async ping() {
+  public async ping(): Promise<void> {
     try {
       await this.zigBeeDeviceDescriptor.ping();
       await this.configureDevice();
@@ -215,7 +217,7 @@ export abstract class ZigBeeAccessory {
     );
   }
 
-  public internalUpdate(state: DeviceState) {
+  public internalUpdate(state: DeviceState): void {
     try {
       this.log.debug(`Updating state of device ${this.friendlyName} with `, state);
       this.state = Object.assign(this.state, { ...state });
@@ -236,7 +238,7 @@ export abstract class ZigBeeAccessory {
    * Override this function only if you need some specific update feature for your accessory
    * @param state DeviceState Current device state
    */
-  public update(state: DeviceState) {
+  public update(state: DeviceState): void {
     const Service = this.platform.Service;
     const Characteristic = this.platform.Characteristic;
     this.mappedServices.forEach(service => {
@@ -400,8 +402,75 @@ export abstract class ZigBeeAccessory {
             );
           }
           break;
+        case Service.StatelessProgrammableSwitch.UUID:
+          this.handleButtonAction(state.action, service);
+          break;
       }
     });
+  }
+
+  private handleButtonAction(action: ButtonAction, service: Service) {
+    const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
+    switch (action) {
+      case 'on':
+      case 'off':
+      case 'single':
+      case 'button_1_single':
+      case 'button_2_single':
+      case 'button_3_single':
+      case 'button_4_single':
+      case 'button_5_single':
+      case 'button_6_single':
+      case 'button_1_click':
+      case 'button_2_click':
+      case 'button_3_click':
+      case 'button_4_click':
+      case 'button_5_click':
+      case 'button_6_click':
+      case 'arrow_left_click':
+      case 'arrow_right_click':
+      case 'brightness_up_click':
+      case 'brightness_down_click':
+        service
+          .getCharacteristic(ProgrammableSwitchEvent)
+          .setValue(ProgrammableSwitchEvent.SINGLE_PRESS);
+        break;
+      case 'brightness_move_up':
+      case 'brightness_move_down':
+      case 'brightness_up':
+      case 'brightness_down':
+      case 'button_1_hold':
+      case 'button_2_hold':
+      case 'button_3_hold':
+      case 'button_4_hold':
+      case 'button_5_hold':
+      case 'button_6_hold':
+      case 'toggle_hold':
+      case 'arrow_left_hold':
+      case 'arrow_right_hold':
+      case 'hold':
+      case 'brightness_up_hold':
+      case 'brightness_down_hold':
+      case 'brightness_down_release':
+        service
+          .getCharacteristic(ProgrammableSwitchEvent)
+          .setValue(ProgrammableSwitchEvent.LONG_PRESS);
+        break;
+      case 'double':
+      case 'button_1_double':
+      case 'button_2_double':
+      case 'button_3_double':
+      case 'button_4_double':
+      case 'button_5_double':
+      case 'button_6_double':
+        service
+          .getCharacteristic(ProgrammableSwitchEvent)
+          .setValue(ProgrammableSwitchEvent.DOUBLE_PRESS);
+        break;
+      default:
+        // skipped action
+        break;
+    }
   }
 
   public supports(property: string): boolean {

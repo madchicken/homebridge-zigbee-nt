@@ -1,6 +1,5 @@
-import { PlatformConfig } from 'homebridge';
-import { DeviceSetting } from './zigbee/types';
-import { PlatformAccessory, Characteristic, Service } from 'homebridge';
+import { Characteristic, PlatformAccessory, PlatformConfig, Service } from 'homebridge';
+import { ButtonAction, DeviceSetting } from './zigbee/types';
 
 export interface FakegatoEntry {
   time: number;
@@ -45,6 +44,31 @@ export type ServiceType =
   | 'lock'
   | 'thermostat'; // thermostats
 
+export type HKButtonAction = 'SINGLE_PRESS' | 'DOUBLE_PRESS' | 'LONG_PRESS';
+
+export type ButtonActionMapping = {
+  [k in ButtonAction]: HKButtonAction;
+};
+
+/*
+  Defines a mapping for a button, like this:
+  {
+    'button_1': {
+      'button_1_click': 'SINGLE_PRESS',
+      'button_1_hold': 'LONG_PRESS'
+      'button_1_double': 'DOUBLE_PRESS'
+    },
+    'button_2': {
+      'button_2_click': 'SINGLE_PRESS',
+      'button_2_hold': 'LONG_PRESS'
+      'button_2_double': 'DOUBLE_PRESS'
+    }
+  }
+ */
+export type ButtonsMapping = {
+  [k: string]: ButtonActionMapping;
+};
+
 export type ServiceMeta = {
   colorTemp?: boolean; // light temperature control
   batteryLow?: boolean; // battery low warning
@@ -62,7 +86,7 @@ export type ServiceMeta = {
   contact?: boolean; // simple contact sensor
   localTemperature?: boolean; // thermostat local temperature
   currentHeatingSetpoint?: number[];
-  buttonsMapping?: string[];
+  buttonsMapping?: ButtonsMapping;
 };
 
 /**

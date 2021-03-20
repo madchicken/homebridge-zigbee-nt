@@ -154,6 +154,6 @@ describe('Device Guesser', () => {
     );
     expect(accessory).toBeInstanceOf(ConfigurableAccessory);
     const availableServices = accessory.getAvailableServices();
-    expect(availableServices.length).toBe(1); //should be 2
+    expect(availableServices.length).toBe(3); // battery, button I, button O
   });
 });

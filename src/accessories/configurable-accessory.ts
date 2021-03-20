@@ -1,22 +1,23 @@
-import { LockServiceBuilder } from '../builders/lock-service-builder';
-import { ProgrammableSwitchServiceBuilder } from '../builders/programmable-switch-service-builder';
-import { ThermostatServiceBuilder } from '../builders/thermostat-service-builder';
-import { ZigBeeAccessory } from './zig-bee-accessory';
-import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { PlatformAccessory, Service } from 'homebridge';
-import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
-import { ContactSensorServiceBuilder } from '../builders/contact-sensor-service-builder';
-import { MotionSensorServiceBuilder } from '../builders/motion-sensor-service-builder';
-import { LighbulbServiceBuilder } from '../builders/lighbulb-service-builder';
-import { ServiceConfig } from '../types';
-import { BatteryServiceBuilder } from '../builders/battery-service-builder';
-import { HumiditySensorServiceBuilder } from '../builders/humidity-sensor-service-builder';
-import { TemperatureSensorServiceBuilder } from '../builders/temperature-sensor-service-builder';
-import { OutletServiceBuilder } from '../builders/outlet-service-builder';
-import { LeakSensorServiceBuilder } from '../builders/leak-sensor-service-builder';
 import { AmbientLightServiceBuilder } from '../builders/ambient-light-service-builder';
+import { BatteryServiceBuilder } from '../builders/battery-service-builder';
+import { ContactSensorServiceBuilder } from '../builders/contact-sensor-service-builder';
+import { HumiditySensorServiceBuilder } from '../builders/humidity-sensor-service-builder';
+import { LeakSensorServiceBuilder } from '../builders/leak-sensor-service-builder';
+import { LighbulbServiceBuilder } from '../builders/lighbulb-service-builder';
+import { LockServiceBuilder } from '../builders/lock-service-builder';
+import { MotionSensorServiceBuilder } from '../builders/motion-sensor-service-builder';
+import { OutletServiceBuilder } from '../builders/outlet-service-builder';
+import { ProgrammableSwitchServiceBuilder } from '../builders/programmable-switch-service-builder';
 import { SwitchServiceBuilder } from '../builders/switch-service-builder';
+import { TemperatureSensorServiceBuilder } from '../builders/temperature-sensor-service-builder';
+import { ThermostatServiceBuilder } from '../builders/thermostat-service-builder';
+import { ZigbeeNTHomebridgePlatform } from '../platform';
+import { ServiceConfig } from '../types';
+import { ZigBeeClient } from '../zigbee/zig-bee-client';
+import { buttonsMappingToHomeKitArray } from './utils';
+import { ZigBeeAccessory } from './zig-bee-accessory';
 
 function createLightBulbService(
   platform: ZigbeeNTHomebridgePlatform,
@@ -289,7 +290,6 @@ function createProgrammableSwitchService(
   zigBeeDeviceDescriptor: Device,
   serviceConfig: ServiceConfig
 ): Service[] {
-  const ProgrammableSwitchEvent = platform.Characteristic.ProgrammableSwitchEvent;
   const builder = new ProgrammableSwitchServiceBuilder(
     platform,
     accessory,
@@ -297,14 +297,11 @@ function createProgrammableSwitchService(
     zigBeeDeviceDescriptor
   );
 
-  serviceConfig.meta.buttonsMapping.forEach((button, index) => {
-    builder.withStatelessSwitch(button.toUpperCase(), button, index, [
-      ProgrammableSwitchEvent.SINGLE_PRESS,
-      ProgrammableSwitchEvent.DOUBLE_PRESS,
-      ProgrammableSwitchEvent.LONG_PRESS,
-    ]);
+  const buttons = buttonsMappingToHomeKitArray(serviceConfig.meta.buttonsMapping);
+  Object.entries(buttons).forEach((entry, index) => {
+    const [button, events] = entry;
+    builder.withStatelessSwitch(button.toUpperCase(), button, index, events);
   });
-
   return builder.build();
 }
 

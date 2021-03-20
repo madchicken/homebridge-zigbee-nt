@@ -1,29 +1,10 @@
-import { Capability, Feature, ZigBeeDefinition } from '../zigbee/types';
-import { ServiceConfig, ServiceMeta } from '../types';
-import { Device } from 'zigbee-herdsman/dist/controller/model';
-import { ZigBeeAccessoryFactory } from './zig-bee-accessory';
-import { ConfigurableAccessory } from './configurable-accessory';
 import { findByDevice } from 'zigbee-herdsman-converters';
-
-function getMetaFromFeatures(features: Feature[]) {
-  return features.reduce((meta, f) => {
-    switch (f.name) {
-      case 'color_xy':
-        meta.colorXY = true;
-        break;
-      case 'color_hs':
-        meta.colorHS = true;
-        break;
-      case 'color_temp':
-        meta.colorTemp = true;
-        break;
-      case 'brightness':
-        meta.brightness = true;
-        break;
-    }
-    return meta;
-  }, {} as ServiceMeta);
-}
+import { Device } from 'zigbee-herdsman/dist/controller/model';
+import { ServiceConfig } from '../types';
+import { Capability, Feature, ZigBeeDefinition } from '../zigbee/types';
+import { ConfigurableAccessory } from './configurable-accessory';
+import { featureToButtonsMapping, getMetaFromFeatures } from './utils';
+import { ZigBeeAccessoryFactory } from './zig-bee-accessory';
 
 function serviceFromFeatureName(feature: Feature) {
   const serviceConfig: ServiceConfig = { type: 'unknown', meta: {} };
@@ -36,7 +17,7 @@ function serviceFromFeatureName(feature: Feature) {
         } else {
           // switch
           serviceConfig.type = 'programmable-switch';
-          serviceConfig.meta.buttonsMapping = feature.values as string[];
+          serviceConfig.meta.buttonsMapping = featureToButtonsMapping(feature);
         }
       }
       break;
@@ -151,7 +132,7 @@ export function guessAccessoryFromDevice(device: Device): ZigBeeAccessoryFactory
       .map(capability =>
         SUPPORTED_TYPES.includes(capability.type)
           ? getServiceFromCapabilityType(capability, definition)
-          : serviceFromFeatureName(capability as Feature)
+          : serviceFromFeatureName(capability)
       )
       .filter(s => s.type !== 'unknown') // filter out unknown services
       .reduce((array, s) => {
