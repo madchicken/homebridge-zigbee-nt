@@ -14,6 +14,7 @@ import {
 import { HSBType } from '../utils/hsb-type';
 import { ButtonAction, DeviceState, ZigBeeDefinition, ZigBeeEntity } from '../zigbee/types';
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
+import { doWithButtonAction } from './utils';
 
 export interface ZigBeeAccessoryCtor {
   new (
@@ -411,66 +412,9 @@ export abstract class ZigBeeAccessory {
 
   private handleButtonAction(action: ButtonAction, service: Service) {
     const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
-    switch (action) {
-      case 'on':
-      case 'off':
-      case 'single':
-      case 'button_1_single':
-      case 'button_2_single':
-      case 'button_3_single':
-      case 'button_4_single':
-      case 'button_5_single':
-      case 'button_6_single':
-      case 'button_1_click':
-      case 'button_2_click':
-      case 'button_3_click':
-      case 'button_4_click':
-      case 'button_5_click':
-      case 'button_6_click':
-      case 'arrow_left_click':
-      case 'arrow_right_click':
-      case 'brightness_up_click':
-      case 'brightness_down_click':
-        service
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.SINGLE_PRESS);
-        break;
-      case 'brightness_move_up':
-      case 'brightness_move_down':
-      case 'brightness_up':
-      case 'brightness_down':
-      case 'button_1_hold':
-      case 'button_2_hold':
-      case 'button_3_hold':
-      case 'button_4_hold':
-      case 'button_5_hold':
-      case 'button_6_hold':
-      case 'toggle_hold':
-      case 'arrow_left_hold':
-      case 'arrow_right_hold':
-      case 'hold':
-      case 'brightness_up_hold':
-      case 'brightness_down_hold':
-      case 'brightness_down_release':
-        service
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.LONG_PRESS);
-        break;
-      case 'double':
-      case 'button_1_double':
-      case 'button_2_double':
-      case 'button_3_double':
-      case 'button_4_double':
-      case 'button_5_double':
-      case 'button_6_double':
-        service
-          .getCharacteristic(ProgrammableSwitchEvent)
-          .setValue(ProgrammableSwitchEvent.DOUBLE_PRESS);
-        break;
-      default:
-        // skipped action
-        break;
-    }
+    doWithButtonAction(action, (event: number) => {
+      service.getCharacteristic(ProgrammableSwitchEvent).setValue(event);
+    });
   }
 
   public supports(property: string): boolean {

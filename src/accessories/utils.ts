@@ -1,6 +1,67 @@
 import { ButtonActionMapping, ButtonsMapping, ServiceMeta } from '../types';
 import { ButtonAction, Feature } from '../zigbee/types';
 
+const SINGLE_PRESS = 0;
+const DOUBLE_PRESS = 1;
+const LONG_PRESS = 2;
+
+export function doWithButtonAction(action: ButtonAction, fn: (event: number) => void): void {
+  switch (action) {
+    case 'on':
+    case 'off':
+    case 'single':
+    case 'button_1_single':
+    case 'button_2_single':
+    case 'button_3_single':
+    case 'button_4_single':
+    case 'button_5_single':
+    case 'button_6_single':
+    case 'button_1_click':
+    case 'button_2_click':
+    case 'button_3_click':
+    case 'button_4_click':
+    case 'button_5_click':
+    case 'button_6_click':
+    case 'arrow_left_click':
+    case 'arrow_right_click':
+    case 'brightness_up_click':
+    case 'brightness_down_click':
+      fn(SINGLE_PRESS);
+      break;
+    case 'brightness_move_up':
+    case 'brightness_move_down':
+    case 'brightness_up':
+    case 'brightness_down':
+    case 'button_1_hold':
+    case 'button_2_hold':
+    case 'button_3_hold':
+    case 'button_4_hold':
+    case 'button_5_hold':
+    case 'button_6_hold':
+    case 'toggle_hold':
+    case 'arrow_left_hold':
+    case 'arrow_right_hold':
+    case 'hold':
+    case 'brightness_up_hold':
+    case 'brightness_down_hold':
+    case 'brightness_down_release':
+      fn(LONG_PRESS);
+      break;
+    case 'double':
+    case 'button_1_double':
+    case 'button_2_double':
+    case 'button_3_double':
+    case 'button_4_double':
+    case 'button_5_double':
+    case 'button_6_double':
+      fn(DOUBLE_PRESS);
+      break;
+    default:
+      // skipped action
+      break;
+  }
+}
+
 export function getMetaFromFeatures(features: Feature[]): ServiceMeta {
   return features.reduce((meta, f) => {
     switch (f.name) {
@@ -52,60 +113,19 @@ export function featureToButtonsMapping(feature: Feature): ButtonsMapping {
     if (!mapping[name]) {
       mapping[name] = {} as ButtonActionMapping;
     }
-    switch (actionName) {
-      case 'on':
-      case 'off':
-      case 'single':
-      case 'button_1_single':
-      case 'button_2_single':
-      case 'button_3_single':
-      case 'button_4_single':
-      case 'button_5_single':
-      case 'button_6_single':
-      case 'button_1_click':
-      case 'button_2_click':
-      case 'button_3_click':
-      case 'button_4_click':
-      case 'button_5_click':
-      case 'button_6_click':
-      case 'arrow_left_click':
-      case 'arrow_right_click':
-      case 'brightness_up_click':
-      case 'brightness_down_click':
-        mapping[name][actionName] = 'SINGLE_PRESS';
-        break;
-      case 'brightness_move_up':
-      case 'brightness_move_down':
-      case 'brightness_up':
-      case 'brightness_down':
-      case 'button_1_hold':
-      case 'button_2_hold':
-      case 'button_3_hold':
-      case 'button_4_hold':
-      case 'button_5_hold':
-      case 'button_6_hold':
-      case 'toggle_hold':
-      case 'arrow_left_hold':
-      case 'arrow_right_hold':
-      case 'hold':
-      case 'brightness_up_hold':
-      case 'brightness_down_hold':
-      case 'brightness_down_release':
-        mapping[name][actionName] = 'LONG_PRESS';
-        break;
-      case 'double':
-      case 'button_1_double':
-      case 'button_2_double':
-      case 'button_3_double':
-      case 'button_4_double':
-      case 'button_5_double':
-      case 'button_6_double':
-        mapping[name][actionName] = 'DOUBLE_PRESS';
-        break;
-      default:
-        // skipped action
-        break;
-    }
+    doWithButtonAction(actionName, (event: number) => {
+      switch (event) {
+        case SINGLE_PRESS:
+          mapping[name][actionName] = 'SINGLE_PRESS';
+          break;
+        case DOUBLE_PRESS_PRESS:
+          mapping[name][actionName] = 'DOUBLE_PRESS';
+          break;
+        case LONG_PRESS:
+          mapping[name][actionName] = 'LONG_PRESS';
+          break;
+      }
+    });
     return mapping;
   }, {} as ButtonsMapping);
 }
