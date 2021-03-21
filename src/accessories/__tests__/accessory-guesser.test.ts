@@ -177,4 +177,25 @@ describe('Device Guesser', () => {
     const availableServices = accessory.getAvailableServices();
     expect(availableServices.length).toBe(4); // button left, button right, button both, battery
   });
+
+  it('should recognize SomGos switch', () => {
+    const device = getDevice('somgomsSwitch');
+    const services = guessAccessoryFromDevice(device);
+    expect(services).not.toBeNull();
+    expect(services.length).toBe(4);
+    expect(services[0].type).toBe('switch');
+    expect(services[1].type).toBe('switch');
+    expect(services[2].type).toBe('switch');
+    expect(services[3].type).toBe('switch');
+    const accessory = new ConfigurableAccessory(
+      zigbeeNTHomebridgePlatform,
+      new API.platformAccessory('test', API.hap.uuid.generate('test')),
+      zigBeeClient,
+      device,
+      services
+    );
+    expect(accessory).toBeInstanceOf(ConfigurableAccessory);
+    const availableServices = accessory.getAvailableServices();
+    expect(availableServices.length).toBe(4); // 4 switches
+  });
 });

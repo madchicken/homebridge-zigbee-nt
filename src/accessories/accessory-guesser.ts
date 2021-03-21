@@ -67,7 +67,6 @@ function serviceFromFeatureName(feature: Feature) {
     case 'tamper':
       serviceConfig.meta.tamper = true;
       break;
-    case 'illuminance':
     case 'illuminance_lux':
       serviceConfig.type = 'light-sensor';
       break;
@@ -133,18 +132,7 @@ export function guessAccessoryFromDevice(device: Device): ServiceConfig[] {
           ? getServiceFromCapabilityType(capability, definition)
           : serviceFromFeatureName(capability)
       )
-      .filter(s => s.type !== 'unknown') // filter out unknown services
-      .reduce((array, s) => {
-        // remove duplicates
-        const existingConfig = array.find(x => x.type === s.type);
-        if (!existingConfig) {
-          array.push(s);
-        } else {
-          // merge meta properties
-          existingConfig.meta = { ...existingConfig.meta, ...s.meta };
-        }
-        return array;
-      }, [] as ServiceConfig[]);
+      .filter(s => s.type !== 'unknown'); // filter out unknown services
     return services.length ? services : null;
   }
   return null;
