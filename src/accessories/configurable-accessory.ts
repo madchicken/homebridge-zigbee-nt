@@ -300,7 +300,7 @@ function createProgrammableSwitchService(
   const buttons = buttonsMappingToHomeKitArray(serviceConfig.meta.buttonsMapping);
   Object.entries(buttons).forEach((entry, index) => {
     const [button, events] = entry;
-    builder.withStatelessSwitch(button.toUpperCase(), button, index, events);
+    builder.withStatelessSwitch(button.toUpperCase(), button, index + 1, events); // service index starts from 1
   });
   return builder.build();
 }

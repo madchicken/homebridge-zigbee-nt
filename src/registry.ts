@@ -32,28 +32,45 @@ function find(device: Device) {
 }
 
 // Exported function
-export function clearRegistries() {
+export function clearRegistries(): void {
   classRegistry.clear();
   factoryRegistry.clear();
 }
 
+/**
+ * Register a class to map a given device model (or models) of a manufacturer
+ * (or set of manufacturers)
+ * @param manufacturer name or names of manufacturers
+ * @param models name or names of device models
+ * @param clazz the accessory class to register
+ */
 export function registerAccessoryClass(
   manufacturer: string | string[],
   models: string[],
   clazz: ZigBeeAccessoryCtor
-) {
+): void {
   const manufacturers = Array.isArray(manufacturer) ? manufacturer : [manufacturer];
   manufacturers.forEach(manufacturer => {
     models.forEach(model => classRegistry.set(getKey(manufacturer, model), clazz));
   });
 }
 
+/**
+ * Register a factory to build an accessory for a given device model (or models)
+ * of a manufacturer (or set of manufacturers)
+ * @param manufacturer name or names of manufacturers
+ * @param models name or names of device models
+ * @param factory the factory to register
+ */
 export function registerAccessoryFactory(
-  manufacturer: string,
+  manufacturer: string | string[],
   models: string[],
   factory: ZigBeeAccessoryFactory
-) {
-  models.forEach(model => factoryRegistry.set(getKey(manufacturer, model), factory));
+): void {
+  const manufacturers = Array.isArray(manufacturer) ? manufacturer : [manufacturer];
+  manufacturers.forEach(manufacturer => {
+    models.forEach(model => factoryRegistry.set(getKey(manufacturer, model), factory));
+  });
 }
 
 export function createAccessoryInstance<T extends ZigBeeAccessory>(
