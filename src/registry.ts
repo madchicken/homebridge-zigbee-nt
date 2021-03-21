@@ -1,16 +1,17 @@
+import { PlatformAccessory } from 'homebridge';
+import { findByDevice } from 'zigbee-herdsman-converters';
+import { Device } from 'zigbee-herdsman/dist/controller/model';
+import { guessAccessoryFromDevice } from './accessories/accessory-guesser';
 import { ConfigurableAccessory } from './accessories/configurable-accessory';
 import {
   ZigBeeAccessory,
   ZigBeeAccessoryCtor,
   ZigBeeAccessoryFactory,
 } from './accessories/zig-bee-accessory';
-import { findByDevice } from 'zigbee-herdsman-converters';
 import { ZigbeeNTHomebridgePlatform } from './platform';
-import { PlatformAccessory } from 'homebridge';
-import { ZigBeeClient } from './zigbee/zig-bee-client';
-import { Device } from 'zigbee-herdsman/dist/controller/model';
+import { ServiceConfig } from './types';
 import { parseModelName } from './utils/parse-model-name';
-import { guessAccessoryFromDevice } from './accessories/accessory-guesser';
+import { ZigBeeClient } from './zigbee/zig-bee-client';
 
 const classRegistry: Map<string, ZigBeeAccessoryCtor> = new Map();
 const factoryRegistry: Map<string, ZigBeeAccessoryFactory> = new Map();
@@ -73,43 +74,52 @@ export function registerAccessoryFactory(
   });
 }
 
-export function createAccessoryInstance<T extends ZigBeeAccessory>(
+export function createAccessoryInstance(
   platform: ZigbeeNTHomebridgePlatform,
   accessory: PlatformAccessory,
   client: ZigBeeClient,
   device: Device
-): T {
+): ZigBeeAccessory {
   if (device) {
     const key = find(device);
     if (platform.config.preferAutoDiscover) {
       platform.log.debug('preferAutoDiscover is true: guessing device from zigbee definition');
-      const autoDiscover = guessAccessoryFromDevice(device);
-      if (autoDiscover) {
-        const zbAcc: ZigBeeAccessory = autoDiscover(platform, accessory, client, device);
+      const serviceConfigs = guessAccessoryFromDevice(device);
+      if (serviceConfigs) {
+        const zbAcc = new ConfigurableAccessory(
+          platform,
+          accessory,
+          client,
+          device,
+          serviceConfigs
+        );
+        const accessoryConfig: ServiceConfig[] = zbAcc.accessoryConfig;
         platform.log.debug(
           `Successfully auto discovered device: ${zbAcc.friendlyName}, ${zbAcc.zigBeeDefinition.description}`,
-          (zbAcc as ConfigurableAccessory).accessoryConfig
+          JSON.stringify(accessoryConfig, null, 2)
         );
-        return zbAcc as T;
+        return zbAcc;
       }
     }
     const factory = factoryRegistry.get(key);
     if (factory) {
       platform.log.debug(`Found factory for device with key ${key}`);
-      return factory(platform, accessory, client, device) as T;
+      return factory(platform, accessory, client, device);
     }
     const Clazz = classRegistry.get(key);
     if (Clazz) {
       platform.log.debug(`Found class for device with key ${key}`);
-      return new Clazz(platform, accessory, client, device) as T;
+      return new Clazz(platform, accessory, client, device);
     }
-    const autoDiscover = guessAccessoryFromDevice(device);
-    if (autoDiscover) {
-      const zbAcc: ZigBeeAccessory = autoDiscover(platform, accessory, client, device);
+    const serviceConfigs = guessAccessoryFromDevice(device);
+    if (serviceConfigs) {
+      const zbAcc = new ConfigurableAccessory(platform, accessory, client, device, serviceConfigs);
+      const accessoryConfig: ServiceConfig[] = zbAcc.accessoryConfig;
       platform.log.debug(
-        `Successfully auto discovered device: ${zbAcc.friendlyName}, ${zbAcc.zigBeeDefinition.description}`
+        `Successfully auto discovered device: ${zbAcc.friendlyName}, ${zbAcc.zigBeeDefinition.description}`,
+        JSON.stringify(accessoryConfig, null, 2)
       );
-      return zbAcc as T;
+      return zbAcc;
     }
     platform.log.warn(
       `Device with key ${key} not supported. Please open a Github issue for this at https://github.com/madchicken/homebridge-zigbee-nt/issues`,

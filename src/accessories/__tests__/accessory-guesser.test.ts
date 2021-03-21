@@ -1,16 +1,15 @@
-import Device from 'zigbee-herdsman/dist/controller/model/device';
-import Database from 'zigbee-herdsman/dist/controller/database';
-import { HomebridgeAPI } from 'homebridge/lib/api';
-import { createAccessoryInstance } from '../../registry';
-import { getDevice } from '../../utils/tests/device-builder';
-import { guessAccessoryFromDevice } from '../accessory-guesser';
-import { ZigbeeNTHomebridgePlatform } from '../../platform';
-import { ZigBeeNTPlatformConfig } from '../../types';
-import { ZigBeeClient } from '../../zigbee/zig-bee-client';
-import { ConfigurableAccessory } from '../configurable-accessory';
-import { ZigBeeAccessoryFactory } from '../zig-bee-accessory';
 import * as fs from 'fs';
+import { HomebridgeAPI } from 'homebridge/lib/api';
+import Database from 'zigbee-herdsman/dist/controller/database';
+import Device from 'zigbee-herdsman/dist/controller/model/device';
+import { ZigbeeNTHomebridgePlatform } from '../../platform';
+import { createAccessoryInstance } from '../../registry';
+import { ZigBeeNTPlatformConfig } from '../../types';
+import { getDevice } from '../../utils/tests/device-builder';
 import { log } from '../../utils/tests/null-logger';
+import { ZigBeeClient } from '../../zigbee/zig-bee-client';
+import { guessAccessoryFromDevice } from '../accessory-guesser';
+import { ConfigurableAccessory } from '../configurable-accessory';
 
 const API = new HomebridgeAPI();
 
@@ -40,13 +39,14 @@ describe('Device Guesser', () => {
 
   it('should recognize LUMI motion sensor given the device descriptor', () => {
     const device = getDevice('motionSensor');
-    const factory: ZigBeeAccessoryFactory = guessAccessoryFromDevice(device);
-    expect(factory).not.toBeNull();
-    const accessory = factory(
+    const services = guessAccessoryFromDevice(device);
+    expect(services).not.toBeNull();
+    const accessory = new ConfigurableAccessory(
       zigbeeNTHomebridgePlatform,
       new API.platformAccessory('test', API.hap.uuid.generate('test')),
       zigBeeClient,
-      device
+      device,
+      services
     );
     expect(accessory).toBeInstanceOf(ConfigurableAccessory);
     const availableServices = accessory.getAvailableServices();
@@ -59,13 +59,14 @@ describe('Device Guesser', () => {
 
   it('should recognize Philips light bulb given the device descriptor', () => {
     const device = getDevice('light');
-    const factory: ZigBeeAccessoryFactory = guessAccessoryFromDevice(device);
-    expect(factory).not.toBeNull();
-    const accessory = factory(
+    const services = guessAccessoryFromDevice(device);
+    expect(services).not.toBeNull();
+    const accessory = new ConfigurableAccessory(
       zigbeeNTHomebridgePlatform,
       new API.platformAccessory('test', API.hap.uuid.generate('test')),
       zigBeeClient,
-      device
+      device,
+      services
     );
     expect(accessory).toBeInstanceOf(ConfigurableAccessory);
     const availableServices = accessory.getAvailableServices();
@@ -89,13 +90,14 @@ describe('Device Guesser', () => {
 
   it('should recognize Yale YRD426NRSC lock given the device descriptor', () => {
     const device = getDevice('lock');
-    const factory: ZigBeeAccessoryFactory = guessAccessoryFromDevice(device);
-    expect(factory).not.toBeNull();
-    const accessory = factory(
+    const services = guessAccessoryFromDevice(device);
+    expect(services).not.toBeNull();
+    const accessory = new ConfigurableAccessory(
       zigbeeNTHomebridgePlatform,
       new API.platformAccessory('test', API.hap.uuid.generate('test')),
       zigBeeClient,
-      device
+      device,
+      services
     );
     expect(accessory).toBeInstanceOf(ConfigurableAccessory);
     const availableServices = accessory.getAvailableServices();
@@ -106,13 +108,14 @@ describe('Device Guesser', () => {
 
   it('should recognize Xiaomi contact sensor given the device descriptor', () => {
     const device = getDevice('contactSensor');
-    const factory: ZigBeeAccessoryFactory = guessAccessoryFromDevice(device);
-    expect(factory).not.toBeNull();
-    const accessory = factory(
+    const services = guessAccessoryFromDevice(device);
+    expect(services).not.toBeNull();
+    const accessory = new ConfigurableAccessory(
       zigbeeNTHomebridgePlatform,
       new API.platformAccessory('test', API.hap.uuid.generate('test')),
       zigBeeClient,
-      device
+      device,
+      services
     );
     expect(accessory).toBeInstanceOf(ConfigurableAccessory);
     const availableServices = accessory.getAvailableServices();
@@ -126,13 +129,14 @@ describe('Device Guesser', () => {
     for (const DEV of ['vibrationSensor', 'vibrationSensor2']) {
       // @ts-ignore
       const device = getDevice(DEV);
-      const factory: ZigBeeAccessoryFactory = guessAccessoryFromDevice(device);
-      expect(factory).not.toBeNull();
-      const accessory = factory(
+      const services = guessAccessoryFromDevice(device);
+      expect(services).not.toBeNull();
+      const accessory = new ConfigurableAccessory(
         zigbeeNTHomebridgePlatform,
         new API.platformAccessory('test', API.hap.uuid.generate('test')),
         zigBeeClient,
-        device
+        device,
+        services
       );
       expect(accessory).toBeInstanceOf(ConfigurableAccessory);
       const availableServices = accessory.getAvailableServices();
@@ -144,13 +148,14 @@ describe('Device Guesser', () => {
 
   it('should recognize IKEA On/OFF button given the device descriptor', () => {
     const device = getDevice('ikeaOnOffButton');
-    const factory: ZigBeeAccessoryFactory = guessAccessoryFromDevice(device);
-    expect(factory).not.toBeNull();
-    const accessory = factory(
+    const services = guessAccessoryFromDevice(device);
+    expect(services).not.toBeNull();
+    const accessory = new ConfigurableAccessory(
       zigbeeNTHomebridgePlatform,
       new API.platformAccessory('test', API.hap.uuid.generate('test')),
       zigBeeClient,
-      device
+      device,
+      services
     );
     expect(accessory).toBeInstanceOf(ConfigurableAccessory);
     const availableServices = accessory.getAvailableServices();

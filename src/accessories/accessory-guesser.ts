@@ -2,9 +2,7 @@ import { findByDevice } from 'zigbee-herdsman-converters';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { ServiceConfig } from '../types';
 import { Capability, Feature, ZigBeeDefinition } from '../zigbee/types';
-import { ConfigurableAccessory } from './configurable-accessory';
 import { featureToButtonsMapping, getMetaFromFeatures } from './utils';
-import { ZigBeeAccessoryFactory } from './zig-bee-accessory';
 
 function serviceFromFeatureName(feature: Feature) {
   const serviceConfig: ServiceConfig = { type: 'unknown', meta: {} };
@@ -121,11 +119,12 @@ const SUPPORTED_TYPES = ['light', 'switch', 'lock'];
 
 /**
  * Guess the accessory configuration by scanning the device definition and exposed capabilities.
+ * Returns a configuration to pass to {@see ConfigurableAccessory} constructor
  *
  * @param device the ZigBee Device instance
- * @return ZigBeeAccessoryFactory
+ * @return ServiceConfig[] the guessed configuration
  */
-export function guessAccessoryFromDevice(device: Device): ZigBeeAccessoryFactory {
+export function guessAccessoryFromDevice(device: Device): ServiceConfig[] {
   const definition: ZigBeeDefinition = findByDevice(device);
   if (definition) {
     const services: ServiceConfig[] = definition.exposes
@@ -146,10 +145,7 @@ export function guessAccessoryFromDevice(device: Device): ZigBeeAccessoryFactory
         }
         return array;
       }, [] as ServiceConfig[]);
-    if (services.length) {
-      return (platform, accessory, client, device) =>
-        new ConfigurableAccessory(platform, accessory, client, device, services);
-    }
+    return services.length ? services : null;
   }
   return null;
 }

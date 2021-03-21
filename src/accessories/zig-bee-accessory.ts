@@ -14,6 +14,7 @@ import {
 import { HSBType } from '../utils/hsb-type';
 import { ButtonAction, DeviceState, ZigBeeDefinition, ZigBeeEntity } from '../zigbee/types';
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
+import { ConfigurableAccessory } from './configurable-accessory';
 import { doWithButtonAction } from './utils';
 
 export interface ZigBeeAccessoryCtor {
@@ -30,7 +31,7 @@ export type ZigBeeAccessoryFactory = (
   accessory: PlatformAccessory,
   client: ZigBeeClient,
   device: Device
-) => ZigBeeAccessory;
+) => ConfigurableAccessory;
 
 const MAX_PING_ATTEMPTS = 1;
 
