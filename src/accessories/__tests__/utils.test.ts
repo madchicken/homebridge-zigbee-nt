@@ -1,8 +1,8 @@
-import { featureToButtonsMapping } from '../accessories/utils';
-import { ButtonAction, Feature } from '../zigbee/types';
+import { featureToButtonsMapping } from '../utils';
+import { ButtonAction, Feature } from '../../zigbee/types';
 
 describe('Utility functions', () => {
-  it('should should create button mappings from declared feature (1 button, three actions)', () => {
+  it('should create button mappings from declared feature (1 button, three actions)', () => {
     const buttonFeature: Feature = {
       type: 'enum',
       access: 1,
@@ -17,7 +17,7 @@ describe('Utility functions', () => {
     expect(mapping['on']['brightness_stop']).not.toBeDefined();
   });
 
-  it('should should create button mappings from declared feature (2 buttons, two actions each)', () => {
+  it('should create button mappings from declared feature (2 buttons, two actions each)', () => {
     const buttonFeature: Feature = {
       type: 'enum',
       access: 1,
@@ -33,7 +33,7 @@ describe('Utility functions', () => {
     expect(mapping['off']['brightness_move_down']).toBe('LONG_PRESS');
   });
 
-  it('should should create button mappings from declared feature (4 buttons)', () => {
+  it('should create button mappings from declared feature (4 buttons)', () => {
     const buttonFeature: Feature = {
       type: 'enum',
       access: 1,
@@ -68,7 +68,7 @@ describe('Utility functions', () => {
     expect(mapping['button_4']['button_4_hold']).toBe('LONG_PRESS');
   });
 
-  it('should should create button mappings from declared feature (5 buttons mixed)', () => {
+  it('should create button mappings from declared feature (5 buttons mixed)', () => {
     const buttonFeature: Feature = {
       type: 'enum',
       access: 1,
@@ -106,7 +106,7 @@ describe('Utility functions', () => {
     expect(mapping['arrow_right']['arrow_right_hold']).toBe('LONG_PRESS');
   });
 
-  it('should should create button mappings from declared feature (6 buttons)', () => {
+  it('should create button mappings from declared feature (6 buttons)', () => {
     const buttonFeature: Feature = {
       type: 'enum',
       access: 1,
@@ -169,5 +169,37 @@ describe('Utility functions', () => {
     expect(mapping['button_6']['button_6_single']).toBe('SINGLE_PRESS');
     expect(mapping['button_6']['button_6_hold']).toBe('LONG_PRESS');
     expect(mapping['button_6']['button_6_double']).toBe('DOUBLE_PRESS');
+  });
+
+  it('should create button mappings from declared feature (2 buttons + both)', () => {
+    const buttonFeature: Feature = {
+      type: 'enum',
+      access: 1,
+      name: 'action',
+      values: [
+        'single_left',
+        'single_right',
+        'single_both',
+        'double_left',
+        'double_right',
+        'double_both',
+        'hold_left',
+        'hold_right',
+        'hold_both',
+      ] as ButtonAction[],
+    };
+    const mapping = featureToButtonsMapping(buttonFeature);
+    expect(mapping['left']).toBeDefined();
+    expect(mapping['left']['single_left']).toBe('SINGLE_PRESS');
+    expect(mapping['left']['hold_left']).toBe('LONG_PRESS');
+    expect(mapping['left']['double_left']).toBe('DOUBLE_PRESS');
+    expect(mapping['right']).toBeDefined();
+    expect(mapping['right']['single_right']).toBe('SINGLE_PRESS');
+    expect(mapping['right']['hold_right']).toBe('LONG_PRESS');
+    expect(mapping['right']['double_right']).toBe('DOUBLE_PRESS');
+    expect(mapping['both']).toBeDefined();
+    expect(mapping['both']['single_both']).toBe('SINGLE_PRESS');
+    expect(mapping['both']['hold_both']).toBe('LONG_PRESS');
+    expect(mapping['both']['double_both']).toBe('DOUBLE_PRESS');
   });
 });

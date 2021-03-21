@@ -161,4 +161,20 @@ describe('Device Guesser', () => {
     const availableServices = accessory.getAvailableServices();
     expect(availableServices.length).toBe(3); // battery, button I, button O
   });
+
+  it('should recognize Lumi remote switch', () => {
+    const device = getDevice('lumiRemoteSwitch');
+    const services = guessAccessoryFromDevice(device);
+    expect(services).not.toBeNull();
+    const accessory = new ConfigurableAccessory(
+      zigbeeNTHomebridgePlatform,
+      new API.platformAccessory('test', API.hap.uuid.generate('test')),
+      zigBeeClient,
+      device,
+      services
+    );
+    expect(accessory).toBeInstanceOf(ConfigurableAccessory);
+    const availableServices = accessory.getAvailableServices();
+    expect(availableServices.length).toBe(4); // button left, button right, button both, battery
+  });
 });

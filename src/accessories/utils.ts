@@ -26,6 +26,9 @@ export function doWithButtonAction(action: ButtonAction, fn: (event: number) => 
     case 'arrow_right_click':
     case 'brightness_up_click':
     case 'brightness_down_click':
+    case 'single_left':
+    case 'single_right':
+    case 'single_both':
       fn(SINGLE_PRESS);
       break;
     case 'brightness_move_up':
@@ -45,6 +48,9 @@ export function doWithButtonAction(action: ButtonAction, fn: (event: number) => 
     case 'brightness_up_hold':
     case 'brightness_down_hold':
     case 'brightness_down_release':
+    case 'hold_left':
+    case 'hold_right':
+    case 'hold_both':
       fn(LONG_PRESS);
       break;
     case 'double':
@@ -54,6 +60,9 @@ export function doWithButtonAction(action: ButtonAction, fn: (event: number) => 
     case 'button_4_double':
     case 'button_5_double':
     case 'button_6_double':
+    case 'double_left':
+    case 'double_right':
+    case 'double_both':
       fn(DOUBLE_PRESS);
       break;
     default:
@@ -84,10 +93,11 @@ export function getMetaFromFeatures(features: Feature[]): ServiceMeta {
 
 const validButtonNames = [
   '^(button_[0-9])_.*$',
-  '^(arrow_?(up|down|left|right))_.*$',
-  '^(brightness_?(up|down))_.*$',
-  '^(toggle)?(_hold)$',
+  '^(arrow_(?:up|down|left|right))_.*$',
+  '^(brightness_(?:up|down))_.*$',
+  '^(toggle)(?:_hold)$',
   '^(on|off)$',
+  '^(?:single|double|hold)_(left|right|both)$',
 ];
 
 const SpecialMapping = {

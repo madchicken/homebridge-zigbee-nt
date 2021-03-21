@@ -77,7 +77,16 @@ export type ButtonAction =
   | 'hold'
   | 'double'
   | 'play_pause'
-  | 'release';
+  | 'release'
+  | 'single_left'
+  | 'single_right'
+  | 'single_both'
+  | 'double_left'
+  | 'double_right'
+  | 'double_both'
+  | 'hold_left'
+  | 'hold_right'
+  | 'hold_both';
 
 export type ClickAction =
   | 'on'
