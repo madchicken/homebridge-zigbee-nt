@@ -122,3 +122,14 @@ All notable changes to this project will be documented in this file. This projec
 - Add support for \_TZE200_ywdxldoj.TS0601 thermostat (same as \_TZE200_ckud7u2l.TS0601)
 - Add a try/catch during accessory initialisation to avoid plugin problems at startup
 - Updated dependencies
+
+## 2.2.0 (2021-3-21)
+
+## [Version 2.2.0](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.1.3...v2.2.0)
+
+#### Changes
+
+- Multi switch auto discovery support
+- Fix errors provided by default values
+- Fix multi service support on a single device
+- Updated dependencies
