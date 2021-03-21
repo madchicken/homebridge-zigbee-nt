@@ -1,37 +1,22 @@
-import { Capability, Feature, ZigBeeDefinition } from '../zigbee/types';
-import { ServiceConfig, ServiceMeta } from '../types';
-import { Device } from 'zigbee-herdsman/dist/controller/model';
-import { ZigBeeAccessoryFactory } from './zig-bee-accessory';
-import { ConfigurableAccessory } from './configurable-accessory';
 import { findByDevice } from 'zigbee-herdsman-converters';
-
-function getMetaFromFeatures(features: Feature[]) {
-  return features.reduce((meta, f) => {
-    switch (f.name) {
-      case 'color_xy':
-        meta.colorXY = true;
-        break;
-      case 'color_hs':
-        meta.colorHS = true;
-        break;
-      case 'color_temp':
-        meta.colorTemp = true;
-        break;
-      case 'brightness':
-        meta.brightness = true;
-        break;
-    }
-    return meta;
-  }, {} as ServiceMeta);
-}
+import { Device } from 'zigbee-herdsman/dist/controller/model';
+import { ServiceConfig } from '../types';
+import { Capability, Feature, ZigBeeDefinition } from '../zigbee/types';
+import { featureToButtonsMapping, getMetaFromFeatures } from './utils';
 
 function serviceFromFeatureName(feature: Feature) {
   const serviceConfig: ServiceConfig = { type: 'unknown', meta: {} };
   switch (feature.name) {
     case 'action':
-      if (feature.values.includes('vibration')) {
-        serviceConfig.type = 'contact-sensor';
-        serviceConfig.meta.vibration = true;
+      if (feature.type === 'enum') {
+        if (feature.values.includes('vibration')) {
+          serviceConfig.type = 'contact-sensor';
+          serviceConfig.meta.vibration = true;
+        } else {
+          // switch
+          serviceConfig.type = 'programmable-switch';
+          serviceConfig.meta.buttonsMapping = featureToButtonsMapping(feature);
+        }
       }
       break;
     case 'battery_low':
@@ -82,7 +67,6 @@ function serviceFromFeatureName(feature: Feature) {
     case 'tamper':
       serviceConfig.meta.tamper = true;
       break;
-    case 'illuminance':
     case 'illuminance_lux':
       serviceConfig.type = 'light-sensor';
       break;
@@ -134,35 +118,22 @@ const SUPPORTED_TYPES = ['light', 'switch', 'lock'];
 
 /**
  * Guess the accessory configuration by scanning the device definition and exposed capabilities.
+ * Returns a configuration to pass to {@see ConfigurableAccessory} constructor
  *
  * @param device the ZigBee Device instance
- * @return ZigBeeAccessoryFactory
+ * @return ServiceConfig[] the guessed configuration
  */
-export function guessAccessoryFromDevice(device: Device): ZigBeeAccessoryFactory {
+export function guessAccessoryFromDevice(device: Device): ServiceConfig[] {
   const definition: ZigBeeDefinition = findByDevice(device);
   if (definition) {
     const services: ServiceConfig[] = definition.exposes
       .map(capability =>
         SUPPORTED_TYPES.includes(capability.type)
           ? getServiceFromCapabilityType(capability, definition)
-          : serviceFromFeatureName(capability as Feature)
+          : serviceFromFeatureName(capability)
       )
-      .filter(s => s.type !== 'unknown') // filter out unknown services
-      .reduce((array, s) => {
-        // remove duplicates
-        const existingConfig = array.find(x => x.type === s.type);
-        if (!existingConfig) {
-          array.push(s);
-        } else {
-          // merge meta properties
-          existingConfig.meta = { ...existingConfig.meta, ...s.meta };
-        }
-        return array;
-      }, [] as ServiceConfig[]);
-    if (services.length) {
-      return (platform, accessory, client, device) =>
-        new ConfigurableAccessory(platform, accessory, client, device, services);
-    }
+      .filter(s => s.type !== 'unknown'); // filter out unknown services
+    return services.length ? services : null;
   }
   return null;
 }

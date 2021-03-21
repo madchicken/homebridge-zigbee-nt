@@ -15,6 +15,90 @@ export interface ZigBeeControllerConfig {
   adapter: 'zstack' | 'deconz' | 'zigate';
 }
 
+export type RunningState = 'idle' | 'heat' | 'cool';
+
+export type ButtonAction =
+  | 'on'
+  | 'off'
+  | 'toggle'
+  | 'toggle_hold'
+  | 'toggle_release'
+  | 'arrow_left_click'
+  | 'arrow_left_hold'
+  | 'arrow_left_release'
+  | 'arrow_right_click'
+  | 'arrow_right_hold'
+  | 'arrow_right_release'
+  | 'brightness_down'
+  | 'brightness_up'
+  | 'brightness_up_click'
+  | 'brightness_up_hold'
+  | 'brightness_up_release'
+  | 'brightness_down_click'
+  | 'brightness_down_hold'
+  | 'brightness_down_release'
+  | 'brightness_move_down'
+  | 'brightness_move_up'
+  | 'brightness_stop'
+  | 'vibration'
+  | 'tilt'
+  | 'button_1_hold'
+  | 'button_2_hold'
+  | 'button_3_hold'
+  | 'button_4_hold'
+  | 'button_5_hold'
+  | 'button_6_hold'
+  | 'button_1_release'
+  | 'button_2_release'
+  | 'button_3_release'
+  | 'button_4_release'
+  | 'button_5_release'
+  | 'button_6_release'
+  | 'button_1_single'
+  | 'button_2_single'
+  | 'button_3_single'
+  | 'button_4_single'
+  | 'button_5_single'
+  | 'button_6_single'
+  | 'button_1_double'
+  | 'button_2_double'
+  | 'button_3_double'
+  | 'button_4_double'
+  | 'button_5_double'
+  | 'button_6_double'
+  | 'button_1_click'
+  | 'button_2_click'
+  | 'button_3_click'
+  | 'button_4_click'
+  | 'button_5_click'
+  | 'button_6_click'
+  | 'drop'
+  | 'single'
+  | 'hold'
+  | 'double'
+  | 'play_pause'
+  | 'release'
+  | 'single_left'
+  | 'single_right'
+  | 'single_both'
+  | 'double_left'
+  | 'double_right'
+  | 'double_both'
+  | 'hold_left'
+  | 'hold_right'
+  | 'hold_both';
+
+export type ClickAction =
+  | 'on'
+  | 'off'
+  | 'brightness_down'
+  | 'brightness_up'
+  | 'play_pause'
+  | 'single'
+  | 'double'
+  | 'hold'
+  | 'release';
+
 export interface DeviceState {
   state?: State;
   state_left?: State;
@@ -43,17 +127,9 @@ export interface DeviceState {
   local_temperature?: number;
   current_heating_setpoint?: number;
   system_mode?: SystemMode;
+  running_state?: RunningState;
   humidity?: number;
-  click?:
-    | 'on'
-    | 'off'
-    | 'brightness_down'
-    | 'brightness_up'
-    | 'play_pause'
-    | 'single'
-    | 'double'
-    | 'hold'
-    | 'release';
+  click?: ClickAction;
   state_l1?: 'ON' | 'OFF' | 'TOGGLE';
   state_l2?: 'ON' | 'OFF' | 'TOGGLE';
   lock_state?: '' | 'not_fully_locked' | 'locked' | 'unlocked';
@@ -64,59 +140,7 @@ export interface DeviceState {
   illuminance?: number;
   illuminance_lux?: number;
   contact?: boolean;
-  action?:
-    | 'on'
-    | 'off'
-    | 'toggle'
-    | 'toggle_hold'
-    | 'toggle_release'
-    | 'arrow_left_click'
-    | 'arrow_left_hold'
-    | 'arrow_left_release'
-    | 'arrow_right_click'
-    | 'arrow_right_hold'
-    | 'arrow_right_release'
-    | 'brightness_up_click'
-    | 'brightness_up_hold'
-    | 'brightness_up_release'
-    | 'brightness_down_click'
-    | 'brightness_down_hold'
-    | 'brightness_down_release'
-    | 'brightness_move_down'
-    | 'brightness_move_up'
-    | 'brightness_stop'
-    | 'vibration'
-    | 'tilt'
-    | 'button_1_hold'
-    | 'button_2_hold'
-    | 'button_3_hold'
-    | 'button_4_hold'
-    | 'button_5_hold'
-    | 'button_6_hold'
-    | 'button_1_release'
-    | 'button_2_release'
-    | 'button_3_release'
-    | 'button_4_release'
-    | 'button_5_release'
-    | 'button_6_release'
-    | 'button_1_single'
-    | 'button_2_single'
-    | 'button_3_single'
-    | 'button_4_single'
-    | 'button_5_single'
-    | 'button_6_single'
-    | 'button_1_double'
-    | 'button_2_double'
-    | 'button_3_double'
-    | 'button_4_double'
-    | 'button_5_double'
-    | 'button_6_double'
-    | 'drop'
-    | 'single'
-    | 'hold'
-    | 'double'
-    | 'play_pause'
-    | 'release';
+  action?: ButtonAction;
   occupancy?: boolean;
   tamper?: boolean;
   battery_low?: boolean;
@@ -206,28 +230,31 @@ enum AccessType {
   ALL = 7,
 }
 
-type Value = string | boolean | number;
+export type Value = string | boolean | number;
+export type CapabilityType =
+  | 'light'
+  | 'switch'
+  | 'cover'
+  | 'fan'
+  | 'lock'
+  | 'climate'
+  | 'composite'
+  | 'binary'
+  | 'numeric'
+  | 'enum'
+  | 'text';
 
 export interface Capability {
-  type?:
-    | 'light'
-    | 'switch'
-    | 'cover'
-    | 'fan'
-    | 'lock'
-    | 'climate'
-    | 'composite'
-    | 'binary'
-    | 'numeric'
-    | 'enum'
-    | 'text';
+  type: CapabilityType;
   name: string;
   features: Feature[];
 }
 
-export interface Feature extends Capability {
+export interface Feature {
+  type: CapabilityType;
+  name: string;
   property?: string;
-  access: AccessType;
+  access?: AccessType;
   value_on?: Value;
   value_off?: Value;
   values?: Value[];
@@ -235,6 +262,7 @@ export interface Feature extends Capability {
   value_max?: number;
   value_min?: number;
   value_step?: number;
+  features?: Feature[];
 }
 
 export interface ZigBeeDefinition {

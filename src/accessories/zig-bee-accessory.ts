@@ -1,18 +1,21 @@
+import assert from 'assert';
+import retry from 'async-retry';
 import { Logger, PlatformAccessory, Service } from 'homebridge';
 import { isNull, isUndefined } from 'lodash';
-import { ZigbeeNTHomebridgePlatform } from '../platform';
-import { HSBType } from '../utils/hsb-type';
-import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
-import { DeviceState, ZigBeeDefinition, ZigBeeEntity } from '../zigbee/types';
+import { translateFromSystemMode } from '../builders/thermostat-service-builder';
+import { ZigbeeNTHomebridgePlatform } from '../platform';
 import {
   DEFAULT_POLL_INTERVAL,
   isDeviceRouter,
   MAX_POLL_INTERVAL,
   MIN_POLL_INTERVAL,
 } from '../utils/device';
-import retry from 'async-retry';
-import assert from 'assert';
+import { HSBType } from '../utils/hsb-type';
+import { ButtonAction, DeviceState, ZigBeeDefinition, ZigBeeEntity } from '../zigbee/types';
+import { ZigBeeClient } from '../zigbee/zig-bee-client';
+import { ConfigurableAccessory } from './configurable-accessory';
+import { doWithButtonAction } from './utils';
 
 export interface ZigBeeAccessoryCtor {
   new (
@@ -28,7 +31,7 @@ export type ZigBeeAccessoryFactory = (
   accessory: PlatformAccessory,
   client: ZigBeeClient,
   device: Device
-) => ZigBeeAccessory;
+) => ConfigurableAccessory;
 
 const MAX_PING_ATTEMPTS = 1;
 
@@ -93,7 +96,7 @@ export abstract class ZigBeeAccessory {
     }
   }
 
-  handleAccessoryIdentify() {}
+  handleAccessoryIdentify(): void {}
 
   public get zigBeeDeviceDescriptor(): Device {
     return this.accessory.context as Device;
@@ -103,7 +106,7 @@ export abstract class ZigBeeAccessory {
     return this.entity.definition;
   }
 
-  public get friendlyName() {
+  public get friendlyName(): string {
     const ieeeAddr = this.zigBeeDeviceDescriptor.ieeeAddr;
     return (
       this.entity?.settings?.friendlyName ||
@@ -116,7 +119,7 @@ export abstract class ZigBeeAccessory {
 
   public abstract getAvailableServices(): Service[];
 
-  public onDeviceMount() {
+  public onDeviceMount(): void {
     this.log.info(`Mounting device ${this.friendlyName}...`);
     if (
       isDeviceRouter(this.zigBeeDeviceDescriptor) &&
@@ -125,9 +128,11 @@ export abstract class ZigBeeAccessory {
       this.isOnline = false; // wait until we can ping the device
       this.log.info(`Device ${this.friendlyName} is a router, install ping`);
       this.interval = this.getPollingInterval();
-      this.ping();
+      this.ping().then(() => this.log.debug(`Ping received from ${this.friendlyName}`));
     } else {
-      this.configureDevice();
+      this.configureDevice()
+        .then(() => this.log.debug(`${this.friendlyName} successfully configured`))
+        .catch(e => this.log.error(e.message));
     }
   }
 
@@ -140,7 +145,7 @@ export abstract class ZigBeeAccessory {
     return interval;
   }
 
-  public async ping() {
+  public async ping(): Promise<void> {
     try {
       await this.zigBeeDeviceDescriptor.ping();
       await this.configureDevice();
@@ -214,7 +219,7 @@ export abstract class ZigBeeAccessory {
     );
   }
 
-  public internalUpdate(state: DeviceState) {
+  public internalUpdate(state: DeviceState): void {
     try {
       this.log.debug(`Updating state of device ${this.friendlyName} with `, state);
       this.state = Object.assign(this.state, { ...state });
@@ -235,7 +240,7 @@ export abstract class ZigBeeAccessory {
    * Override this function only if you need some specific update feature for your accessory
    * @param state DeviceState Current device state
    */
-  public update(state: DeviceState) {
+  public update(state: DeviceState): void {
     const Service = this.platform.Service;
     const Characteristic = this.platform.Characteristic;
     this.mappedServices.forEach(service => {
@@ -262,6 +267,7 @@ export abstract class ZigBeeAccessory {
       }
 
       switch (service.UUID) {
+        case Service.Battery.UUID:
         case Service.BatteryService.UUID:
           if (isValidValue(state.battery)) {
             service.updateCharacteristic(Characteristic.BatteryLevel, state.battery || 0);
@@ -389,7 +395,26 @@ export abstract class ZigBeeAccessory {
             );
           }
           break;
+        case Service.Thermostat.UUID:
+          if (isValidValue(state.system_mode)) {
+            const mode = translateFromSystemMode(this.state.system_mode);
+            service.updateCharacteristic(
+              this.platform.Characteristic.CurrentHeatingCoolingState,
+              mode
+            );
+          }
+          break;
+        case Service.StatelessProgrammableSwitch.UUID:
+          this.handleButtonAction(state.action, service);
+          break;
       }
+    });
+  }
+
+  private handleButtonAction(action: ButtonAction, service: Service) {
+    const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
+    doWithButtonAction(action, (event: number) => {
+      service.getCharacteristic(ProgrammableSwitchEvent).setValue(event);
     });
   }
 
