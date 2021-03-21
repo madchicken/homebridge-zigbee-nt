@@ -1,9 +1,9 @@
 import { ButtonActionMapping, ButtonsMapping, ServiceMeta } from '../types';
 import { ButtonAction, Feature } from '../zigbee/types';
 
-const SINGLE_PRESS = 0;
-const DOUBLE_PRESS = 1;
-const LONG_PRESS = 2;
+export const SINGLE_PRESS = 0;
+export const DOUBLE_PRESS = 1;
+export const LONG_PRESS = 2;
 
 export function doWithButtonAction(action: ButtonAction, fn: (event: number) => void): void {
   switch (action) {
@@ -118,7 +118,7 @@ export function featureToButtonsMapping(feature: Feature): ButtonsMapping {
         case SINGLE_PRESS:
           mapping[name][actionName] = 'SINGLE_PRESS';
           break;
-        case DOUBLE_PRESS_PRESS:
+        case DOUBLE_PRESS:
           mapping[name][actionName] = 'DOUBLE_PRESS';
           break;
         case LONG_PRESS:
