@@ -133,3 +133,13 @@ All notable changes to this project will be documented in this file. This projec
 - Fix errors provided by default values
 - Fix multi service support on a single device
 - Updated dependencies
+
+## 2.2.1 (2021-3-22)
+
+## [Version 2.2.1](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.2.0...v2.2.1)
+
+#### Changes
+
+- Fix errors in thermostat values reporting [#140](https://github.com/madchicken/homebridge-zigbee-nt/issues/140)
+- Fix error in WEB UI [#134](https://github.com/madchicken/homebridge-zigbee-nt/issues/134)
+- Updated dependencies
