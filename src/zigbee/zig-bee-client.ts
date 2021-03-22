@@ -499,7 +499,7 @@ export class ZigBeeClient {
 
   hasOTA(device: Device): boolean {
     const zigBeeEntity = this.zigBee.resolveEntity(device);
-    return !!zigBeeEntity.definition.ota;
+    return !!zigBeeEntity?.definition.ota;
   }
 
   private async bindOrUnbind(

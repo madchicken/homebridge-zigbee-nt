@@ -24,41 +24,29 @@ export function runningStateToCurrentHeatingCoolingState(val: RunningState): num
 }
 
 export function translateFromSystemMode(val: SystemMode): number {
-  let result: number;
   switch (val) {
     case 'heat':
-      result = HAP.Characteristic.TargetHeatingCoolingState.HEAT;
-      break;
+      return HAP.Characteristic.TargetHeatingCoolingState.HEAT;
     case 'cool':
-      result = HAP.Characteristic.TargetHeatingCoolingState.COOL;
-      break;
+      return HAP.Characteristic.TargetHeatingCoolingState.COOL;
     case 'auto':
-      result = HAP.Characteristic.TargetHeatingCoolingState.AUTO;
-      break;
+      return HAP.Characteristic.TargetHeatingCoolingState.AUTO;
     default:
-      result = HAP.Characteristic.TargetHeatingCoolingState.OFF;
-      break;
+      return HAP.Characteristic.TargetHeatingCoolingState.OFF;
   }
-  return result;
 }
 
 export function translateToSystemMode(val: number): SystemMode {
-  let result: SystemMode;
   switch (val) {
-    case 1:
-      result = 'heat';
-      break;
-    case 2:
-      result = 'cool';
-      break;
-    case 3:
-      result = 'auto';
-      break;
+    case HAP.Characteristic.TargetHeatingCoolingState.HEAT:
+      return 'heat';
+    case HAP.Characteristic.TargetHeatingCoolingState.COOL:
+      return 'cool';
+    case HAP.Characteristic.TargetHeatingCoolingState.AUTO:
+      return 'auto';
     default:
-      result = 'off';
-      break;
+      return 'off';
   }
-  return result;
 }
 
 export class ThermostatServiceBuilder extends ServiceBuilder {
@@ -99,8 +87,8 @@ export class ThermostatServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.TargetHeatingCoolingState)
       .on(
         CharacteristicEventTypes.SET,
-        async (system_mode: number, callback: CharacteristicSetCallback) => {
-          let translatedMode: SystemMode = translateToSystemMode(system_mode);
+        async (state: number, callback: CharacteristicSetCallback) => {
+          let translatedMode: SystemMode = translateToSystemMode(state);
           if (
             asAuto &&
             Array.isArray(asAuto) &&

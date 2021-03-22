@@ -3,7 +3,6 @@ import retry from 'async-retry';
 import { Logger, PlatformAccessory, Service } from 'homebridge';
 import { isNull, isUndefined } from 'lodash';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
-import { translateFromSystemMode } from '../builders/thermostat-service-builder';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import {
   DEFAULT_POLL_INTERVAL,
@@ -392,15 +391,6 @@ export abstract class ZigBeeAccessory {
             service.updateCharacteristic(
               this.platform.Characteristic.CurrentRelativeHumidity,
               state.humidity
-            );
-          }
-          break;
-        case Service.Thermostat.UUID:
-          if (isValidValue(state.system_mode)) {
-            const mode = translateFromSystemMode(this.state.system_mode);
-            service.updateCharacteristic(
-              this.platform.Characteristic.CurrentHeatingCoolingState,
-              mode
             );
           }
           break;
