@@ -24,7 +24,9 @@ export class AmbientLightServiceBuilder extends ServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.CurrentAmbientLightLevel)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        callback(null, get(this.state, 'illuminance_lux', 0.0001));
+        const lux: number = get(this.state, 'illuminance_lux', 0.0001);
+        this.log.debug(`Getting state for ambient light sensor ${this.friendlyName}: ${lux}`);
+        callback(null, lux);
       });
 
     return this;
