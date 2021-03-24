@@ -15,6 +15,7 @@ import { TemperatureSensorServiceBuilder } from '../builders/temperature-sensor-
 import { ThermostatServiceBuilder } from '../builders/thermostat-service-builder';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { ServiceConfig } from '../types';
+import { DeviceState } from '../zigbee/types';
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import { buttonsMappingToHomeKitArray } from './utils';
 import { ZigBeeAccessory } from './zig-bee-accessory';
@@ -23,28 +24,19 @@ function createLightBulbService(
   platform: ZigbeeNTHomebridgePlatform,
   accessory: PlatformAccessory,
   client: ZigBeeClient,
-  zigBeeDeviceDescriptor: Device,
+  state: DeviceState,
   serviceConfig: ServiceConfig
 ) {
-  const builder = new LighbulbServiceBuilder(
-    platform,
-    accessory,
-    client,
-    zigBeeDeviceDescriptor
-  ).withOnOff();
+  const builder = new LighbulbServiceBuilder(platform, accessory, client, state).withOnOff();
   if (serviceConfig.meta?.colorXY) {
     platform.log.debug(
-      `Light bulb ${platform.getDeviceFriendlyName(
-        zigBeeDeviceDescriptor.ieeeAddr
-      )} supports ColorXY`
+      `Light bulb ${platform.getDeviceFriendlyName(accessory.context.ieeeAddr)} supports ColorXY`
     );
     return builder.withColorXY().build();
   }
   if (serviceConfig.meta?.colorHS) {
     platform.log.debug(
-      `Light bulb ${platform.getDeviceFriendlyName(
-        zigBeeDeviceDescriptor.ieeeAddr
-      )} supports ColorHS`
+      `Light bulb ${platform.getDeviceFriendlyName(accessory.context.ieeeAddr)} supports ColorHS`
     );
     return builder.withColorHS().build();
   }
@@ -61,15 +53,10 @@ function createContactService(
   platform: ZigbeeNTHomebridgePlatform,
   accessory: PlatformAccessory,
   client: ZigBeeClient,
-  zigBeeDeviceDescriptor: Device,
+  state: DeviceState,
   serviceConfig: ServiceConfig
 ) {
-  const builder = new ContactSensorServiceBuilder(
-    platform,
-    accessory,
-    client,
-    zigBeeDeviceDescriptor
-  ).withContact();
+  const builder = new ContactSensorServiceBuilder(platform, accessory, client, state).withContact();
   if (serviceConfig.meta?.batteryLow) {
     builder.withBatteryLow();
   }
@@ -83,14 +70,14 @@ function createMotionSensorService(
   platform: ZigbeeNTHomebridgePlatform,
   accessory: PlatformAccessory,
   client: ZigBeeClient,
-  zigBeeDeviceDescriptor: Device,
+  state: DeviceState,
   serviceConfig: ServiceConfig
 ) {
   const builder = new MotionSensorServiceBuilder(
     platform,
     accessory,
     client,
-    zigBeeDeviceDescriptor
+    state
   ).withOccupancy();
   if (serviceConfig.meta?.batteryLow) {
     builder.withBatteryLow();
@@ -105,14 +92,14 @@ function createHumiditySensorService(
   platform: ZigbeeNTHomebridgePlatform,
   accessory: PlatformAccessory,
   client: ZigBeeClient,
-  zigBeeDeviceDescriptor: Device,
+  state: DeviceState,
   serviceConfig: ServiceConfig
 ) {
   const builder = new HumiditySensorServiceBuilder(
     platform,
     accessory,
     client,
-    zigBeeDeviceDescriptor
+    state
   ).withHumidity();
   if (serviceConfig.meta?.batteryLow) {
     builder.withBatteryLow();
@@ -127,14 +114,14 @@ function createTemperatureSensorService(
   platform: ZigbeeNTHomebridgePlatform,
   accessory: PlatformAccessory,
   client: ZigBeeClient,
-  zigBeeDeviceDescriptor: Device,
+  state: DeviceState,
   serviceConfig: ServiceConfig
 ) {
   const builder = new TemperatureSensorServiceBuilder(
     platform,
     accessory,
     client,
-    zigBeeDeviceDescriptor
+    state
   ).withTemperature();
   if (serviceConfig.meta?.batteryLow) {
     builder.withBatteryLow();
@@ -149,9 +136,9 @@ function createBatteryService(
   platform: ZigbeeNTHomebridgePlatform,
   accessory: PlatformAccessory,
   client: ZigBeeClient,
-  zigBeeDeviceDescriptor: Device
+  state: DeviceState
 ) {
-  return new BatteryServiceBuilder(platform, accessory, client, zigBeeDeviceDescriptor)
+  return new BatteryServiceBuilder(platform, accessory, client, state)
     .withBatteryPercentage()
     .build();
 }
@@ -160,10 +147,10 @@ function createOutletService(
   platform: ZigbeeNTHomebridgePlatform,
   accessory: PlatformAccessory,
   client: ZigBeeClient,
-  zigBeeDeviceDescriptor: Device,
+  state: DeviceState,
   serviceConfig: ServiceConfig
 ) {
-  const builder = new OutletServiceBuilder(platform, accessory, client, zigBeeDeviceDescriptor);
+  const builder = new OutletServiceBuilder(platform, accessory, client, state);
   builder.withOnOff();
   if (serviceConfig.meta?.power) {
     builder.withPower();
@@ -181,10 +168,10 @@ function createSwitchService(
   platform: ZigbeeNTHomebridgePlatform,
   accessory: PlatformAccessory,
   client: ZigBeeClient,
-  zigBeeDeviceDescriptor: Device,
+  state: DeviceState,
   _serviceConfig: ServiceConfig
 ) {
-  const builder = new SwitchServiceBuilder(platform, accessory, client, zigBeeDeviceDescriptor);
+  const builder = new SwitchServiceBuilder(platform, accessory, client, state);
   builder.withOnOff();
   return builder.build();
 }
@@ -193,10 +180,10 @@ function createLeakSensorService(
   platform: ZigbeeNTHomebridgePlatform,
   accessory: PlatformAccessory,
   client: ZigBeeClient,
-  zigBeeDeviceDescriptor: Device,
+  state: DeviceState,
   serviceConfig: ServiceConfig
 ) {
-  const builder = new LeakSensorServiceBuilder(platform, accessory, client, zigBeeDeviceDescriptor);
+  const builder = new LeakSensorServiceBuilder(platform, accessory, client, state);
   if (serviceConfig.meta?.tamper) {
     builder.withTamper();
   }
@@ -216,15 +203,10 @@ function createVibrationSensorService(
   platform: ZigbeeNTHomebridgePlatform,
   accessory: PlatformAccessory,
   client: ZigBeeClient,
-  zigBeeDeviceDescriptor: Device,
+  state: DeviceState,
   serviceConfig: ServiceConfig
 ) {
-  const builder = new ContactSensorServiceBuilder(
-    platform,
-    accessory,
-    client,
-    zigBeeDeviceDescriptor
-  );
+  const builder = new ContactSensorServiceBuilder(platform, accessory, client, state);
   if (serviceConfig.meta?.tamper) {
     builder.withTamper();
   }
@@ -238,15 +220,10 @@ function createAmbientLightService(
   platform: ZigbeeNTHomebridgePlatform,
   accessory: PlatformAccessory,
   client: ZigBeeClient,
-  zigBeeDeviceDescriptor: Device,
+  state: DeviceState,
   _serviceConfig: ServiceConfig
 ) {
-  const builder = new AmbientLightServiceBuilder(
-    platform,
-    accessory,
-    client,
-    zigBeeDeviceDescriptor
-  );
+  const builder = new AmbientLightServiceBuilder(platform, accessory, client, state);
   builder.withAmbientLightLevel();
   return builder.build();
 }
@@ -255,10 +232,10 @@ function createLockService(
   platform: ZigbeeNTHomebridgePlatform,
   accessory: PlatformAccessory,
   client: ZigBeeClient,
-  zigBeeDeviceDescriptor: Device,
+  state: DeviceState,
   _serviceConfig: ServiceConfig
 ) {
-  const builder = new LockServiceBuilder(platform, accessory, client, zigBeeDeviceDescriptor);
+  const builder = new LockServiceBuilder(platform, accessory, client, state);
   return builder.withLockState().build();
 }
 
@@ -266,10 +243,10 @@ function createThermostatService(
   platform: ZigbeeNTHomebridgePlatform,
   accessory: PlatformAccessory,
   client: ZigBeeClient,
-  zigBeeDeviceDescriptor: Device,
+  state: DeviceState,
   serviceConfig: ServiceConfig
 ) {
-  const builder = new ThermostatServiceBuilder(platform, accessory, client, zigBeeDeviceDescriptor);
+  const builder = new ThermostatServiceBuilder(platform, accessory, client, state);
   if (serviceConfig.meta.localTemperature) {
     builder.withCurrentTemperature();
   }
@@ -287,15 +264,10 @@ function createProgrammableSwitchService(
   platform: ZigbeeNTHomebridgePlatform,
   accessory: PlatformAccessory,
   client: ZigBeeClient,
-  zigBeeDeviceDescriptor: Device,
+  state: DeviceState,
   serviceConfig: ServiceConfig
 ): Service[] {
-  const builder = new ProgrammableSwitchServiceBuilder(
-    platform,
-    accessory,
-    client,
-    zigBeeDeviceDescriptor
-  );
+  const builder = new ProgrammableSwitchServiceBuilder(platform, accessory, client, state);
 
   const buttons = buttonsMappingToHomeKitArray(serviceConfig.meta.buttonsMapping);
   Object.entries(buttons).forEach((entry, index) => {
@@ -328,13 +300,7 @@ export class ConfigurableAccessory extends ZigBeeAccessory {
       switch (serviceConfig.type) {
         case 'light-sensor':
           services.push(
-            createAmbientLightService(
-              platform,
-              accessory,
-              client,
-              zigBeeDeviceDescriptor,
-              serviceConfig
-            )
+            createAmbientLightService(platform, accessory, client, this.state, serviceConfig)
           );
           break;
         case 'contact-sensor':
@@ -361,13 +327,7 @@ export class ConfigurableAccessory extends ZigBeeAccessory {
           break;
         case 'motion-sensor':
           services.push(
-            createMotionSensorService(
-              platform,
-              accessory,
-              client,
-              zigBeeDeviceDescriptor,
-              serviceConfig
-            )
+            createMotionSensorService(platform, accessory, client, this.state, serviceConfig)
           );
           break;
         case 'humidity-sensor':
