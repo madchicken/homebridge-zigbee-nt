@@ -13,6 +13,8 @@ export const HAP: ExtraHAPTypes = {
   PlatformAccessory: null,
   CurrentPowerConsumption: null,
   TotalConsumption: null,
+  CurrentVoltage: null,
+  CurrentConsumption: null,
   FakeGatoHistoryService: null,
 };
 
@@ -30,6 +32,36 @@ export function initCustomCharacteristics(homebridge: API): void {
         format: Formats.UINT16,
         unit: 'watts' as Units, // ??
         maxValue: 100000,
+        minValue: 0,
+        minStep: 1,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY],
+      });
+    }
+  };
+
+  HAP.CurrentVoltage = class CurrentVoltage extends HAP.Characteristic {
+    public static readonly UUID: string = 'E863F10A-079E-48FF-8F27-9C2605A29F52';
+
+    constructor() {
+      super('CurrentVoltage', CurrentVoltage.UUID, {
+        format: Formats.UINT16,
+        unit: 'volts' as Units, // ??
+        maxValue: 1000,
+        minValue: 0,
+        minStep: 1,
+        perms: [Perms.PAIRED_READ, Perms.NOTIFY],
+      });
+    }
+  };
+
+  HAP.CurrentConsumption = class CurrentConsumption extends HAP.Characteristic {
+    public static readonly UUID: string = 'E863F126-079E-48FF-8F27-9C2605A29F52';
+
+    constructor() {
+      super('CurrentConsumption', CurrentConsumption.UUID, {
+        format: Formats.UINT16,
+        unit: 'ampere' as Units, // ??
+        maxValue: 1000,
         minValue: 0,
         minStep: 1,
         perms: [Perms.PAIRED_READ, Perms.NOTIFY],

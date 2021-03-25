@@ -3,6 +3,7 @@ import retry from 'async-retry';
 import { Logger, PlatformAccessory, Service } from 'homebridge';
 import { isNull, isUndefined } from 'lodash';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
+import { HAP } from '../index';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import {
   DEFAULT_POLL_INTERVAL,
@@ -376,6 +377,15 @@ export abstract class ZigBeeAccessory {
               this.platform.Characteristic.InUse,
               state.power > 0 || state.voltage > 0 || state.current > 0
             );
+            if (this.supports('power') && typeof state.power === 'number') {
+              service.updateCharacteristic(HAP.CurrentPowerConsumption, state.power);
+            }
+            if (this.supports('voltage') && typeof state.voltage === 'number') {
+              service.updateCharacteristic(HAP.CurrentVoltage, state.voltage);
+            }
+            if (this.supports('energy') && typeof state.current === 'number') {
+              service.updateCharacteristic(HAP.CurrentConsumption, state.current);
+            }
           }
           break;
         case Service.TemperatureSensor.UUID:

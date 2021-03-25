@@ -20,6 +20,8 @@ export interface ExtraHAPTypes {
   PlatformAccessory: typeof PlatformAccessory;
   CurrentPowerConsumption: any;
   TotalConsumption: any;
+  CurrentVoltage: any;
+  CurrentConsumption: any;
   FakeGatoHistoryService: FakegatoService;
 }
 
