@@ -143,3 +143,14 @@ All notable changes to this project will be documented in this file. This projec
 - Fix errors in thermostat values reporting [#140](https://github.com/madchicken/homebridge-zigbee-nt/issues/140)
 - Fix error in WEB UI [#134](https://github.com/madchicken/homebridge-zigbee-nt/issues/134)
 - Updated dependencies
+
+## 2.2.2 (2021-3-25)
+
+## [Version 2.2.2](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.2.1...v2.2.2)
+
+#### Changes
+
+- Fix state for devices [#141](https://github.com/madchicken/homebridge-zigbee-nt/issues/141)
+- Add Fakegato (Elgato) support [#39](https://github.com/madchicken/homebridge-zigbee-nt/issues/39)
+- Add support for Tuya smart dimmer [#119](https://github.com/madchicken/homebridge-zigbee-nt/issues/119)
+- Updated dependencies
