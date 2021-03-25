@@ -206,9 +206,9 @@ describe('Device Guesser', () => {
     expect(services.length).toBe(1);
     expect(services[0].type).toBe('light-bulb');
     expect(services[0].meta.brightness).toBe(true);
-    expect(services[0].meta.colorHS).toBe(false);
-    expect(services[0].meta.colorTemp).toBe(false);
-    expect(services[0].meta.colorXY).toBe(false);
+    expect(services[0].meta.colorHS).not.toBeDefined();
+    expect(services[0].meta.colorTemp).not.toBeDefined();
+    expect(services[0].meta.colorXY).not.toBeDefined();
     const accessory = new ConfigurableAccessory(
       zigbeeNTHomebridgePlatform,
       new API.platformAccessory('test', API.hap.uuid.generate('test')),
