@@ -198,4 +198,26 @@ describe('Device Guesser', () => {
     const availableServices = accessory.getAvailableServices();
     expect(availableServices.length).toBe(4); // 4 switches
   });
+
+  it('should recognize Tuya smart dimmer', () => {
+    const device = getDevice('tuyaSmartDimmer');
+    const services = guessAccessoryFromDevice(device);
+    expect(services).not.toBeNull();
+    expect(services.length).toBe(1);
+    expect(services[0].type).toBe('light-bulb');
+    expect(services[0].meta.brightness).toBe(true);
+    expect(services[0].meta.colorHS).not.toBeDefined();
+    expect(services[0].meta.colorTemp).not.toBeDefined();
+    expect(services[0].meta.colorXY).not.toBeDefined();
+    const accessory = new ConfigurableAccessory(
+      zigbeeNTHomebridgePlatform,
+      new API.platformAccessory('test', API.hap.uuid.generate('test')),
+      zigBeeClient,
+      device,
+      services
+    );
+    expect(accessory).toBeInstanceOf(ConfigurableAccessory);
+    const availableServices = accessory.getAvailableServices();
+    expect(availableServices.length).toBe(1); // ligh bulb
+  });
 });
