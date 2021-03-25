@@ -1,3 +1,4 @@
+import { HAP } from '../index';
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import {
   CharacteristicEventTypes,
@@ -61,6 +62,8 @@ export class OutletServiceBuilder extends ServiceBuilder {
         callback(null, get(this.state, 'power', 0) > 0);
       });
 
+    this.service.addOptionalCharacteristic(HAP.CurrentPowerConsumption);
+
     return this;
   }
 
@@ -74,6 +77,8 @@ export class OutletServiceBuilder extends ServiceBuilder {
         callback(null, get(this.state, 'voltage', 0) > 0);
       });
 
+    this.service.addOptionalCharacteristic(HAP.CurrentVoltage);
+
     return this;
   }
 
@@ -86,6 +91,8 @@ export class OutletServiceBuilder extends ServiceBuilder {
         this.client.getCurrentState(this.device).catch(e => this.log.error(e.message));
         callback(null, get(this.state, 'current', 0) > 0);
       });
+
+    this.service.addOptionalCharacteristic(HAP.CurrentConsumption);
 
     return this;
   }
