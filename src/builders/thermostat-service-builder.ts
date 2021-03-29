@@ -177,15 +177,6 @@ export class ThermostatServiceBuilder extends ServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.TargetTemperature)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        this.client
-          .getCurrentHeatingSetpoint(this.device)
-          .then(state => {
-            this.state.current_heating_setpoint = state.current_heating_setpoint;
-          })
-          .catch(e => {
-            this.log.error(e.message);
-          });
-
         callback(null, temperatureFixer(this.state.current_heating_setpoint));
       });
     return this;

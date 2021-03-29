@@ -361,10 +361,6 @@ export class ZigBeeClient {
     return this.writeDeviceState(device, { current_heating_setpoint: temperature });
   }
 
-  getCurrentHeatingSetpoint(device: Device): Promise<DeviceState> {
-    return this.readDeviceState(device, { current_heating_setpoint: 0 });
-  }
-
   setSystemMode(device: Device, state: SystemMode): Promise<DeviceState> {
     return this.writeDeviceState(device, { system_mode: state });
   }
