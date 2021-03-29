@@ -295,7 +295,7 @@ export class ConfigurableAccessory extends ZigBeeAccessory {
   }
 
   getAvailableServices(): Service[] {
-    const { platform, accessory, client, zigBeeDeviceDescriptor } = this;
+    const { platform, accessory, client, state } = this;
     return this.accessoryConfig.reduce((services: Service[], serviceConfig) => {
       switch (serviceConfig.type) {
         case 'light-sensor':
@@ -304,26 +304,14 @@ export class ConfigurableAccessory extends ZigBeeAccessory {
           );
           break;
         case 'contact-sensor':
-          services.push(
-            createContactService(platform, accessory, client, zigBeeDeviceDescriptor, serviceConfig)
-          );
+          services.push(createContactService(platform, accessory, client, state, serviceConfig));
           break;
         case 'bulb':
         case 'light-bulb':
-          services.push(
-            createLightBulbService(
-              platform,
-              accessory,
-              client,
-              zigBeeDeviceDescriptor,
-              serviceConfig
-            )
-          );
+          services.push(createLightBulbService(platform, accessory, client, state, serviceConfig));
           break;
         case 'switch':
-          services.push(
-            createSwitchService(platform, accessory, client, zigBeeDeviceDescriptor, serviceConfig)
-          );
+          services.push(createSwitchService(platform, accessory, client, state, serviceConfig));
           break;
         case 'motion-sensor':
           services.push(
@@ -332,81 +320,37 @@ export class ConfigurableAccessory extends ZigBeeAccessory {
           break;
         case 'humidity-sensor':
           services.push(
-            createHumiditySensorService(
-              platform,
-              accessory,
-              client,
-              zigBeeDeviceDescriptor,
-              serviceConfig
-            )
+            createHumiditySensorService(platform, accessory, client, state, serviceConfig)
           );
           break;
         case 'temperature-sensor':
           services.push(
-            createTemperatureSensorService(
-              platform,
-              accessory,
-              client,
-              zigBeeDeviceDescriptor,
-              serviceConfig
-            )
+            createTemperatureSensorService(platform, accessory, client, state, serviceConfig)
           );
           break;
         case 'leak-sensor':
-          services.push(
-            createLeakSensorService(
-              platform,
-              accessory,
-              client,
-              zigBeeDeviceDescriptor,
-              serviceConfig
-            )
-          );
+          services.push(createLeakSensorService(platform, accessory, client, state, serviceConfig));
           break;
         case 'vibration-sensor':
           services.push(
-            createVibrationSensorService(
-              platform,
-              accessory,
-              client,
-              zigBeeDeviceDescriptor,
-              serviceConfig
-            )
+            createVibrationSensorService(platform, accessory, client, state, serviceConfig)
           );
           break;
         case 'outlet':
-          services.push(
-            createOutletService(platform, accessory, client, zigBeeDeviceDescriptor, serviceConfig)
-          );
+          services.push(createOutletService(platform, accessory, client, state, serviceConfig));
           break;
         case 'lock':
-          services.push(
-            createLockService(platform, accessory, client, zigBeeDeviceDescriptor, serviceConfig)
-          );
+          services.push(createLockService(platform, accessory, client, state, serviceConfig));
           break;
         case 'thermostat':
-          services.push(
-            createThermostatService(
-              platform,
-              accessory,
-              client,
-              zigBeeDeviceDescriptor,
-              serviceConfig
-            )
-          );
+          services.push(createThermostatService(platform, accessory, client, state, serviceConfig));
           break;
         case 'battery':
-          services.push(createBatteryService(platform, accessory, client, zigBeeDeviceDescriptor));
+          services.push(createBatteryService(platform, accessory, client, state));
           break;
         case 'programmable-switch':
           services.push(
-            ...createProgrammableSwitchService(
-              platform,
-              accessory,
-              client,
-              zigBeeDeviceDescriptor,
-              serviceConfig
-            )
+            ...createProgrammableSwitchService(platform, accessory, client, state, serviceConfig)
           );
           break;
       }

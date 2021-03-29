@@ -23,7 +23,18 @@ export function runningStateToCurrentHeatingCoolingState(val: RunningState): num
   }
 }
 
-export function translateFromSystemMode(val: SystemMode): number {
+export function translateCurrentStateFromSystemMode(val: SystemMode): number {
+  switch (val) {
+    case 'heat':
+      return HAP.Characteristic.CurrentHeatingCoolingState.HEAT;
+    case 'cool':
+      return HAP.Characteristic.CurrentHeatingCoolingState.COOL;
+    default:
+      return HAP.Characteristic.CurrentHeatingCoolingState.OFF;
+  }
+}
+
+export function translateTargetStateFromSystemMode(val: SystemMode): number {
   switch (val) {
     case 'heat':
       return HAP.Characteristic.TargetHeatingCoolingState.HEAT;
@@ -36,7 +47,7 @@ export function translateFromSystemMode(val: SystemMode): number {
   }
 }
 
-export function translateToSystemMode(val: number): SystemMode {
+export function translateTargetStateToSystemMode(val: number): SystemMode {
   switch (val) {
     case HAP.Characteristic.TargetHeatingCoolingState.HEAT:
       return 'heat';
@@ -69,7 +80,7 @@ export class ThermostatServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.CurrentHeatingCoolingState)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
-          callback(null, translateFromSystemMode(this.state.system_mode));
+          callback(null, translateCurrentStateFromSystemMode(this.state.system_mode));
         } catch (e) {
           callback(e);
         }
@@ -88,7 +99,7 @@ export class ThermostatServiceBuilder extends ServiceBuilder {
       .on(
         CharacteristicEventTypes.SET,
         async (state: number, callback: CharacteristicSetCallback) => {
-          let translatedMode: SystemMode = translateToSystemMode(state);
+          let translatedMode: SystemMode = translateTargetStateToSystemMode(state);
           if (
             asAuto &&
             Array.isArray(asAuto) &&
@@ -112,7 +123,7 @@ export class ThermostatServiceBuilder extends ServiceBuilder {
       .getCharacteristic(Characteristic.TargetHeatingCoolingState)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         try {
-          callback(null, translateFromSystemMode(this.state.system_mode));
+          callback(null, translateTargetStateFromSystemMode(this.state.system_mode));
         } catch (e) {
           callback(e);
         }
@@ -145,21 +156,17 @@ export class ThermostatServiceBuilder extends ServiceBuilder {
 
   public withTargetTemperature(min: number, max: number): ThermostatServiceBuilder {
     const Characteristic = this.platform.Characteristic;
+    const temperatureFixer = getTemperatureFixer(min, max);
     this.service
       .getCharacteristic(Characteristic.TargetTemperature)
       .on(
         CharacteristicEventTypes.SET,
-        async (current_heating_setpoint: number, callback: CharacteristicSetCallback) => {
-          if (current_heating_setpoint < min) {
-            current_heating_setpoint = min;
-          }
-          if (current_heating_setpoint > max) {
-            current_heating_setpoint = max;
-          }
+        async (targetTemp: number, callback: CharacteristicSetCallback) => {
+          const temperature = temperatureFixer(targetTemp);
           try {
             Object.assign(
               this.state,
-              await this.client.setCurrentHeatingSetpoint(this.device, current_heating_setpoint)
+              await this.client.setCurrentHeatingSetpoint(this.device, temperature)
             );
             callback();
           } catch (e) {
@@ -170,17 +177,17 @@ export class ThermostatServiceBuilder extends ServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.TargetTemperature)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        this.client
-          .getCurrentHeatingSetpoint(this.device)
-          .then(state => {
-            this.state.current_heating_setpoint = state.current_heating_setpoint;
-          })
-          .catch(e => {
-            this.log.error(e.message);
-          });
-
-        callback(null, this.state.current_heating_setpoint || min);
+        callback(null, temperatureFixer(this.state.current_heating_setpoint));
       });
     return this;
   }
+}
+
+export const MIN_TEMP = 10;
+export const MAX_TEMP = 38;
+
+export function getTemperatureFixer(min: number, max: number): (temp: number) => number {
+  const minTemp = Math.max(min, MIN_TEMP); // 10 is the minimum accepted by HK
+  const maxTemp = Math.min(max, MAX_TEMP); // 38 is the maximum accepted by HK
+  return (targetTemp: number) => Math.min(Math.max(targetTemp || MIN_TEMP, minTemp), maxTemp);
 }
