@@ -5,7 +5,7 @@ import { Service } from 'homebridge';
 export class GledoptoDim extends ZigBeeAccessory {
   protected lightbulbService: Service;
 
-  getAvailableServices() {
+  getAvailableServices(): Service[] {
     this.lightbulbService = new LighbulbServiceBuilder(
       this.platform,
       this.accessory,
@@ -18,7 +18,7 @@ export class GledoptoDim extends ZigBeeAccessory {
     return [this.lightbulbService];
   }
 
-  async handleAccessoryIdentify() {
+  async handleAccessoryIdentify(): Promise<void> {
     try {
       await this.client.identify(this.zigBeeDeviceDescriptor);
     } catch (e) {
