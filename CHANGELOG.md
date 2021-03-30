@@ -163,3 +163,12 @@ All notable changes to this project will be documented in this file. This projec
 
 - Fix state for devices (again) [#141](https://github.com/madchicken/homebridge-zigbee-nt/issues/141)
 - Fix issues with Moes/Tuya TS0601 thermostat issues [#140](https://github.com/madchicken/homebridge-zigbee-nt/issues/140)
+
+## 2.2.4 (2021-3-30)
+
+## [Version 2.2.4](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.2.3...v2.2.4)
+
+#### Changes
+
+- Fix issues with Moes/Tuya TS0601 thermostat issues [#140](https://github.com/madchicken/homebridge-zigbee-nt/issues/140)
+- Updated dependencies

@@ -136,20 +136,7 @@ export class ThermostatServiceBuilder extends ServiceBuilder {
     this.service
       .getCharacteristic(Characteristic.CurrentTemperature)
       .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
-        this.client
-          .getLocalTemperature(this.device)
-          .then(state => {
-            this.state.local_temperature = state.local_temperature;
-          })
-          .catch(e => {
-            this.log.error(e.message);
-          });
-
-        if (typeof this.state.local_temperature === 'number') {
-          callback(null, this.state.local_temperature);
-        } else {
-          callback(new Error('Local temp not available'));
-        }
+        callback(null, this.state.local_temperature);
       });
     return this;
   }
