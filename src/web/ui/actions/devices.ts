@@ -137,7 +137,7 @@ export class DevicesService {
     }
   }
 
-  static async checkForUpdates(ieeeAddr: string) {
+  static async checkForUpdates(ieeeAddr: string): Promise<boolean> {
     const response = await fetch(`/api/devices/${ieeeAddr}/checkForUpdates`, {
       method: 'GET',
       headers: {
@@ -146,10 +146,13 @@ export class DevicesService {
     });
     if (response.ok) {
       const json = await response.json();
-      return {
-        result: 'success',
-        state: json,
-      };
+      if (json.newFirmwareAvailable === 'YES') {
+        return true;
+      } else if (json.newFirmwareAvailable === 'NO') {
+        return false;
+      } else {
+        throw new Error(`Failed to determine updates status: ${JSON.stringify(json)}`)
+      }
     } else {
       throw new Error(await response.text());
     }
