@@ -157,7 +157,7 @@ export class LighbulbServiceBuilder extends ServiceBuilder {
           try {
             if (this.isOnline) {
               Object.assign(this.state, await this.client.setHue(this.device, hue));
-              return callback();
+              return callback(null, get(this.state, 'color.hue', 360));
             } else {
               return callback(new Error('Device is offline'));
             }
