@@ -1,4 +1,4 @@
-import { DeviceConfig } from '../types';
+import { DeviceConfig, ServiceType } from '../types';
 
 /**
  * Defines a set of known devices that will be configured using the {@link ConfigurableAccessory} class
@@ -10,7 +10,7 @@ export const DATABASE_ACCESSORIES: DeviceConfig[] = [
     models: ['JTQJ-BF-01LM/BW', 'lumi.sensor_natgas'],
     services: [
       {
-        type: 'leak-sensor',
+        type: ServiceType.LEAK_SENSOR,
         meta: {
           batteryLow: true,
           gasLeak: true,
@@ -24,7 +24,7 @@ export const DATABASE_ACCESSORIES: DeviceConfig[] = [
     models: ['L441C/N4411C/NT4411C'],
     services: [
       {
-        type: 'bulb',
+        type: ServiceType.BULB,
         meta: {
           brightness: true,
         },
@@ -36,7 +36,7 @@ export const DATABASE_ACCESSORIES: DeviceConfig[] = [
     models: ['LTC001'],
     services: [
       {
-        type: 'bulb',
+        type: ServiceType.BULB,
         meta: {
           brightness: true,
           colorTemp: true,
@@ -49,7 +49,7 @@ export const DATABASE_ACCESSORIES: DeviceConfig[] = [
     models: ['TS0505A'],
     services: [
       {
-        type: 'bulb',
+        type: ServiceType.BULB,
         meta: {
           brightness: true,
           colorXY: true,
@@ -63,7 +63,7 @@ export const DATABASE_ACCESSORIES: DeviceConfig[] = [
     models: ['TS0121_plug'],
     services: [
       {
-        type: 'outlet',
+        type: ServiceType.OUTLET,
         meta: {
           power: true,
           current: true,
@@ -77,7 +77,7 @@ export const DATABASE_ACCESSORIES: DeviceConfig[] = [
     models: ['L441C/N4411C/NT4411C'],
     services: [
       {
-        type: 'bulb',
+        type: ServiceType.BULB,
         meta: {
           brightness: true,
         },
@@ -89,7 +89,7 @@ export const DATABASE_ACCESSORIES: DeviceConfig[] = [
     models: ['TY0202'],
     services: [
       {
-        type: 'motion-sensor',
+        type: ServiceType.MOTION_SENSOR,
         meta: {
           tamper: true,
           batteryLow: true,
@@ -102,7 +102,7 @@ export const DATABASE_ACCESSORIES: DeviceConfig[] = [
     models: ['TS0011'],
     services: [
       {
-        type: 'bulb',
+        type: ServiceType.BULB,
         meta: {
           brightness: true,
         },
@@ -114,7 +114,7 @@ export const DATABASE_ACCESSORIES: DeviceConfig[] = [
     models: ['TS0121'],
     services: [
       {
-        type: 'outlet',
+        type: ServiceType.OUTLET,
         meta: {
           power: true,
           current: true,
