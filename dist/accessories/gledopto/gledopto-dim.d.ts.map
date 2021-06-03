@@ -1,0 +1,1 @@
+{"version":3,"file":"gledopto-dim.d.ts","sourceRoot":"","sources":["../../../src/accessories/gledopto/gledopto-dim.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAAE,MAAM,sBAAsB,CAAC;AAEvD,OAAO,EAAE,OAAO,EAAE,MAAM,YAAY,CAAC;AAErC,qBAAa,WAAY,SAAQ,eAAe;IAC9C,SAAS,CAAC,gBAAgB,EAAE,OAAO,CAAC;IAEpC,oBAAoB,IAAI,OAAO,EAAE;IAa3B,uBAAuB,IAAI,OAAO,CAAC,IAAI,CAAC;CAQ/C"}

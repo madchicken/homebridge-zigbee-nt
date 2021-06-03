@@ -1,0 +1,1 @@
+{"version":3,"file":"devices.d.ts","sourceRoot":"","sources":["../../../src/web/api/devices.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,MAAM,SAAS,CAAC;AAGlC,OAAO,EAAE,0BAA0B,EAAE,MAAM,gBAAgB,CAAC;AAG5D,OAAO,SAAS,MAAM,IAAI,CAAC;AAI3B,wBAAgB,gBAAgB,CAC9B,OAAO,EAAE,OAAO,EAChB,QAAQ,EAAE,0BAA0B,EACpC,UAAU,EAAE,SAAS,CAAC,MAAM,QAiH7B"}

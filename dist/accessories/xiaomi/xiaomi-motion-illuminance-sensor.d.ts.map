@@ -1,0 +1,1 @@
+{"version":3,"file":"xiaomi-motion-illuminance-sensor.d.ts","sourceRoot":"","sources":["../../../src/accessories/xiaomi/xiaomi-motion-illuminance-sensor.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,MAAM,YAAY,CAAC;AACrC,OAAO,EAAE,kBAAkB,EAAE,MAAM,wBAAwB,CAAC;AAG5D,qBAAa,6BAA8B,SAAQ,kBAAkB;IACnE,OAAO,CAAC,kBAAkB,CAAU;IAEpC,oBAAoB,IAAI,OAAO,EAAE;CAalC"}

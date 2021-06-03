@@ -1,0 +1,1 @@
+{"version":3,"file":"philips-hue-white.d.ts","sourceRoot":"","sources":["../../../src/accessories/philips/philips-hue-white.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAAE,MAAM,sBAAsB,CAAC;AAEvD,OAAO,EAAE,OAAO,EAAE,MAAM,YAAY,CAAC;AAErC,qBAAa,eAAgB,SAAQ,eAAe;IAClD,OAAO,CAAC,gBAAgB,CAAU;IAClC,oBAAoB;IAad,uBAAuB;CAG9B"}

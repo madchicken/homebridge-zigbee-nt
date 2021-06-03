@@ -1,0 +1,1 @@
+{"version":3,"file":"linkind-motion-sensor.d.ts","sourceRoot":"","sources":["../../../src/accessories/linkind/linkind-motion-sensor.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAAE,MAAM,sBAAsB,CAAC;AACvD,OAAO,EAAsC,OAAO,EAAE,MAAM,YAAY,CAAC;AAEzE,qBAAa,mBAAoB,SAAQ,eAAe;IACtD,OAAO,CAAC,aAAa,CAAU;IAE/B,oBAAoB,IAAI,OAAO,EAAE;CAmClC"}

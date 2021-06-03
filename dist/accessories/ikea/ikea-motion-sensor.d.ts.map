@@ -1,0 +1,1 @@
+{"version":3,"file":"ikea-motion-sensor.d.ts","sourceRoot":"","sources":["../../../src/accessories/ikea/ikea-motion-sensor.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAAE,MAAM,sBAAsB,CAAC;AACvD,OAAO,EAAsC,OAAO,EAAE,MAAM,YAAY,CAAC;AAEzE,qBAAa,gBAAiB,SAAQ,eAAe;IACnD,OAAO,CAAC,aAAa,CAAU;IAC/B,OAAO,CAAC,cAAc,CAAU;IAEhC,oBAAoB,IAAI,OAAO,EAAE;CAkClC"}

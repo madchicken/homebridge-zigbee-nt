@@ -1,0 +1,1 @@
+{"version":3,"file":"namron-dimmer.d.ts","sourceRoot":"","sources":["../../../src/accessories/namron/namron-dimmer.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAAE,MAAM,sBAAsB,CAAC;AAEvD,OAAO,EAAE,OAAO,EAAE,MAAM,YAAY,CAAC;AAErC,qBAAa,YAAa,SAAQ,eAAe;IAC/C,SAAS,CAAC,gBAAgB,EAAE,OAAO,CAAC;IAEpC,oBAAoB;IAad,uBAAuB;CAG9B"}

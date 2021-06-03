@@ -1,0 +1,1 @@
+{"version":3,"file":"xiaomi-temp-humi-sensor.d.ts","sourceRoot":"","sources":["../../../src/accessories/xiaomi/xiaomi-temp-humi-sensor.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAAE,MAAM,sBAAsB,CAAC;AACvD,OAAO,EAAE,OAAO,EAAE,MAAM,YAAY,CAAC;AAKrC,qBAAa,oBAAqB,SAAQ,eAAe;IACvD,OAAO,CAAC,kBAAkB,CAAU;IACpC,OAAO,CAAC,eAAe,CAAU;IACjC,OAAO,CAAC,cAAc,CAAU;IAEhC,oBAAoB;CA8BrB"}

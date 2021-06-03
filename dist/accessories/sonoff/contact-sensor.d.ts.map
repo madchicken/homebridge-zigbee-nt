@@ -1,0 +1,1 @@
+{"version":3,"file":"contact-sensor.d.ts","sourceRoot":"","sources":["../../../src/accessories/sonoff/contact-sensor.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,MAAM,YAAY,CAAC;AAGrC,OAAO,EAAE,eAAe,EAAE,MAAM,sBAAsB,CAAC;AAEvD,qBAAa,mBAAoB,SAAQ,eAAe;IACtD,OAAO,CAAC,cAAc,CAAU;IAChC,OAAO,CAAC,cAAc,CAAU;IAEhC,oBAAoB;CAqBrB"}

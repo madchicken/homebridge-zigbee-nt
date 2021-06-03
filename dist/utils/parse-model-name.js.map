@@ -1,0 +1,1 @@
+{"version":3,"file":"parse-model-name.js","sourceRoot":"","sources":["../../src/utils/parse-model-name.ts"],"names":[],"mappings":";;;AAAA,SAAgB,cAAc,CAAC,KAAa;IAC1C,2BAA2B;IAC3B,OAAO,CAAC,KAAK;QACX,CAAC,CAAC,KAAK;QACP,CAAC,CAAC,KAAK;aACF,OAAO,CAAC,UAAU,EAAE,EAAE,CAAC;aACvB,OAAO,CAAC,eAAe,EAAE,EAAE,CAAC,CAAC,uCAAuC;aACpE,IAAI,EAAE,CAAC;AAChB,CAAC;AARD,wCAQC"}

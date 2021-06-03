@@ -1,0 +1,1 @@
+{"version":3,"file":"namron-switch.d.ts","sourceRoot":"","sources":["../../../src/accessories/namron/namron-switch.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAAE,MAAM,sBAAsB,CAAC;AACvD,OAAO,EAAE,OAAO,EAAE,MAAM,YAAY,CAAC;AAGrC,qBAAa,YAAa,SAAQ,eAAe;IAC/C,SAAS,CAAC,OAAO,EAAE,OAAO,CAAC;IAE3B,oBAAoB;IAOd,uBAAuB;CAG9B"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"ikea-tradfri-dim.d.ts","sourceRoot":"","sources":["../../../src/accessories/ikea/ikea-tradfri-dim.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAAE,MAAM,sBAAsB,CAAC;AAEvD,OAAO,EAAE,OAAO,EAAE,MAAM,YAAY,CAAC;AAErC,qBAAa,cAAe,SAAQ,eAAe;IACjD,SAAS,CAAC,gBAAgB,EAAE,OAAO,CAAC;IAEpC,oBAAoB;IAad,uBAAuB;CAG9B"}

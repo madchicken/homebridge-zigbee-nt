@@ -1,0 +1,1 @@
+{"version":3,"file":"coordinator.d.ts","sourceRoot":"","sources":["../../../../src/web/ui/actions/coordinator.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,YAAY,EAAE,MAAM,WAAW,CAAC;AAEzC,OAAO,EAAE,WAAW,EAAE,MAAM,oBAAoB,CAAC;AAEjD,MAAM,WAAW,mBAAoB,SAAQ,YAAY;IACvD,WAAW,CAAC,EAAE,WAAW,CAAC;CAC3B;AAED,qBAAa,kBAAkB;WAChB,KAAK,IAAI,OAAO,CAAC,mBAAmB,CAAC;CAgBnD"}

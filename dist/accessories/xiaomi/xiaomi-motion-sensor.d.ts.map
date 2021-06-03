@@ -1,0 +1,1 @@
+{"version":3,"file":"xiaomi-motion-sensor.d.ts","sourceRoot":"","sources":["../../../src/accessories/xiaomi/xiaomi-motion-sensor.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAAE,MAAM,sBAAsB,CAAC;AACvD,OAAO,EAAE,OAAO,EAAE,MAAM,YAAY,CAAC;AAIrC,qBAAa,kBAAmB,SAAQ,eAAe;IACrD,OAAO,CAAC,aAAa,CAAU;IAC/B,OAAO,CAAC,cAAc,CAAU;IAEhC,oBAAoB,IAAI,OAAO,EAAE;CAqBlC"}
