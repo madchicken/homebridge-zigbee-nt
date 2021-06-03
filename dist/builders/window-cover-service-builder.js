@@ -23,14 +23,14 @@ class WindowCoverServiceBuilder extends service_builder_1.ServiceBuilder {
      * Handle requests to get the current value of the "Current Position" characteristic
      */
     handleCurrentPositionGet() {
-        this.logger.info(`[WindowCoverServiceBuilder] handleCurrentPositionGet - state: ${this.state}`)
+        this.logger.info(`[WindowCoverServiceBuilder] handleCurrentPositionGet - state: ${JSON.stringify(this.state)}`)
         return this.state.position;
     }
     /**
      * Handle requests to get the current value of the "Position State" characteristic
      */
     handlePositionStateGet() {
-        this.logger.info(`[WindowCoverServiceBuilder] handlePositionStateGet - state: ${this.state}`)
+        this.logger.info(`[WindowCoverServiceBuilder] handlePositionStateGet - state: ${JSON.stringify(this.state)}`)
         return this.state.state === types_1.CurtainState.CLOSED
             ? this.Characteristic.PositionState.INCREASING
             : this.Characteristic.PositionState.DECREASING;
@@ -39,7 +39,7 @@ class WindowCoverServiceBuilder extends service_builder_1.ServiceBuilder {
      * Handle requests to get the current value of the "Target Position" characteristic
      */
     handleTargetPositionGet() {
-        this.logger.info(`[WindowCoverServiceBuilder] handleTargetPositionGet - state: ${this.state}`)
+        this.logger.info(`[WindowCoverServiceBuilder] handleTargetPositionGet - state: ${JSON.stringify(this.state)}`)
         return this.state.position;
     }
     /**
