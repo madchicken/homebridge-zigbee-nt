@@ -161,7 +161,7 @@ export interface DeviceState {
   hue_power_on_color?: string;
   position?: number;
   position_target?: number;
-  curtain_state?: CurtainState;
+  running?: boolean;
 }
 
 export interface ColorCapabilities {

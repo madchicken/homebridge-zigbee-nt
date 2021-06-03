@@ -31,6 +31,8 @@ class WindowCoverServiceBuilder extends service_builder_1.ServiceBuilder {
      */
     handlePositionStateGet() {
         this.logger.info(`[WindowCoverServiceBuilder] handlePositionStateGet - state: ${JSON.stringify(this.state)}`)
+        if (this.state.running) return this.Characteristic.PositionState.STOPPED;
+
         return this.state.state === types_1.CurtainState.CLOSED
             ? this.Characteristic.PositionState.INCREASING
             : this.Characteristic.PositionState.DECREASING;
@@ -48,6 +50,12 @@ class WindowCoverServiceBuilder extends service_builder_1.ServiceBuilder {
     handleTargetPositionSet(value) {
         this.logger.info(`[WindowCoverServiceBuilder] handleTargetPositionSet - value: ${value}`)
         this.state.position = value;
+        if (this.state.position === 0) {
+            this.state.state = types_1.CurtainState.OPENED;
+        } else {
+            this.state.state = types_1.CurtainState.CLOSED;
+        }
+
         this.client.setCustomState(this.device, {position: value});
         // this.state.position_target = value;
     }

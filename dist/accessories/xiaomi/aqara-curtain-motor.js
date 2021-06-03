@@ -21,6 +21,7 @@ class AqaraCurtainMotorGeneral extends zig_bee_accessory_1.ZigBeeAccessory {
     }
     update(state) {
         super.update(state);
+        Object.assign(this.state, state);
         this.platform.log.info(`[AqaraCurtainMotorGeneral] Got update - state: ${JSON.stringify(state)}`);
     }
 }
