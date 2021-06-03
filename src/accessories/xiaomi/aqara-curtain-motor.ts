@@ -19,7 +19,7 @@ abstract class AqaraCurtainMotorGeneral extends ZigBeeAccessory {
       this.state
     );
 
-    this.services = builder.build();
+    this.services = [builder.build()];
 
     if (this.withBattery) {
       this.services.push(

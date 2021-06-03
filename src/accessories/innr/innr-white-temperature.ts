@@ -2,7 +2,7 @@ import { LighbulbServiceBuilder } from '../../builders/lighbulb-service-builder'
 import { InnrWhite } from './innr-white';
 
 export class InnrWhiteTemperature extends InnrWhite {
-  getAvailableServices() {
+  getAvailableServices(): any {
     const lightbulbService = new LighbulbServiceBuilder(
       this.platform,
       this.accessory,

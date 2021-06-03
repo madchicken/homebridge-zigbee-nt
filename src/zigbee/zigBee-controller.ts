@@ -198,7 +198,7 @@ export class ZigBeeController {
     await this.herdsman.permitJoin(permit);
   }
 
-  async getPermitJoin(): any {
+  async getPermitJoin(): Promise<any> {
     return this.herdsman.getPermitJoin();
   }
 
