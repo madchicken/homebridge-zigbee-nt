@@ -16,6 +16,10 @@ export interface ZigBeeControllerConfig {
 }
 
 export type RunningState = 'idle' | 'heat' | 'cool';
+export enum CurtainState {
+  CLOSED = 'closed',
+  OPENED = 'opened',
+}
 
 export type ButtonAction =
   | 'on'
@@ -155,6 +159,9 @@ export interface DeviceState {
   hue_power_on_brightness?: number;
   hue_power_on_color_temperature?: number;
   hue_power_on_color?: string;
+  position: number;
+  position_target: number;
+  curtain_state: CurtainState;
 }
 
 export interface ColorCapabilities {

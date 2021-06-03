@@ -28,23 +28,25 @@ export interface ExtraHAPTypes {
 /**
  * Supported services for manually configured devices
  */
-export type ServiceType =
-  | 'unknown'
-  | 'contact-sensor'
-  | 'light-sensor'
-  | 'bulb' // for backward compatibility
-  | 'light-bulb' // lights and dimmers
-  | 'switch' // switches and dimmers
-  | 'programmable-switch' // multi buttons
-  | 'motion-sensor'
-  | 'leak-sensor' // to use with water, gas or smoke sensors
-  | 'vibration-sensor'
-  | 'battery'
-  | 'humidity-sensor'
-  | 'temperature-sensor'
-  | 'outlet'
-  | 'lock'
-  | 'thermostat'; // thermostats
+export enum ServiceType {
+  UNKNOWN = 'unknown',
+  CONTACT_SENSOR = 'contact-sensor',
+  LIGHT_SENSOR = 'light-sensor',
+  BULB = 'bulb', // for backward compatibility
+  LIGHT_BULB = 'light-bulb', // lights and dimmers
+  SWITCH = 'switch', // switches and dimmers
+  PROGRAMMABLE_SWITCH = 'programmable-switch', // multi buttons
+  MOTION_SENSOR = 'motion-sensor',
+  LEAK_SENSOR = 'leak-sensor', // to use with water, gas or smoke sensors
+  VIBRATION_SENSOR = 'vibration-sensor',
+  BATTERY = 'battery',
+  HUMIDITY_SENSOR = 'humidity-sensor',
+  TEMPERATURE_SENSOR = 'temperature-sensor',
+  OUTLET = 'outlet',
+  LOCK = 'lock',
+  THERMOSTAT = 'thermostat', // thermostats
+  COVER = 'cover',
+};
 
 export type HKButtonAction = 'SINGLE_PRESS' | 'DOUBLE_PRESS' | 'LONG_PRESS';
 

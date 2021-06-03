@@ -1,20 +1,20 @@
 import { findByDevice } from 'zigbee-herdsman-converters';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
-import { ServiceConfig } from '../types';
+import { ServiceConfig, ServiceType } from '../types';
 import { Capability, Feature, ZigBeeDefinition } from '../zigbee/types';
 import { featureToButtonsMapping, getMetaFromFeatures } from './utils';
 
 function serviceFromFeatureName(feature: Feature) {
-  const serviceConfig: ServiceConfig = { type: 'unknown', meta: {} };
+  const serviceConfig: ServiceConfig = { type: ServiceType.UNKNOWN, meta: {} };
   switch (feature.name) {
     case 'action':
       if (feature.type === 'enum') {
         if (feature.values.includes('vibration')) {
-          serviceConfig.type = 'contact-sensor';
+          serviceConfig.type = ServiceType.CONTACT_SENSOR;
           serviceConfig.meta.vibration = true;
         } else {
           // switch
-          serviceConfig.type = 'programmable-switch';
+          serviceConfig.type = ServiceType.PROGRAMMABLE_SWITCH;
           serviceConfig.meta.buttonsMapping = featureToButtonsMapping(feature);
         }
       }
@@ -24,28 +24,28 @@ function serviceFromFeatureName(feature: Feature) {
       break;
     case 'presence':
     case 'occupancy':
-      serviceConfig.type = 'motion-sensor';
+      serviceConfig.type = ServiceType.MOTION_SENSOR;
       break;
     case 'water_leak':
-      serviceConfig.type = 'leak-sensor';
+      serviceConfig.type = ServiceType.LEAK_SENSOR;
       serviceConfig.meta.waterLeak = true;
       break;
     case 'smoke':
-      serviceConfig.type = 'leak-sensor';
+      serviceConfig.type = ServiceType.LEAK_SENSOR;
       serviceConfig.meta.smokeLeak = true;
       break;
     case 'battery':
-      serviceConfig.type = 'battery';
+      serviceConfig.type = ServiceType.BATTERY;
       break;
     case 'gas':
-      serviceConfig.type = 'leak-sensor';
+      serviceConfig.type = ServiceType.LEAK_SENSOR;
       serviceConfig.meta.gasLeak = true;
       break;
     case 'temperature':
-      serviceConfig.type = 'temperature-sensor';
+      serviceConfig.type = ServiceType.TEMPERATURE_SENSOR;
       break;
     case 'humidity':
-      serviceConfig.type = 'humidity-sensor';
+      serviceConfig.type = ServiceType.HUMIDITY_SENSOR;
       break;
     case 'voltage':
       serviceConfig.meta.voltage = true;
@@ -57,18 +57,18 @@ function serviceFromFeatureName(feature: Feature) {
       serviceConfig.meta.power = true;
       break;
     case 'vibration':
-      serviceConfig.type = 'contact-sensor';
+      serviceConfig.type = ServiceType.CONTACT_SENSOR;
       serviceConfig.meta.vibration = true;
       break;
     case 'contact':
-      serviceConfig.type = 'contact-sensor';
+      serviceConfig.type = ServiceType.CONTACT_SENSOR;
       serviceConfig.meta.contact = true;
       break;
     case 'tamper':
       serviceConfig.meta.tamper = true;
       break;
     case 'illuminance_lux':
-      serviceConfig.type = 'light-sensor';
+      serviceConfig.type = ServiceType.LIGHT_SENSOR;
       break;
     case 'local_temperature':
       serviceConfig.meta.localTemperature = true;
@@ -86,28 +86,30 @@ function serviceFromFeatureName(feature: Feature) {
 }
 
 function getServiceFromCapabilityType(capability: Capability, definition: ZigBeeDefinition) {
-  const serviceConfig: ServiceConfig = { type: 'unknown', meta: {} };
+  const serviceConfig: ServiceConfig = { type: ServiceType.UNKNOWN, meta: {} };
   switch (capability.type) {
     case 'light':
-      serviceConfig.type = 'light-bulb';
+      serviceConfig.type = ServiceType.LIGHT_BULB;
       serviceConfig.meta = getMetaFromFeatures(capability.features);
       break;
     case 'switch':
       serviceConfig.type = /plug|outlet/.test(definition.description.toLowerCase())
-        ? 'outlet'
-        : 'switch';
+        ? ServiceType.OUTLET
+        : ServiceType.SWITCH;
       serviceConfig.meta = getMetaFromFeatures(capability.features);
       break;
     case 'lock':
-      serviceConfig.type = 'lock';
+      serviceConfig.type = ServiceType.LOCK;
       serviceConfig.meta = getMetaFromFeatures(capability.features);
       break;
     case 'climate':
-      serviceConfig.type = 'thermostat';
+      serviceConfig.type = ServiceType.THERMOSTAT;
       serviceConfig.meta = getMetaFromFeatures(capability.features);
       break;
-    case 'fan':
     case 'cover':
+      serviceConfig.type = ServiceType.COVER;
+      serviceConfig.meta = getMetaFromFeatures(capability.features);
+    case 'fan':
     case 'text':
       return serviceConfig; // still unsupported
   }
@@ -132,7 +134,7 @@ export function guessAccessoryFromDevice(device: Device): ServiceConfig[] {
           ? getServiceFromCapabilityType(capability, definition)
           : serviceFromFeatureName(capability)
       )
-      .filter(s => s.type !== 'unknown'); // filter out unknown services
+      .filter(s => s.type !== ServiceType.UNKNOWN); // filter out unknown services
     return services.length ? services : null;
   }
   return null;

@@ -21,6 +21,7 @@ import { PhilipsHueWhiteTemperature } from './accessories/philips/philips-hue-wh
 import { SonoffContactSensor } from './accessories/sonoff/contact-sensor';
 import { TuyaOnoffDoubleSwitch } from './accessories/tuya/tuya-onoff-double-switch';
 import { TuyaThermostatControl } from './accessories/tuya/tuya-thermostat-control';
+import { AqaraCurtainMotor } from './accessories/xiaomi/aqara-curtain-motor';
 import {
   AqaraOppleSwitch2Buttons,
   AqaraOppleSwitch4Buttons,
@@ -180,9 +181,10 @@ export function registerSupportedDevices(): void {
   registerAccessoryClass('LUMI', ['lumi.remote.b286opcn01'], AqaraOppleSwitch2Buttons);
   registerAccessoryClass('LUMI', ['lumi.remote.b486opcn01'], AqaraOppleSwitch4Buttons);
   registerAccessoryClass('LUMI', ['lumi.remote.b686opcn01'], AqaraOppleSwitch6Buttons);
+  registerAccessoryClass('LUMI', ['lumi.curtain'], AqaraCurtainMotor);
   registerAccessoryClass('LUMI', ['lumi.sensor_motion'], XiaomiMotionSensor);
   registerAccessoryClass('Xiaomi', ['lumi.sensor_motion'], XiaomiMotionSensor);
-  registerAccessoryClass('LUMI', ['lumi.sensor_motion.aq2'], XiaomiMotionIlluminanceSensor);
+  registerAccessoryClass('LUMI', ['lumi.sensor_motion.aq2'], XiaomiMotionIlluminanceSensor);// TODO: copy
   registerAccessoryClass('Xiaomi', ['lumi.sensor_motion.aq2'], XiaomiMotionIlluminanceSensor);
   registerAccessoryClass('LUMI', ['lumi.sensor_wleak.aq1'], XiaomiLeakSensor);
   registerAccessoryClass('TuYa', ['GDKES-02TZXD'], TuyaOnoffDoubleSwitch);
