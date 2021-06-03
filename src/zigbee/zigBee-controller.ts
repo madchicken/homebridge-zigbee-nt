@@ -162,7 +162,7 @@ export class ZigBeeController {
     return Promise.resolve(true);
   }
 
-  async start() {
+  async start(): Promise<any> {
     await this.herdsman.start();
   }
 
@@ -180,11 +180,11 @@ export class ZigBeeController {
     await this.herdsman.stop();
   }
 
-  async getCoordinatorVersion() {
+  async getCoordinatorVersion(): Promise<any> {
     return this.herdsman.getCoordinatorVersion();
   }
 
-  async reset(type) {
+  async reset(type): Promise<any> {
     await this.herdsman.reset(type);
   }
 
@@ -198,11 +198,11 @@ export class ZigBeeController {
     await this.herdsman.permitJoin(permit);
   }
 
-  async getPermitJoin() {
+  async getPermitJoin(): any {
     return this.herdsman.getPermitJoin();
   }
 
-  coordinator() {
+  coordinator(): any {
     return this.herdsman.getDevicesByType('Coordinator')[0];
   }
 
@@ -210,26 +210,26 @@ export class ZigBeeController {
     return this.herdsman.getDevices().filter(device => device.type !== 'Coordinator');
   }
 
-  device(ieeeAddr: string) {
+  device(ieeeAddr: string): any {
     return this.herdsman.getDeviceByIeeeAddr(ieeeAddr);
   }
 
-  endpoints(addr) {
+  endpoints(addr): any {
     return this.device(addr).endpoints.map(endpoint => this.find(addr, endpoint));
   }
 
-  find(addr, epId) {
+  find(addr, epId): any {
     return this.herdsman.getDeviceByIeeeAddr(addr).getEndpoint(epId);
   }
 
-  ping(addr) {
+  ping(addr): any {
     const device = this.herdsman.getDeviceByIeeeAddr(addr);
     if (device) {
       return device.ping();
     }
   }
 
-  remove(ieeeAddr: string) {
+  remove(ieeeAddr: string): any {
     const device = this.herdsman.getDeviceByIeeeAddr(ieeeAddr);
     if (device) {
       return device.removeFromDatabase();
@@ -237,7 +237,7 @@ export class ZigBeeController {
     return Promise.reject(`Device ${ieeeAddr} not found`);
   }
 
-  unregister(ieeeAddr: string) {
+  unregister(ieeeAddr: string): any {
     const device = this.herdsman.getDeviceByIeeeAddr(ieeeAddr);
     if (device) {
       return device.removeFromDatabase();
@@ -245,7 +245,7 @@ export class ZigBeeController {
     return Promise.reject(`Device ${ieeeAddr} not found`);
   }
 
-  async toggleLed(on: boolean) {
+  async toggleLed(on: boolean): Promise<any> {
     if (this.herdsman) {
       const supported = await this.herdsman.supportsLED();
       if (supported) {
@@ -314,19 +314,19 @@ export class ZigBeeController {
     }
   }
 
-  getGroupByID(ID) {
+  getGroupByID(ID): any {
     return this.herdsman.getGroupByID(ID);
   }
 
-  getGroups() {
+  getGroups(): any {
     return this.herdsman.getGroups();
   }
 
-  createGroup(groupID: number) {
+  createGroup(groupID: number): any {
     return this.herdsman.createGroup(groupID);
   }
 
-  async touchlinkFactoryReset() {
+  async touchlinkFactoryReset(): Promise<any> {
     return this.herdsman.touchlinkFactoryResetFirst();
   }
 
