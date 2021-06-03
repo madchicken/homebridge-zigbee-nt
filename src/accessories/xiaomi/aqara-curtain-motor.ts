@@ -6,18 +6,6 @@ import { ZigbeeNTHomebridgePlatform } from '../../platform';
 import { DeviceState } from '../../zigbee/types';
 import { ZigBeeClient } from '../../zigbee/zig-bee-client';
 import { ZigBeeAccessory } from '../zig-bee-accessory';
-
-export enum EventType {
-  SINGLE,
-  DOUBLE,
-  HOLD,
-}
-
-interface Action {
-  coverService: Service;
-  eventType: EventType;
-}
-
 abstract class AqaraCurtainMotorGeneral extends ZigBeeAccessory {
   protected services: Service[];
   protected buttons: [];
