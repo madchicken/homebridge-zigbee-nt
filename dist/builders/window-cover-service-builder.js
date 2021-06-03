@@ -13,18 +13,18 @@ class WindowCoverServiceBuilder extends service_builder_1.ServiceBuilder {
 
         this.logger.info(`[WindowCoverServiceBuilder] service characteristics: ${JSON.stringify(this.service.characteristics)}`);
 
-        this.service.
-        on("characteristic-change", (change, ...args) => {
+        this.service
+        .on("characteristic-change", (change, ...args) => {
             platform.log.info(`[WindowCoverServiceBuilder] on characteristic-change - change: ${JSON.stringify(change)}`);
             platform.log.info(`[WindowCoverServiceBuilder] on characteristic-change - args: ${JSON.stringify(args)}`);
         })
-        on("service-configurationChange", (...args) => {
+        .on("service-configurationChange", (...args) => {
             platform.log.info(`[WindowCoverServiceBuilder] on characteristic-change -args: ${JSON.stringify(args)}`);
         })
-        on("characteristic-warning", (warning,...args) => {
+        .on("characteristic-warning", (warning,...args) => {
             platform.log.info(`[WindowCoverServiceBuilder] on characteristic-change- warning: ${JSON.stringify(warning)}`);
             platform.log.info(`[WindowCoverServiceBuilder] on characteristic-change - args: ${JSON.stringify(args)}`);
-        })
+        });
 
         // create handlers for required characteristics
         this.service.getCharacteristic(this.Characteristic.CurrentPosition)
