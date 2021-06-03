@@ -14,6 +14,7 @@
     "declarationMap": true,
     "jsx": "react",
     "resolveJsonModule": true,
+    "preventSymlinks":true,
     "rootDir": "./src"
   },
   "exclude": ["**/__tests__/*"],
