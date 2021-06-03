@@ -6,6 +6,7 @@ const types_1 = require("../zigbee/types");
 class WindowCoverServiceBuilder extends service_builder_1.ServiceBuilder {
     constructor(platform, accessory, client, state) {
         super(platform, accessory, client, state);
+        this.logger = platform.log;
         this.service =
             this.accessory.getService(platform.Service.WindowCovering) ||
                 this.accessory.addService(platform.Service.WindowCovering);
@@ -22,13 +23,15 @@ class WindowCoverServiceBuilder extends service_builder_1.ServiceBuilder {
      * Handle requests to get the current value of the "Current Position" characteristic
      */
     handleCurrentPositionGet() {
+        this.logger.info(`[WindowCoverServiceBuilder] handleCurrentPositionGet - state: ${this.state}`)
         return this.state.position;
     }
     /**
      * Handle requests to get the current value of the "Position State" characteristic
      */
     handlePositionStateGet() {
-        return this.state.curtain_state === types_1.CurtainState.CLOSED
+        this.logger.info(`[WindowCoverServiceBuilder] handlePositionStateGet - state: ${this.state}`)
+        return this.state.state === types_1.CurtainState.CLOSED
             ? this.Characteristic.PositionState.INCREASING
             : this.Characteristic.PositionState.DECREASING;
     }
@@ -36,14 +39,16 @@ class WindowCoverServiceBuilder extends service_builder_1.ServiceBuilder {
      * Handle requests to get the current value of the "Target Position" characteristic
      */
     handleTargetPositionGet() {
-        return this.state.position_target;
+        this.logger.info(`[WindowCoverServiceBuilder] handleTargetPositionGet - state: ${this.state}`)
+        return this.state.position;
     }
     /**
      * Handle requests to set the "Target Position" characteristic
      */
     handleTargetPositionSet(value) {
+        this.logger.info(`[WindowCoverServiceBuilder] handleTargetPositionSet - value: ${value}`)
         this.state.position = value;
-        this.state.position_target = value;
+        // this.state.position_target = value;
     }
 }
 exports.WindowCoverServiceBuilder = WindowCoverServiceBuilder;
