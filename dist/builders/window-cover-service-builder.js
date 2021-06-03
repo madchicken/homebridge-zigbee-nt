@@ -48,6 +48,7 @@ class WindowCoverServiceBuilder extends service_builder_1.ServiceBuilder {
     handleTargetPositionSet(value) {
         this.logger.info(`[WindowCoverServiceBuilder] handleTargetPositionSet - value: ${value}`)
         this.state.position = value;
+        this.client.setCustomState(this.device, {position: value});
         // this.state.position_target = value;
     }
 }
