@@ -5,9 +5,8 @@ const battery_service_builder_1 = require("../../builders/battery-service-builde
 const window_cover_service_builder_1 = require("../../builders/window-cover-service-builder");
 const zig_bee_accessory_1 = require("../zig-bee-accessory");
 class AqaraCurtainMotorGeneral extends zig_bee_accessory_1.ZigBeeAccessory {
-    constructor(log) {
+    constructor() {
         super(...arguments);
-        this.log = log;
         this.withBattery = false;
     }
     getAvailableServices() {
@@ -22,7 +21,7 @@ class AqaraCurtainMotorGeneral extends zig_bee_accessory_1.ZigBeeAccessory {
     }
     update(state) {
         super.update(state);
-        this.log.info(`[AqaraCurtainMotorGeneral] Got update - state: ${JSON.stringify(state)}`);
+        this.platform.log.info(`[AqaraCurtainMotorGeneral] Got update - state: ${JSON.stringify(state)}`);
     }
 }
 class AqaraCurtainMotor extends AqaraCurtainMotorGeneral {
