@@ -13,18 +13,18 @@ class WindowCoverServiceBuilder extends service_builder_1.ServiceBuilder {
 
         this.logger.info(`[WindowCoverServiceBuilder] service characteristics: ${JSON.stringify(this.service.characteristics)}`);
 
-        this.service
-        .on("characteristic-change", (change, ...args) => {
-            platform.log.info(`[WindowCoverServiceBuilder] on characteristic-change - change: ${JSON.stringify(change)}`);
-            platform.log.info(`[WindowCoverServiceBuilder] on characteristic-change - args: ${JSON.stringify(args)}`);
-        })
-        .on("service-configurationChange", (...args) => {
-            platform.log.info(`[WindowCoverServiceBuilder] on characteristic-change -args: ${JSON.stringify(args)}`);
-        })
-        .on("characteristic-warning", (warning,...args) => {
-            platform.log.info(`[WindowCoverServiceBuilder] on characteristic-change- warning: ${JSON.stringify(warning)}`);
-            platform.log.info(`[WindowCoverServiceBuilder] on characteristic-change - args: ${JSON.stringify(args)}`);
-        });
+        // this.service
+        // .on("characteristic-change", (change, ...args) => {
+        //     platform.log.info(`[WindowCoverServiceBuilder] on characteristic-change - change: ${JSON.stringify(change)}`);
+        //     platform.log.info(`[WindowCoverServiceBuilder] on characteristic-change - args: ${JSON.stringify(args)}`);
+        // })
+        // .on("service-configurationChange", (...args) => {
+        //     platform.log.info(`[WindowCoverServiceBuilder] on characteristic-change -args: ${JSON.stringify(args)}`);
+        // })
+        // .on("characteristic-warning", (warning,...args) => {
+        //     platform.log.info(`[WindowCoverServiceBuilder] on characteristic-change- warning: ${JSON.stringify(warning)}`);
+        //     platform.log.info(`[WindowCoverServiceBuilder] on characteristic-change - args: ${JSON.stringify(args)}`);
+        // });
 
         // create handlers for required characteristics
         this.service.getCharacteristic(this.Characteristic.CurrentPosition)
@@ -34,6 +34,9 @@ class WindowCoverServiceBuilder extends service_builder_1.ServiceBuilder {
         this.service.getCharacteristic(this.Characteristic.TargetPosition)
             .onGet(this.handleTargetPositionGet.bind(this))
             .onSet(this.handleTargetPositionSet.bind(this));
+
+        this.service.getCharacteristic(this.Characteristic.Name)
+            .onGet(() => this.friendlyName);
     }
     /**
      * Handle requests to get the current value of the "Current Position" characteristic
@@ -47,33 +50,28 @@ class WindowCoverServiceBuilder extends service_builder_1.ServiceBuilder {
      */
     handlePositionStateGet() {
         this.logger.info(`[WindowCoverServiceBuilder] handlePositionStateGet - state: ${JSON.stringify(this.state)}`)
-        if (this.state.running) return this.Characteristic.PositionState.STOPPED;
+        this.state.state;
 
-        return this.state.state === types_1.CurtainState.CLOSED
-            ? this.Characteristic.PositionState.INCREASING
-            : this.Characteristic.PositionState.DECREASING;
+        // return this.state.state === types_1.CurtainState.CLOSED
+        //     ? this.Characteristic.PositionState.INCREASING
+        //     : this.Characteristic.PositionState.DECREASING;
     }
     /**
      * Handle requests to get the current value of the "Target Position" characteristic
      */
     handleTargetPositionGet() {
         this.logger.info(`[WindowCoverServiceBuilder] handleTargetPositionGet - state: ${JSON.stringify(this.state)}`)
-        return this.state.position;
+        return this.state.position_target;
     }
     /**
      * Handle requests to set the "Target Position" characteristic
      */
     handleTargetPositionSet(value) {
         this.logger.info(`[WindowCoverServiceBuilder] handleTargetPositionSet - value: ${value}`)
-        this.state.position = value;
-        if (this.state.position === 0) {
-            this.state.state = types_1.CurtainState.OPENED;
-        } else {
-            this.state.state = types_1.CurtainState.CLOSED;
-        }
+        this.state.position_target = value;
 
-        this.client.setCustomState(this.device, {position: value});
-        // this.state.position_target = value;
+        if (!this.state.running)
+            this.client.setCustomState(this.device, {position: value});
     }
 }
 exports.WindowCoverServiceBuilder = WindowCoverServiceBuilder;
