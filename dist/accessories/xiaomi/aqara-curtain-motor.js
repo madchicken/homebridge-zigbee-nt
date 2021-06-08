@@ -35,9 +35,9 @@ class AqaraCurtainMotorGeneral extends zig_bee_accessory_1.ZigBeeAccessory {
     updatePositionState() {
         if (this.state.running) {
             this.state.state = this.state.position <= this.state.position_target
-                ? this.Characteristic.PositionState.INCREASING
-                : this.Characteristic.PositionState.DECREASING;
-        } else this.state.state = this.Characteristic.PositionState.STOPPED;
+                ? this.platform.Characteristic.PositionState.INCREASING
+                : this.platform.Characteristic.PositionState.DECREASING;
+        } else this.state.state = this.platform.Characteristic.PositionState.STOPPED;
     }
 
     adjustPosition() {
