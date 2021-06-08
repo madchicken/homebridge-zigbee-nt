@@ -50,7 +50,7 @@ class WindowCoverServiceBuilder extends service_builder_1.ServiceBuilder {
      */
     handlePositionStateGet() {
         this.logger.info(`[WindowCoverServiceBuilder] handlePositionStateGet - state: ${JSON.stringify(this.state)}`)
-        this.state.state;
+        return this.state.state || this.Characteristic.PositionState.STOPPED;
 
         // return this.state.state === types_1.CurtainState.CLOSED
         //     ? this.Characteristic.PositionState.INCREASING
