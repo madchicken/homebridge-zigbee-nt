@@ -149,7 +149,6 @@ export abstract class ZigBeeAccessory {
     try {
       await this.zigBeeDeviceDescriptor.ping();
       await this.configureDevice();
-      this.zigBeeDeviceDescriptor.updateLastSeen();
       this.zigBeeDeviceDescriptor.save();
       this.missedPing = 0;
       this.isOnline = true;
@@ -224,7 +223,6 @@ export abstract class ZigBeeAccessory {
       this.log.debug(`Updating state of device ${this.friendlyName} with `, state);
       this.state = Object.assign(this.state, { ...state });
       this.log.debug(`Updated state for device ${this.friendlyName} is now `, this.state);
-      this.zigBeeDeviceDescriptor.updateLastSeen();
       this.configureDevice().then(configured =>
         configured ? this.log.debug(`${this.friendlyName} configured after state update`) : null
       );
