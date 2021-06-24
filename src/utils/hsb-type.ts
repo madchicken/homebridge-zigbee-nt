@@ -284,7 +284,7 @@ export class HSBType {
     const x = tmpX / (tmpX + tmpY + tmpZ);
     const y = tmpY / (tmpX + tmpY + tmpZ);
 
-    return [x * 100.0, y * 100.0, tmpY * this.brightness];
+    return [x, y, tmpY * this.brightness];
   }
 
   private validateValue(hue: number, saturation: number, brightness: number): void {
