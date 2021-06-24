@@ -77,6 +77,7 @@ interface SerialPortOptions {
 interface AdapterOptions {
   concurrent?: number;
   delay?: number;
+  disableLED: boolean;
 }
 
 interface Options {
@@ -123,7 +124,9 @@ const DefaultOptions: Options = {
   databasePath: null,
   databaseBackupPath: null,
   backupPath: null,
-  adapter: null,
+  adapter: {
+    disableLED: false,
+  },
   acceptJoiningDeviceHandler: null,
 };
 
@@ -137,7 +140,7 @@ export class ZigBeeController {
     this.log = log;
   }
 
-  init(config: ZigBeeControllerConfig) {
+  init(config: ZigBeeControllerConfig): void {
     const options: Options = {
       ...DefaultOptions,
       ...{
@@ -157,7 +160,7 @@ export class ZigBeeController {
     this.herdsman = new Controller(options);
   }
 
-  acceptJoiningDeviceHandler(ieeeAddr) {
+  acceptJoiningDeviceHandler(ieeeAddr: string): Promise<boolean> {
     this.log.info(`Accepting joining whitelisted device '${ieeeAddr}'`);
     return Promise.resolve(true);
   }
