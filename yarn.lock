@@ -10877,18 +10877,31 @@ yocto-queue@^0.1.0:
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz#0294eb3dee05028d31ee1a5fa2c556a6aaf10a1b"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
 
-zigbee-herdsman-converters@14.0.181:
-  version "14.0.181"
-  resolved "https://registry.yarnpkg.com/zigbee-herdsman-converters/-/zigbee-herdsman-converters-14.0.181.tgz#9d8d0dcdd201d1e0cf022339e0d71a7e779d2f0c"
-  integrity sha512-cEyyAfAJCqJeipCnGdKfoAOoVbYMvkJkdwW2/soPw6i+tPCFtNiQ2ZMEE1jQgUDS+lhlabUXxRx/GlgjBKYgQQ==
+zigbee-herdsman-converters@14.0.100:
+  version "14.0.100"
+  resolved "https://registry.yarnpkg.com/zigbee-herdsman-converters/-/zigbee-herdsman-converters-14.0.100.tgz#ff644b0218a6287f457d5a76813edfb47cde12a3"
+  integrity sha512-4Z8sr7YQ3BifN2Mbpo/5q9w2PJeVZITYOot+f7OO1tceYbVQ4mE0vFaVpcLJPKmMw4YrePlc0737DEFEWWl+Ag==
   dependencies:
     axios "^0.21.1"
     buffer-crc32 "^0.2.13"
     https-proxy-agent "^5.0.0"
     tar-stream "^2.2.0"
-    zigbee-herdsman "^0.13.116"
+    zigbee-herdsman "^0.13.87"
 
-zigbee-herdsman@0.13.117, zigbee-herdsman@^0.13.116:
+zigbee-herdsman@0.13.88:
+  version "0.13.88"
+  resolved "https://registry.yarnpkg.com/zigbee-herdsman/-/zigbee-herdsman-0.13.88.tgz#759c24b56633ea2a44b11eca11441468e39b6288"
+  integrity sha512-PTCg7+ATwD29qjuUWcvJHN8E+GFL70b1lRTFzZbMMWdMNKCVy6ZQhPSwjmq+tTNRtzyCVUb2IW7boDR0Aetq+A==
+  dependencies:
+    "@serialport/bindings" "9.0.4"
+    debounce "^1.2.0"
+    debug "^4.3.1"
+    fast-deep-equal "^3.1.3"
+    mixin-deep "^2.0.1"
+    serialport "9.0.6"
+    slip "^1.0.2"
+
+zigbee-herdsman@^0.13.87:
   version "0.13.117"
   resolved "https://registry.yarnpkg.com/zigbee-herdsman/-/zigbee-herdsman-0.13.117.tgz#d3c37047931eeda9f9e559a0e9dd09ca1fcdfb0b"
   integrity sha512-ZlJ/8peGWa+VaSBJ+TwhvGL7CaISRvPN8EPTfEoRYI6Pveh35o9ALjl7tA5ajo9sJrtLD+/GNWZlfFqgeI6Egg==

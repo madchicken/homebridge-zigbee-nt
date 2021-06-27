@@ -83,7 +83,7 @@ export function createAccessoryInstance(
   if (device) {
     const key = find(device);
     if (platform.config.preferAutoDiscover) {
-      platform.log.debug('preferAutoDiscover is true: guessing device from zigbee definition');
+      platform.log.info('preferAutoDiscover is true: guessing device from zigbee definition');
       const serviceConfigs = guessAccessoryFromDevice(device);
       if (serviceConfigs) {
         const zbAcc = new ConfigurableAccessory(

@@ -77,7 +77,6 @@ interface SerialPortOptions {
 interface AdapterOptions {
   concurrent?: number;
   delay?: number;
-  disableLED: boolean;
 }
 
 interface Options {
@@ -124,9 +123,7 @@ const DefaultOptions: Options = {
   databasePath: null,
   databaseBackupPath: null,
   backupPath: null,
-  adapter: {
-    disableLED: false,
-  },
+  adapter: null,
   acceptJoiningDeviceHandler: null,
 };
 
