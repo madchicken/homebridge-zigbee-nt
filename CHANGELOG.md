@@ -172,3 +172,14 @@ All notable changes to this project will be documented in this file. This projec
 
 - Fix issues with Moes/Tuya TS0601 thermostat issues [#140](https://github.com/madchicken/homebridge-zigbee-nt/issues/140)
 - Updated dependencies
+
+## 2.2.5 (2021-6-28)
+
+## [Version 2.2.5](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.2.4...v2.2.5)
+
+#### Changes
+
+- Fix adapter initialization issue
+- Fix double event coming from buttons
+- Fix color issue with HUE bulbs (and all color bulbs)
+- OTA update support in UI (beta)
