@@ -137,7 +137,7 @@ export class ZigBeeController {
     this.log = log;
   }
 
-  init(config: ZigBeeControllerConfig) {
+  init(config: ZigBeeControllerConfig): void {
     const options: Options = {
       ...DefaultOptions,
       ...{
@@ -157,7 +157,7 @@ export class ZigBeeController {
     this.herdsman = new Controller(options);
   }
 
-  acceptJoiningDeviceHandler(ieeeAddr) {
+  acceptJoiningDeviceHandler(ieeeAddr: string): Promise<boolean> {
     this.log.info(`Accepting joining whitelisted device '${ieeeAddr}'`);
     return Promise.resolve(true);
   }
