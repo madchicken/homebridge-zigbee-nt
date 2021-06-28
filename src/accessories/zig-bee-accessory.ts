@@ -1,7 +1,7 @@
 import assert from 'assert';
 import retry from 'async-retry';
 import { Logger, PlatformAccessory, Service } from 'homebridge';
-import { isNull, isUndefined, uniq } from 'lodash';
+import { isNull, isUndefined } from 'lodash';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { HAP } from '../index';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
@@ -241,7 +241,11 @@ export abstract class ZigBeeAccessory {
   public update(state: DeviceState): void {
     const Service = this.platform.Service;
     const Characteristic = this.platform.Characteristic;
-    uniq(this.mappedServices).forEach(service => {
+    const serviceMap = this.mappedServices.reduce((map, service) => {
+      map.set(service.UUID, service);
+      return map;
+    }, new Map());
+    [...serviceMap.values()].forEach(service => {
       this.log.debug(
         `Updating service ${service.UUID} for device ${this.friendlyName} with state`,
         state
