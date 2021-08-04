@@ -3,4 +3,5 @@
 .idea
 .npmrc
 .cache
+.parcel-cache
 /coverage/
