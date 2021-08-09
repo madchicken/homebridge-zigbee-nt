@@ -6,6 +6,8 @@ import { sizes } from '../constants';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { CoordinatorModel, DeviceModel } from '../../../common/types';
+import { useQuery } from 'react-query';
+import { DevicesService } from '../../actions/devices';
 dayjs.extend(relativeTime);
 
 const TABS = ['Info', 'Structure', 'State'];
@@ -41,6 +43,9 @@ function renderInfo(device: DeviceModel) {
         <Heading size={400}>Software build: {device.softwareBuildID}</Heading>
       </Pane>
       <Pane padding={sizes.padding.small}>
+        <Heading size={400}>Update available: <CheckForUpdates ieeeAddr={device.ieeeAddr} /></Heading>
+      </Pane>
+      <Pane padding={sizes.padding.small}>
         <Heading size={400}>Link quality: {device.linkquality}</Heading>
       </Pane>
       <Pane padding={sizes.padding.small}>
@@ -48,6 +53,27 @@ function renderInfo(device: DeviceModel) {
       </Pane>
     </>
   );
+}
+
+function CheckForUpdates(props: { ieeeAddr: string }): JSX.Element | null {
+  const { ieeeAddr } = props;
+  const checkForUpdatesQuery = useQuery(['deviceUpdates', ieeeAddr], () => DevicesService.checkForUpdates(ieeeAddr));
+
+  if (checkForUpdatesQuery.isError) {
+    return <>{(checkForUpdatesQuery.error as Error).message}</>;
+  } else if (checkForUpdatesQuery.isFetched) {
+    if (checkForUpdatesQuery.data) {
+      return <>yes
+        <form method="post" action={`/api/devices/${ieeeAddr}/updateFirmware`} target="_blank">
+          <button type="submit">Update now</button>
+        </form>
+      </>;
+    } else {
+      return <>no</>;
+    }
+  } else {
+    return <>{checkForUpdatesQuery.status}</>;
+  }
 }
 
 function renderCoordinatorInfo(device: CoordinatorModel) {
