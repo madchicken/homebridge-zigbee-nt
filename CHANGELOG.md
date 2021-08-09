@@ -183,3 +183,15 @@ All notable changes to this project will be documented in this file. This projec
 - Fix double event coming from buttons
 - Fix color issue with HUE bulbs (and all color bulbs)
 - OTA update support in UI (beta)
+
+## 2.5.1 (2021-8-09)
+
+## [Version 2.5.1](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.2.5...v2.5.1)
+
+#### Changes
+
+- Improved OTA UI
+- Fix color handling for light bulbs supporting it
+- Fix dependencies
+- Upgrade evergreen UI components library
+- Fix vulnerabilities
