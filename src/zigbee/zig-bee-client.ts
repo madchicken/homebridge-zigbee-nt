@@ -475,7 +475,7 @@ export class ZigBeeClient {
     return this.zigBee.getCoordinatorVersion();
   }
 
-  async isUpdateFirmwareAvailable(device: Device, request = {}): Promise<boolean> {
+  async isUpdateFirmwareAvailable(device: Device, request = null): Promise<boolean> {
     const zigBeeEntity = this.zigBee.resolveEntity(device);
     if (zigBeeEntity.definition.ota) {
       return zigBeeEntity.definition.ota.isUpdateAvailable(device, this.log, request);

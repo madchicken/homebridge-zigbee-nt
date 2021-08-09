@@ -57,6 +57,29 @@ export function mapDevicesRoutes(
     }
   });
 
+  express.post('/api/devices/:ieeeAddr/updateFirmware', async (req, res) => {
+    const device: Device = platform.zigBeeClient.getDevice(req.params.ieeeAddr);
+    if (device) {
+      if (platform.zigBeeClient.hasOTA(device)) {
+        res.status(constants.HTTP_STATUS_OK);
+        res.contentType('text/plain; charset=UTF-8');
+        res.setHeader('transfer-encoding', 'chunked');
+        res.write(`Updating firmware for ${device.ieeeAddr} (${device.manufacturerName} ${device.modelID})…\n`)
+        await platform.zigBeeClient.updateFirmware(device, function(percentage, remaining) {
+          if (remaining !== null) {
+            res.write(`${percentage}% complete with ${Math.round(remaining)}s remaining\n`);
+          } else {
+            res.write(`${percentage}% complete\n`);
+          }
+        })
+        res.end("Finished.\n");
+      }
+    } else {
+      res.status(constants.HTTP_STATUS_NOT_FOUND);
+      res.end();
+    }
+  });
+
   express.delete('/api/devices/:ieeeAddr', async (req, res) => {
     const device: Device = platform.zigBeeClient.getDevice(req.params.ieeeAddr);
     if (device) {
