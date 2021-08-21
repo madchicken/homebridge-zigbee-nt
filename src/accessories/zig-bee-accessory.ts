@@ -132,7 +132,7 @@ export abstract class ZigBeeAccessory {
     } else {
       this.configureDevice()
         .then(() => this.log.debug(`${this.friendlyName} successfully configured`))
-        .catch(e => this.log.error(e.message));
+        .catch((e) => this.log.error(e.message));
     }
   }
 
@@ -203,7 +203,11 @@ export abstract class ZigBeeAccessory {
 
   private set isConfigured(val: boolean) {
     if (val === true) {
-      this.zigBeeDefinition.meta.configured = this.zigBeeDefinition.meta.configureKey;
+      if (this.zigBeeDefinition.meta && this.zigBeeDefinition.meta.configureKey) {
+        this.zigBeeDefinition.meta.configured = this.zigBeeDefinition.meta.configureKey;
+      } else {
+        this.zigBeeDefinition.meta.configured = 1;
+      }
     } else {
       delete this.zigBeeDefinition.meta?.configured;
     }
@@ -223,7 +227,7 @@ export abstract class ZigBeeAccessory {
       this.log.debug(`Updating state of device ${this.friendlyName} with `, state);
       this.state = Object.assign(this.state, { ...state });
       this.log.debug(`Updated state for device ${this.friendlyName} is now `, this.state);
-      this.configureDevice().then(configured =>
+      this.configureDevice().then((configured) =>
         configured ? this.log.debug(`${this.friendlyName} configured after state update`) : null
       );
       this.update({ ...this.state });
@@ -245,7 +249,7 @@ export abstract class ZigBeeAccessory {
       map.set(service.UUID, service);
       return map;
     }, new Map());
-    [...serviceMap.values()].forEach(service => {
+    [...serviceMap.values()].forEach((service) => {
       this.log.debug(
         `Updating service ${service.UUID} for device ${this.friendlyName} with state`,
         state
@@ -422,7 +426,7 @@ export abstract class ZigBeeAccessory {
 
   public supports(property: string): boolean {
     return (
-      this.entity.definition.exposes?.find(capability => capability.name === property) !== null
+      this.entity.definition.exposes?.find((capability) => capability.name === property) !== null
     );
   }
 }
