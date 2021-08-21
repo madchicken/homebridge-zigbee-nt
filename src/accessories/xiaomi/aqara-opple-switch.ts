@@ -6,6 +6,7 @@ import { ZigbeeNTHomebridgePlatform } from '../../platform';
 import { DeviceState } from '../../zigbee/types';
 import { ZigBeeClient } from '../../zigbee/zig-bee-client';
 import { ZigBeeAccessory } from '../zig-bee-accessory';
+import { isNull, isUndefined } from 'lodash';
 
 export enum EventType {
   SINGLE,
@@ -28,6 +29,7 @@ abstract class AqaraOppleSwitch extends ZigBeeAccessory {
   protected services: Service[];
   protected buttons: Button[];
   protected withBattery = false;
+  protected batteryService: Service;
 
   getAvailableServices(): Service[] {
     const builder = new ProgrammableSwitchServiceBuilder(
@@ -37,7 +39,7 @@ abstract class AqaraOppleSwitch extends ZigBeeAccessory {
       this.state
     );
 
-    this.buttons.forEach(button => {
+    this.buttons.forEach((button) => {
       builder.withStatelessSwitch(button.displayName, button.subType, button.index, [
         EventType.SINGLE,
         EventType.DOUBLE,
@@ -48,18 +50,29 @@ abstract class AqaraOppleSwitch extends ZigBeeAccessory {
     this.services = builder.build();
 
     if (this.withBattery) {
-      this.services.push(
-        new BatteryServiceBuilder(this.platform, this.accessory, this.client, this.state)
-          .withBatteryPercentage()
-          .build()
-      );
+      this.batteryService = new BatteryServiceBuilder(
+        this.platform,
+        this.accessory,
+        this.client,
+        this.state
+      )
+        .withBatteryPercentage()
+        .build();
+      this.services.push(this.batteryService);
     }
 
     return this.services;
   }
 
   update(state: DeviceState) {
-    super.update(state);
+    const Characteristic = this.platform.Characteristic;
+    if (!isNull(state.battery) && !isUndefined(state.battery)) {
+      this.batteryService.updateCharacteristic(Characteristic.BatteryLevel, state.battery || 0);
+      this.batteryService.updateCharacteristic(
+        Characteristic.StatusLowBattery,
+        state.battery && state.battery < 10
+      );
+    }
 
     const action = this.parseAction(this.state.action);
 
@@ -85,7 +98,7 @@ abstract class AqaraOppleSwitch extends ZigBeeAccessory {
 
     // get index of switchService by checking if button.index matches the button index from action
     const switchServiceIndex = this.buttons.findIndex(
-      button => button.index === parseInt(actionComponents[1])
+      (button) => button.index === parseInt(actionComponents[1])
     );
 
     // just to be sure probably not needed ¯\_(ツ)_/¯
