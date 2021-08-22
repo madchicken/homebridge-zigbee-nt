@@ -38,7 +38,7 @@ export class ZigBeeClient {
     this.zigBee = new ZigBeeController(log);
     this.log = log;
     this.deviceSettingsMap = new Map<string, CustomDeviceSetting>(
-      customDeviceSettings.map(s => [s.ieeeAddr, s])
+      customDeviceSettings.map((s) => [s.ieeeAddr, s])
     );
   }
 
@@ -95,8 +95,7 @@ export class ZigBeeClient {
     const resolvedEntity = this.zigBee.resolveEntity(device);
 
     if (!resolvedEntity) {
-      this.log.error(`Entity '${device}' is unknown`);
-      return null;
+      throw new Error(`Entity '${device}' is unknown`);
     }
     resolvedEntity.settings = this.getDeviceSetting(resolvedEntity.device);
     return resolvedEntity;
@@ -111,13 +110,13 @@ export class ZigBeeClient {
     const state = {} as DeviceState;
     if (resolvedEntity) {
       const meta: Meta = { device: message.device };
-      const converters = resolvedEntity.definition.fromZigbee.filter(c => {
+      const converters = resolvedEntity.definition.fromZigbee.filter((c) => {
         const type = Array.isArray(c.type)
           ? c.type.includes(message.type)
           : c.type === message.type;
         return c.cluster === message.cluster && type;
       });
-      converters.forEach(converter => {
+      converters.forEach((converter) => {
         const options: CustomDeviceSetting = this.deviceSettingsMap.get(
           message.device.ieeeAddr
         ) || { ieeeAddr: message.device.ieeeAddr };
@@ -235,7 +234,7 @@ export class ZigBeeClient {
    */
   private mapConverters(keys: string[], definition: ZigBeeDefinition): Map<string, ToConverter> {
     return keys.reduce((converters: Map<string, ToConverter>, key) => {
-      const converter = definition.toZigbee.find(c => c.key.includes(key));
+      const converter = definition.toZigbee.find((c) => c.key.includes(key));
 
       if (!converter) {
         // Thjs should really never happen!
@@ -250,7 +249,7 @@ export class ZigBeeClient {
   private getKeys(json: DeviceState) {
     const keys: string[] = Object.keys(json);
     const sorter = json.state === 'OFF' ? 1 : -1;
-    keys.sort(a =>
+    keys.sort((a) =>
       ['state', 'brightness', 'brightness_percent'].includes(a) ? sorter : sorter * -1
     );
     return keys;
@@ -525,7 +524,7 @@ export class ZigBeeClient {
     const successfulClusters = [];
     const failedClusters = [];
     await Promise.all(
-      clusterCandidates.map(async cluster => {
+      clusterCandidates.map(async (cluster) => {
         const targetValid =
           target.type === 'group' ||
           target.type === 'group_number' ||
@@ -536,8 +535,9 @@ export class ZigBeeClient {
             const sourceName = source.device.ieeeAddr;
             const targetName = target.device?.ieeeAddr;
             this.log.debug(
-              `${operation}ing cluster '${cluster}' from '${source.settings.friendlyName ||
-                sourceName}' to '${target.settings.friendlyName}'`
+              `${operation}ing cluster '${cluster}' from '${
+                source.settings.friendlyName || sourceName
+              }' to '${target.settings.friendlyName}'`
             );
             try {
               let bindTarget;
