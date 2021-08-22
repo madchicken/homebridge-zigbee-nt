@@ -66,7 +66,7 @@ abstract class AqaraOppleSwitch extends ZigBeeAccessory {
 
   update(state: DeviceState) {
     const Characteristic = this.platform.Characteristic;
-    if (!isNull(state.battery) && !isUndefined(state.battery)) {
+    if (this.withBattery && !isNull(state.battery) && !isUndefined(state.battery)) {
       this.batteryService.updateCharacteristic(Characteristic.BatteryLevel, state.battery || 0);
       this.batteryService.updateCharacteristic(
         Characteristic.StatusLowBattery,
