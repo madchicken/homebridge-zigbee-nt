@@ -3,6 +3,7 @@ import { ZigBeeAccessory } from '../zig-bee-accessory';
 import { Service } from 'homebridge';
 import { DeviceState } from '../../zigbee/types';
 import { ProgrammableSwitchServiceBuilder } from '../../builders/programmable-switch-service-builder';
+import { isNull, isUndefined } from 'lodash';
 
 export class IkeaOnoffSwitch extends ZigBeeAccessory {
   protected switchServiceOn: Service;
@@ -42,8 +43,15 @@ export class IkeaOnoffSwitch extends ZigBeeAccessory {
   }
 
   update(state: DeviceState): void {
-    super.update(state);
-    const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
+    const Characteristic = this.platform.Characteristic;
+    const ProgrammableSwitchEvent = Characteristic.ProgrammableSwitchEvent;
+    if (!isNull(state.battery) && !isUndefined(state.battery)) {
+      this.batteryService.updateCharacteristic(Characteristic.BatteryLevel, state.battery || 0);
+      this.batteryService.updateCharacteristic(
+        Characteristic.StatusLowBattery,
+        state.battery && state.battery < 10
+      );
+    }
     switch (state.action) {
       case 'brightness_move_up':
         this.switchServiceOn

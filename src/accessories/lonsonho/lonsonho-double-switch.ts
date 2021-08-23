@@ -39,7 +39,6 @@ export class LonsonhoDoubleSwitch extends ZigBeeAccessory {
   }
 
   update(state: DeviceState) {
-    super.update(state);
     const ProgrammableSwitchEvent = this.platform.Characteristic.ProgrammableSwitchEvent;
     switch (state.state_l1) {
       case 'ON':
