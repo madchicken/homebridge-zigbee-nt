@@ -36,6 +36,9 @@ import { XiaomiTempHumiSensor } from './accessories/xiaomi/xiaomi-temp-humi-sens
 import { XiaomiVibrationSensor } from './accessories/xiaomi/xiaomi-vibration-sensor';
 import { XiaomiWirelessSwitch } from './accessories/xiaomi/xiaomi-wireless-switch';
 import { registerAccessoryClass, registerAccessoryFactory } from './registry';
+import { IkeaSignalRepeater } from './accessories/ikea/ikea-signal-repeater';
+
+const IKEA = 'IKEA of Sweden';
 
 export function registerSupportedDevices(): void {
   registerAccessoryClass('GLEDOPTO', ['GL-C-009'], GledoptoDim);
@@ -74,7 +77,7 @@ export function registerSupportedDevices(): void {
     PhilipsHueWhiteAndColor
   );
   registerAccessoryClass(
-    'IKEA of Sweden',
+    IKEA,
     [
       'LED1545G12',
       'LED1546G12',
@@ -88,7 +91,7 @@ export function registerSupportedDevices(): void {
     IkeaTradfriDimColortemp
   );
   registerAccessoryClass(
-    'IKEA of Sweden',
+    IKEA,
     [
       'LED1623G12',
       'LED1650R5',
@@ -102,20 +105,14 @@ export function registerSupportedDevices(): void {
     ],
     IkeaTradfriDim
   );
-  registerAccessoryClass('IKEA of Sweden', ['E1603/E1702'], IkeaTradfriOutlet);
-  registerAccessoryClass('IKEA of Sweden', ['LED1624G9'], IkeaTradfriDimColor);
-  registerAccessoryClass('IKEA of Sweden', ['E1743', 'TRADFRI on/off switch'], IkeaOnoffSwitch);
-  registerAccessoryClass(
-    'IKEA of Sweden',
-    ['E1812', 'TRADFRI SHORTCUT Button'],
-    IkeaShurtcutSwitch
-  );
-  registerAccessoryClass('IKEA of Sweden', ['E1524/E1810'], IkeaRemoteSwitch);
-  registerAccessoryClass(
-    'IKEA of Sweden',
-    ['E1525/E1745', 'TRADFRI motion sensor'],
-    IkeaMotionSensor
-  );
+  registerAccessoryClass(IKEA, ['E1603/E1702'], IkeaTradfriOutlet);
+  registerAccessoryClass(IKEA, ['LED1624G9'], IkeaTradfriDimColor);
+  registerAccessoryClass(IKEA, ['E1743', 'TRADFRI on/off switch'], IkeaOnoffSwitch);
+  registerAccessoryClass(IKEA, ['E1812', 'TRADFRI SHORTCUT Button'], IkeaShurtcutSwitch);
+  registerAccessoryClass(IKEA, ['E1524/E1810'], IkeaRemoteSwitch);
+  registerAccessoryClass(IKEA, ['E1525/E1745', 'TRADFRI motion sensor'], IkeaMotionSensor);
+
+  registerAccessoryClass(IKEA, ['E1746'], IkeaSignalRepeater);
 
   registerAccessoryClass('innr', ['RB 278 T'], InnrWhiteTemperature);
 
@@ -201,7 +198,7 @@ export function registerSupportedDevices(): void {
   registerAccessoryClass('Nanoleaf', ['NL08-0800'], NanoleafIvy);
 
   // Register devices defined in local database
-  DATABASE_ACCESSORIES.forEach(deviceConfig =>
+  DATABASE_ACCESSORIES.forEach((deviceConfig) =>
     registerAccessoryFactory(
       deviceConfig.manufacturer,
       deviceConfig.models,
