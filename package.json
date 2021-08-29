@@ -1,6 +1,6 @@
 {
   "name": "homebridge-zigbee-nt",
-  "version": "2.5.2-beta.4",
+  "version": "2.5.2-beta.5",
   "description": "ZigBee New Technology Platform plugin for HomeBridge",
   "main": "dist/index.js",
   "targets": {
