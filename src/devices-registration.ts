@@ -111,8 +111,7 @@ export function registerSupportedDevices(): void {
   registerAccessoryClass(IKEA, ['E1812', 'TRADFRI SHORTCUT Button'], IkeaShurtcutSwitch);
   registerAccessoryClass(IKEA, ['E1524/E1810'], IkeaRemoteSwitch);
   registerAccessoryClass(IKEA, ['E1525/E1745', 'TRADFRI motion sensor'], IkeaMotionSensor);
-
-  registerAccessoryClass(IKEA, ['E1746'], IkeaSignalRepeater);
+  registerAccessoryClass(IKEA, ['E1746', 'TRADFRI Signal Repeater'], IkeaSignalRepeater);
 
   registerAccessoryClass('innr', ['RB 278 T'], InnrWhiteTemperature);
 
