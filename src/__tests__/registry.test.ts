@@ -20,6 +20,7 @@ import { ZigBeeNTPlatformConfig } from '../types';
 import { ConfigurableAccessory } from '../accessories/configurable-accessory';
 import { PlatformAccessory } from 'homebridge';
 import { PhilipsHueWhite } from '../accessories/philips/philips-hue-white';
+import { IkeaSignalRepeater } from '../accessories/ikea/ikea-signal-repeater';
 
 const API = new HomebridgeAPI();
 
@@ -135,5 +136,11 @@ describe('Device Registry', () => {
       device
     );
     expect(ctor).toBeNull();
+  });
+
+  it('should recognize Ikea Signal Repeater', function () {
+    registerSupportedDevices();
+    const ctor = getAccessoryInstance('0x84fd27fffe6fab53');
+    expect(ctor).toBeInstanceOf(IkeaSignalRepeater);
   });
 });
