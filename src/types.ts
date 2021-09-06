@@ -111,6 +111,7 @@ export interface DeviceConfig {
 
 export interface CustomDeviceSetting extends DeviceSetting {
   ieeeAddr: string;
+  [k: string]: any;
 }
 
 export interface ZigBeeNTPlatformConfig extends PlatformConfig {
