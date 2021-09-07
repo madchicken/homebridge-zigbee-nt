@@ -21,6 +21,7 @@ import { ConfigurableAccessory } from '../accessories/configurable-accessory';
 import { PlatformAccessory } from 'homebridge';
 import { PhilipsHueWhite } from '../accessories/philips/philips-hue-white';
 import { IkeaSignalRepeater } from '../accessories/ikea/ikea-signal-repeater';
+import { IkeaTradfriDimColor } from '../accessories/ikea/ikea-tradfri-dim-color';
 
 const API = new HomebridgeAPI();
 
@@ -74,6 +75,12 @@ describe('Device Registry', () => {
     registerSupportedDevices();
     const ctor = getAccessoryInstance('0x0017880108206ff6');
     expect(ctor).toBeInstanceOf(PhilipsHueWhite);
+  });
+
+  it('should recognize TRADFRI bulb E27 CWS opal 600lm', () => {
+    registerSupportedDevices();
+    const ctor = getAccessoryInstance('0x14b457fffe4f77ca');
+    expect(ctor).toBeInstanceOf(IkeaTradfriDimColor);
   });
 
   it('should recognize Philips LWA001 bulb registered as configurable device', () => {
