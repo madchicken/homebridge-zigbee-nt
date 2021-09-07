@@ -162,11 +162,6 @@ export interface ColorCapabilities {
   colorXY: boolean;
 }
 
-export enum ActionType {
-  set = 'set',
-  get = 'get',
-}
-
 export interface Options {
   manufacturerCode?: number;
   disableDefaultResponse?: boolean;
@@ -176,6 +171,10 @@ export interface Options {
   srcEndpoint?: number;
   reservedBits?: number;
   transactionSequenceNumber?: number;
+  transition?: number; // for bulbs
+  friendlyName?: string;
+  ieeeAddr?: string;
+  legacy?: boolean;
 }
 
 export interface Meta {
@@ -192,11 +191,6 @@ interface ConverterResult {
   state: DeviceState;
   readAfterWriteTime?: number;
   linkquality?: number;
-}
-
-export interface DeviceSetting {
-  friendlyName?: string;
-  legacy?: boolean;
 }
 
 export interface ToConverter {
@@ -217,7 +211,7 @@ export interface FromConverter {
     model,
     message: MessagePayload,
     publish: (...args) => void,
-    options: DeviceSetting,
+    options: Options,
     meta: Meta
   ) => Partial<DeviceState>;
 }
@@ -315,34 +309,5 @@ export interface ZigBeeEntity {
   endpoint?: Endpoint;
   definition?: ZigBeeDefinition;
   name: string;
-  settings: DeviceSetting;
-}
-
-export interface BindInfo {
-  from: string;
-  to: string;
-  clusters?: string[];
-}
-
-export interface RawDevice {
-  readonly ID: number;
-  _applicationVersion?: string;
-  _dateCode?: string;
-  _endpoints: Endpoint[];
-  _hardwareVersion?: string;
-  _ieeeAddr: string;
-  _interviewCompleted: boolean;
-  _interviewing: boolean;
-  _lastSeen: number;
-  _manufacturerID?: string;
-  _manufacturerName?: string;
-  _modelID?: string;
-  _networkAddress: number;
-  _powerSource?: string;
-  _softwareBuildID?: string;
-  _stackVersion?: string;
-  _type?: string;
-  _zclVersion?: string;
-  _linkquality?: string;
-  _skipDefaultResponse: boolean;
+  settings: Options;
 }
