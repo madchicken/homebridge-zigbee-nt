@@ -105,7 +105,7 @@ export function registerSupportedDevices(): void {
     ],
     IkeaTradfriDim
   );
-  registerAccessoryClass(IKEA, ['E1603/E1702'], IkeaTradfriOutlet);
+  registerAccessoryClass(IKEA, ['E1603/E1702', 'TRADFRI control outlet'], IkeaTradfriOutlet);
   registerAccessoryClass(IKEA, ['LED1624G9'], IkeaTradfriDimColor);
   registerAccessoryClass(IKEA, ['E1743', 'TRADFRI on/off switch'], IkeaOnoffSwitch);
   registerAccessoryClass(IKEA, ['E1812', 'TRADFRI SHORTCUT Button'], IkeaShurtcutSwitch);
