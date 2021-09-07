@@ -26,7 +26,7 @@ function find(device: Device) {
   if (!classRegistry.has(key) && !factoryRegistry.has(key)) {
     const zm = findByDevice(device);
     if (zm) {
-      key = getKey(device.manufacturerName, model);
+      key = getKey(device.manufacturerName, zm.model);
     }
   }
   return key;
@@ -51,8 +51,8 @@ export function registerAccessoryClass(
   clazz: ZigBeeAccessoryCtor
 ): void {
   const manufacturers = Array.isArray(manufacturer) ? manufacturer : [manufacturer];
-  manufacturers.forEach(manufacturer => {
-    models.forEach(model => classRegistry.set(getKey(manufacturer, model), clazz));
+  manufacturers.forEach((manufacturer) => {
+    models.forEach((model) => classRegistry.set(getKey(manufacturer, model), clazz));
   });
 }
 
@@ -69,8 +69,8 @@ export function registerAccessoryFactory(
   factory: ZigBeeAccessoryFactory
 ): void {
   const manufacturers = Array.isArray(manufacturer) ? manufacturer : [manufacturer];
-  manufacturers.forEach(manufacturer => {
-    models.forEach(model => factoryRegistry.set(getKey(manufacturer, model), factory));
+  manufacturers.forEach((manufacturer) => {
+    models.forEach((model) => factoryRegistry.set(getKey(manufacturer, model), factory));
   });
 }
 

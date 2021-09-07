@@ -9,7 +9,6 @@ import {
   ColorCapabilities,
   DeviceState,
   Meta,
-  Options,
   SystemMode,
   ToConverter,
   ZigBeeControllerConfig,
@@ -101,8 +100,13 @@ export class ZigBeeClient {
     return resolvedEntity;
   }
 
-  private getDeviceSetting(device: Device) {
-    return this.deviceSettingsMap.get(device.ieeeAddr) || { friendlyName: device.ieeeAddr };
+  private getDeviceSetting(device: Device): CustomDeviceSetting {
+    return (
+      this.deviceSettingsMap.get(device.ieeeAddr) || {
+        ieeeAddr: device.ieeeAddr,
+        friendlyName: device.ieeeAddr,
+      }
+    );
   }
 
   public decodeMessage(message: MessagePayload, callback: StatePublisher): void {
@@ -169,18 +173,14 @@ export class ZigBeeClient {
     return deviceState;
   }
 
-  private async writeDeviceState(
-    device: Device,
-    state: DeviceState,
-    options: Options = {}
-  ): Promise<DeviceState> {
+  private async writeDeviceState(device: Device, state: DeviceState): Promise<DeviceState> {
     const resolvedEntity = this.resolveEntity(device);
     const converters = this.mapConverters(this.getKeys(state), resolvedEntity.definition);
     const definition = resolvedEntity.definition;
     const target = resolvedEntity.endpoint;
 
     const meta: Meta = {
-      options,
+      options: this.getDeviceSetting(device) || {},
       message: state,
       logger: this.log,
       device,
@@ -297,7 +297,7 @@ export class ZigBeeClient {
     return deviceState;
   }
 
-  async setBrightnessPercent(device: Device, brightnessPercent: number) {
+  async setBrightnessPercent(device: Device, brightnessPercent: number): Promise<DeviceState> {
     const brightness = Math.round(Number(brightnessPercent) * 2.55);
     return this.writeDeviceState(device, {
       brightness,
