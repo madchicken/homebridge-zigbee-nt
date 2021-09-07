@@ -1,5 +1,5 @@
 import { Characteristic, PlatformAccessory, PlatformConfig, Service } from 'homebridge';
-import { ButtonAction, DeviceSetting } from './zigbee/types';
+import { ButtonAction, Options } from './zigbee/types';
 
 export interface FakegatoEntry {
   time: number;
@@ -109,7 +109,7 @@ export interface DeviceConfig {
   services: ServiceConfig[];
 }
 
-export interface CustomDeviceSetting extends DeviceSetting {
+export interface CustomDeviceSetting extends Options {
   ieeeAddr: string;
 }
 
