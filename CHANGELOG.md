@@ -207,3 +207,12 @@ All notable changes to this project will be documented in this file. This projec
 - Fix buttons problem
 - Always pass custom config to zigbee client, so you can use per device specific configuration
 - Many other small fixes
+
+## 2.5.3 (2021-9-12)
+
+## [Version 2.5.3](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.5.2...v2.5.3)
+
+#### Changes
+
+- Update Herdsman libraries
+- Fix dependency vulnerabilities
