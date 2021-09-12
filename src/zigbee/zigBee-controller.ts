@@ -59,74 +59,6 @@ export const endpointNames = [
 ];
 const keyEndpointByNumber = new RegExp(`.*/([0-9]*)$`);
 
-interface NetworkOptions {
-  panID: number;
-  extendedPanID?: number[];
-  channelList: number[];
-  networkKey?: number[];
-  networkKeyDistribute?: boolean;
-}
-
-interface SerialPortOptions {
-  baudRate?: number;
-  rtscts?: boolean;
-  path?: string;
-  adapter?: 'zstack' | 'deconz' | 'zigate';
-}
-
-interface AdapterOptions {
-  concurrent?: number;
-  delay?: number;
-}
-
-interface Options {
-  network: NetworkOptions;
-  serialPort: SerialPortOptions;
-  databasePath: string;
-  databaseBackupPath: string;
-  backupPath: string;
-  adapter: AdapterOptions;
-  /**
-   * This lambda can be used by an application to explictly reject or accept an incoming device.
-   * When false is returned zigbee-herdsman will not start the interview process and immidiately
-   * try to remove the device from the network.
-   */
-  acceptJoiningDeviceHandler: (ieeeAddr: string) => Promise<boolean>;
-}
-
-const DefaultOptions: Options = {
-  network: {
-    networkKeyDistribute: false,
-    networkKey: [
-      0x01,
-      0x03,
-      0x05,
-      0x07,
-      0x09,
-      0x0b,
-      0x0d,
-      0x0f,
-      0x00,
-      0x02,
-      0x04,
-      0x06,
-      0x08,
-      0x0a,
-      0x0c,
-      0x0d,
-    ],
-    panID: 0x1a62,
-    extendedPanID: [0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd],
-    channelList: [11],
-  },
-  serialPort: {},
-  databasePath: null,
-  databaseBackupPath: null,
-  backupPath: null,
-  adapter: null,
-  acceptJoiningDeviceHandler: null,
-};
-
 /* eslint-disable no-underscore-dangle */
 export class ZigBeeController {
   private herdsman: Controller;
@@ -138,20 +70,19 @@ export class ZigBeeController {
   }
 
   init(config: ZigBeeControllerConfig): void {
-    const options: Options = {
-      ...DefaultOptions,
-      ...{
-        serialPort: {
-          path: config.port,
-          adapter: config.adapter,
-        },
-        databasePath: config.databasePath,
-        databaseBackupPath: `${config.databasePath}.${Date.now()}`,
-        acceptJoiningDeviceHandler: ieeeAddr => this.acceptJoiningDeviceHandler(ieeeAddr),
-        network: {
-          panID: config.panId || 0x1a62,
-          channelList: config.channels,
-        },
+    const options = {
+      serialPort: {
+        path: config.port,
+        adapter: config.adapter,
+      },
+      databasePath: config.databasePath,
+      databaseBackupPath: `${config.databasePath}.${Date.now()}`,
+      acceptJoiningDeviceHandler: (ieeeAddr) => this.acceptJoiningDeviceHandler(ieeeAddr),
+      backupPath: null,
+      adapter: { disableLED: false },
+      network: {
+        panID: config.panId || 0x1a62,
+        channelList: config.channels,
       },
     };
     this.herdsman = new Controller(options);
@@ -207,7 +138,7 @@ export class ZigBeeController {
   }
 
   list(): Device[] {
-    return this.herdsman.getDevices().filter(device => device.type !== 'Coordinator');
+    return this.herdsman.getDevices().filter((device) => device.type !== 'Coordinator');
   }
 
   device(ieeeAddr: string) {
@@ -215,7 +146,7 @@ export class ZigBeeController {
   }
 
   endpoints(addr) {
-    return this.device(addr).endpoints.map(endpoint => this.find(addr, endpoint));
+    return this.device(addr).endpoints.map((endpoint) => this.find(addr, endpoint));
   }
 
   find(addr, epId) {
@@ -279,7 +210,7 @@ export class ZigBeeController {
         };
       }
 
-      let endpointKey = endpointNames.find(p => key.endsWith(`/${p}`));
+      let endpointKey = endpointNames.find((p) => key.endsWith(`/${p}`));
       const endpointByNumber = key.match(keyEndpointByNumber);
       if (!endpointKey && endpointByNumber) {
         endpointKey = Number(endpointByNumber[1]).toString();
