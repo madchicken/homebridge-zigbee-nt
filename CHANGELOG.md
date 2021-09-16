@@ -195,3 +195,24 @@ All notable changes to this project will be documented in this file. This projec
 - Fix dependencies
 - Upgrade evergreen UI components library
 - Fix vulnerabilities
+
+## 2.5.2 (2021-9-07)
+
+## [Version 2.5.2](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.5.1...v2.5.2)
+
+#### Changes
+
+- Fix bugs on configuration
+- Add support for ikea repeater (beta)
+- Fix buttons problem
+- Always pass custom config to zigbee client, so you can use per device specific configuration
+- Many other small fixes
+
+## 2.5.3 (2021-9-12)
+
+## [Version 2.5.3](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.5.2...v2.5.3)
+
+#### Changes
+
+- Update Herdsman libraries
+- Fix dependency vulnerabilities
