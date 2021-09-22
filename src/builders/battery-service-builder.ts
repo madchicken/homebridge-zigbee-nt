@@ -45,4 +45,24 @@ export class BatteryServiceBuilder extends ServiceBuilder {
 
     return this;
   }
+
+  /**
+   * Expose a service with  battery level low indicator
+   */
+  public withBatteryLowStatus(): BatteryServiceBuilder {
+    const Characteristic = this.platform.Characteristic;
+
+    this.service
+      .getCharacteristic(Characteristic.StatusLowBattery)
+      .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
+        callback(
+          null,
+          this.state.battery_low
+            ? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW
+            : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL
+        );
+      });
+
+    return this;
+  }
 }
