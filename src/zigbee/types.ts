@@ -155,6 +155,8 @@ export interface DeviceState {
   hue_power_on_brightness?: number;
   hue_power_on_color_temperature?: number;
   hue_power_on_color?: string;
+  // Tuya specific
+  position?: number;
 }
 
 export interface ColorCapabilities {
