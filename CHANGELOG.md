@@ -216,3 +216,12 @@ All notable changes to this project will be documented in this file. This projec
 
 - Update Herdsman libraries
 - Fix dependency vulnerabilities
+
+## 2.5.4 (2021-9-22)
+
+## [Version 2.5.4](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.5.3...v2.5.4)
+
+#### Changes
+
+- Add support for low battery level for battery service
+- Downgrade serial port dependency because of this issue https://github.com/Koenkk/zigbee2mqtt/issues/8282
