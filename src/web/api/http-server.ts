@@ -7,11 +7,10 @@ import path from 'path';
 import { ZigbeeNTHomebridgePlatform } from '../../platform';
 import { mapZigBeeRoutes } from './zigbee';
 import * as WebSocket from 'ws';
-import { Logging } from 'homebridge';
 import serveStatic from 'serve-static';
 import { NextFunction, Request, Response } from 'express-serve-static-core';
 import * as url from 'url';
-import { withPrefix } from 'homebridge/lib/logger';
+import winston from 'winston';
 
 const DEFAULT_WEB_PORT = 9000;
 const DEFAULT_WEB_HOST = '0.0.0.0';
@@ -36,14 +35,14 @@ const serve = serveStatic(path.resolve(__dirname, '../../../dist/public'), {
   dotfiles: 'allow',
 });
 
-function middleware(publicURL: string, logger: Logging) {
+function middleware(publicURL: string, logger: winston.Logger) {
   function logAccessIfVerbose(req) {
     const protocol = req.connection.encrypted ? 'https' : 'http';
     const fullUrl = `${protocol}://${req.headers.host}${req.url}`;
 
     logger.debug(`Request: ${fullUrl}`);
   }
-  return function(req: Request, res: Response, next: NextFunction) {
+  return function (req: Request, res: Response, next: NextFunction) {
     logAccessIfVerbose(req);
 
     function send404() {
@@ -81,16 +80,16 @@ export class HttpServer {
   private readonly port: number;
   private readonly host: string;
   private wsServer: WebSocket.Server;
-  private readonly log;
+  private readonly log: winston.Logger;
 
   constructor(port = DEFAULT_WEB_PORT, host = DEFAULT_WEB_HOST) {
     this.port = port;
     this.host = host;
-    this.log = withPrefix('ZigBee');
+    this.log = winston.createLogger({ transports: [new winston.transports.Console()] });
     this.express = express();
   }
 
-  public start(zigBee: ZigbeeNTHomebridgePlatform) {
+  public start(zigBee: ZigbeeNTHomebridgePlatform): void {
     this.log.info(`Starting WEB UI on port ${this.port}, host is set to ${this.host}`);
     this.express.set('host', this.host);
     this.express.set('port', this.port);
@@ -103,17 +102,17 @@ export class HttpServer {
     this.server = http.createServer(this.express);
     this.wsServer = this.startWebSocketServer(this.server);
     this.server.listen(this.port, this.host);
-    this.server.on('error', error => this.handleError(error));
+    this.server.on('error', (error) => this.handleError(error));
     this.server.on('listening', () => this.handleListening());
   }
 
-  public stop() {
+  public stop(): Promise<void> {
     return new Promise<any>((resolve, reject) => {
-      this.server.close(error => {
+      this.server.close((error) => {
         if (error) {
           reject(error);
         } else {
-          this.wsServer?.close(error => {
+          this.wsServer?.close((error) => {
             if (error) {
               reject(error);
             } else {
