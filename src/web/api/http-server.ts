@@ -42,6 +42,7 @@ function middleware(publicURL: string, logger: winston.Logger) {
 
     logger.debug(`Request: ${fullUrl}`);
   }
+
   return function (req: Request, res: Response, next: NextFunction) {
     logAccessIfVerbose(req);
 
@@ -85,7 +86,10 @@ export class HttpServer {
   constructor(port = DEFAULT_WEB_PORT, host = DEFAULT_WEB_HOST) {
     this.port = port;
     this.host = host;
-    this.log = winston.createLogger({ transports: [new winston.transports.Console()] });
+    this.log = winston.createLogger({
+      transports: [new winston.transports.Console()],
+      format: winston.format.combine(winston.format.splat(), winston.format.simple()),
+    });
     this.express = express();
   }
 
