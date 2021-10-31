@@ -89,7 +89,7 @@ export class HttpServer {
     this.log = winston.createLogger({
       transports: [new winston.transports.Console()],
       format: winston.format.printf(
-        (info) => `${new Date().toDateString()} [ZigBee-UI] ${info.message}`
+        (info) => `[${new Date().toDateString()}] [ZigBee-UI] ${info.message}`
       ),
     });
     this.express = express();
