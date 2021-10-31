@@ -203,7 +203,10 @@ export abstract class ZigBeeAccessory {
 
   private set isConfigured(val: boolean) {
     if (val === true) {
-      if (this.zigBeeDefinition.meta && this.zigBeeDefinition.meta.configureKey) {
+      if (!this.zigBeeDefinition.meta) {
+        this.zigBeeDefinition.meta = {};
+      }
+      if (this.zigBeeDefinition.meta.configureKey) {
         this.zigBeeDefinition.meta.configured = this.zigBeeDefinition.meta.configureKey;
       } else {
         this.zigBeeDefinition.meta.configured = 1;
