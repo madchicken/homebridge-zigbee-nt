@@ -196,7 +196,7 @@ export class ZigBeeClient {
         continue;
       }
       try {
-        this.log.debug(`Writing '${key}' to '${resolvedEntity.name}'`);
+        this.log.debug(`Writing '${key}' to '${resolvedEntity.settings.friendlyName}'`);
         const result = await converter.convertSet(target, key, value, meta);
         this.log.debug('Result from zigbee (SET)', result);
         // It's possible for devices to get out of sync when writing an attribute that's not reportable.
@@ -213,7 +213,7 @@ export class ZigBeeClient {
         Object.assign(deviceState, result.state);
       } catch (error) {
         const message = `Writing '${key}' to '${
-          resolvedEntity.name
+          resolvedEntity.settings.friendlyName
         }' failed with converter ${converter.key.join(', ')}: '${error}'`;
         this.log.error(message);
         this.log.debug(error.stack);
@@ -360,8 +360,16 @@ export class ZigBeeClient {
     return this.readDeviceState(device, { local_temperature: 0 });
   }
 
+  getCurrentHeatingSetpoint(device: Device): Promise<DeviceState> {
+    return this.readDeviceState(device, { current_heating_setpoint: 0 });
+  }
+
   setCurrentHeatingSetpoint(device: Device, temperature: number): Promise<DeviceState> {
     return this.writeDeviceState(device, { current_heating_setpoint: temperature });
+  }
+
+  setPosition(device: Device, position: number): Promise<DeviceState> {
+    return this.writeDeviceState(device, { position: position });
   }
 
   setSystemMode(device: Device, state: SystemMode): Promise<DeviceState> {
