@@ -1,7 +1,8 @@
 import { Controller } from 'zigbee-herdsman';
+import { findByDevice } from 'zigbee-herdsman-converters';
 import { Logger } from 'homebridge';
 import Device from 'zigbee-herdsman/dist/controller/model/device';
-import { ZigBeeControllerConfig, ZigBeeEntity } from './types';
+import { ZigBeeControllerConfig, ZigBeeDefinition, ZigBeeEntity } from './types';
 import Group from 'zigbee-herdsman/dist/controller/model/group';
 import { CoordinatorVersion, StartResult } from 'zigbee-herdsman/dist/adapter/tstype';
 
@@ -204,11 +205,13 @@ export class ZigBeeController {
   resolveEntity(key: string | number | Device): ZigBeeEntity {
     if (typeof key === 'object') {
       const resolvedDevice = this.resolveDevice(key.ieeeAddr);
+      const definition: ZigBeeDefinition = findByDevice(key);
       return {
         type: 'device',
         device: resolvedDevice,
         endpoints: resolvedDevice.endpoints,
         name: resolvedDevice.ieeeAddr,
+        definition,
         settings: {},
       };
     } else if (typeof key === 'string' && key.toLowerCase() === 'coordinator') {
@@ -222,11 +225,13 @@ export class ZigBeeController {
       };
     } else if (typeof key === 'string') {
       const resolvedDevice = this.resolveDevice(key);
+      const definition: ZigBeeDefinition = findByDevice(resolvedDevice);
       return {
         type: 'device',
         device: resolvedDevice,
         endpoints: resolvedDevice.endpoints,
         name: resolvedDevice.ieeeAddr,
+        definition,
         settings: {},
       };
     } else if (typeof key === 'number') {
