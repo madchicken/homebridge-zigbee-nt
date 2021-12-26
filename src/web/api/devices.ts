@@ -17,13 +17,13 @@ export function mapDevicesRoutes(
     const devices: Device[] = platform.zigBeeClient.getAllPairedDevices();
     res.status(constants.HTTP_STATUS_OK);
     res.contentType('application/json');
-    res.end(JSON.stringify({ devices: devices.map(device => normalizeDeviceModel(device)) }));
+    res.end(JSON.stringify({ devices: devices.map(device => normalizeDeviceModel(device, platform.config.customDeviceSettings)) }));
   });
 
   express.get('/api/devices/:ieeeAddr', async (req, res) => {
     const device: Device = platform.zigBeeClient.getDevice(req.params.ieeeAddr);
     if (device) {
-      const deviceModel = normalizeDeviceModel(device);
+      const deviceModel = normalizeDeviceModel(device, platform.config.customDeviceSettings);
       deviceModel.otaAvailable = platform.zigBeeClient.hasOTA(device);
       res.status(constants.HTTP_STATUS_OK);
       res.contentType('application/json');
@@ -86,7 +86,7 @@ export function mapDevicesRoutes(
       await platform.unpairDevice(req.params.ieeeAddr);
       res.status(constants.HTTP_STATUS_OK);
       res.contentType('application/json');
-      res.end(JSON.stringify({ device: normalizeDeviceModel(device) }));
+      res.end(JSON.stringify({ device: normalizeDeviceModel(device, platform.config.customDeviceSettings) }));
     } else {
       res.status(constants.HTTP_STATUS_NOT_FOUND);
       res.end();

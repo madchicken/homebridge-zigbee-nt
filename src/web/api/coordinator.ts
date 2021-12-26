@@ -9,7 +9,7 @@ export function mapCoordinatorRoutes(express: Express, platform: ZigbeeNTHomebri
     const version = await platform.zigBeeClient.getCoordinatorVersion();
     const coordinator: CoordinatorModel = {
       ...version,
-      ...normalizeDeviceModel(platform.zigBeeClient.getCoordinator()),
+      ...normalizeDeviceModel(platform.zigBeeClient.getCoordinator(), platform.config.customDeviceSettings),
     };
     res.status(constants.HTTP_STATUS_OK);
     res.contentType('application/json');

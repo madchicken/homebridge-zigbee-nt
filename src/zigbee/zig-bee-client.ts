@@ -16,6 +16,8 @@ import {
   ZigBeeEntity,
 } from './types';
 import { ZigBeeController } from './zigBee-controller';
+import { ClusterName, GroupName, IEEEAddress } from '../web/common/types';
+import { CoordinatorVersion } from 'zigbee-herdsman/dist/adapter/tstype';
 
 export interface ZigBeeClientConfig {
   channel: number;
@@ -27,6 +29,11 @@ export interface ZigBeeClientConfig {
 }
 
 type StatePublisher = (ieeeAddr: string, state: DeviceState) => void;
+
+interface BindingResult {
+  successfulClusters: any[];
+  failedClusters: any[];
+}
 
 export class ZigBeeClient {
   private readonly zigBee: ZigBeeController;
@@ -90,7 +97,7 @@ export class ZigBeeClient {
     }
   }
 
-  public resolveEntity(device: Device): ZigBeeEntity {
+  public resolveEntity(device: string | number | Device): ZigBeeEntity {
     const resolvedEntity = this.zigBee.resolveEntity(device);
 
     if (!resolvedEntity) {
@@ -141,12 +148,12 @@ export class ZigBeeClient {
     callback(message.device.ieeeAddr, state);
   }
 
-  private async readDeviceState(device: Device, message: DeviceState): Promise<DeviceState> {
+  private async readDeviceState(device: Device, message: DeviceState, endpoint = 0): Promise<DeviceState> {
     const resolvedEntity = this.resolveEntity(device);
     const converters = this.mapConverters(this.getKeys(message), resolvedEntity.definition);
     const deviceState: DeviceState = {};
     const usedConverters: Map<number, ToConverter[]> = new Map();
-    const target = resolvedEntity.endpoint;
+    const target = resolvedEntity.endpoints[endpoint];
     for (const [key, converter] of converters.entries()) {
       if (usedConverters.get(target.ID)?.includes(converter)) {
         // Use a converter only once (e.g. light_onoff_brightness converters can convert state and brightness)
@@ -173,11 +180,11 @@ export class ZigBeeClient {
     return deviceState;
   }
 
-  private async writeDeviceState(device: Device, state: DeviceState): Promise<DeviceState> {
+  private async writeDeviceState(device: Device, state: DeviceState, endpoint = 0): Promise<DeviceState> {
     const resolvedEntity = this.resolveEntity(device);
     const converters = this.mapConverters(this.getKeys(state), resolvedEntity.definition);
     const definition = resolvedEntity.definition;
-    const target = resolvedEntity.endpoint;
+    const target = resolvedEntity.endpoints[endpoint];
 
     const meta: Meta = {
       options: this.getDeviceSetting(device) || {},
@@ -326,14 +333,15 @@ export class ZigBeeClient {
     device: Device,
     cluster: string,
     attribute: string,
-    force = false
+    force = false,
+    endpoint = 0
   ): Promise<string | number> {
     const resolvedEntity = this.zigBee.resolveEntity(device);
-    const endpoint = resolvedEntity.endpoint;
-    if (endpoint.getClusterAttributeValue(cluster, attribute) === undefined || force) {
-      await endpoint.read(cluster, [attribute]);
+    const ep = resolvedEntity.endpoints[endpoint];
+    if (ep.getClusterAttributeValue(cluster, attribute) === undefined || force) {
+      await ep.read(cluster, [attribute]);
     }
-    return endpoint.getClusterAttributeValue(cluster, attribute);
+    return ep.getClusterAttributeValue(cluster, attribute);
   }
 
   getSaturation(device: Device): Promise<DeviceState> {
@@ -462,27 +470,23 @@ export class ZigBeeClient {
     return false; // something went wrong
   }
 
-  on(message: string, listener: (...args: any[]) => void) {
+  on(message: string, listener: (...args: any[]) => void): void {
     this.zigBee.on(message, listener);
   }
 
-  toggleLed(state: boolean): Promise<void> {
-    return this.zigBee.toggleLed(state);
-  }
-
-  async ping(ieeeAddr: string) {
+  async ping(ieeeAddr: string): Promise<void> {
     return this.zigBee.ping(ieeeAddr);
   }
 
-  async setCustomState(device: Device, state: DeviceState) {
+  async setCustomState(device: Device, state: DeviceState): Promise<DeviceState> {
     return this.writeDeviceState(device, state);
   }
 
-  async getState(device: Device, state: DeviceState) {
+  async getState(device: Device, state: DeviceState): Promise<DeviceState> {
     return this.readDeviceState(device, state);
   }
 
-  async getCoordinatorVersion() {
+  async getCoordinatorVersion(): Promise<CoordinatorVersion> {
     return this.zigBee.getCoordinatorVersion();
   }
 
@@ -511,11 +515,13 @@ export class ZigBeeClient {
 
   private async bindOrUnbind(
     operation: 'bind' | 'unbind',
-    sourceId: string,
-    targetId: string,
-    clusters: string[]
-  ) {
-    const clusterCandidates = [
+    sourceId: IEEEAddress | GroupName,
+    targetId: IEEEAddress | GroupName,
+    clusters: ClusterName[],
+    sourceEndpoint?: number,
+    targetEndpoint?: number
+  ): Promise<BindingResult> {
+    const clusterCandidates: ClusterName[] = [
       'genScenes',
       'genOnOff',
       'genLevelCtrl',
@@ -541,9 +547,10 @@ export class ZigBeeClient {
           target.type === 'group' ||
           target.type === 'group_number' ||
           target.device.type === 'Coordinator' ||
-          target.endpoint.supportsInputCluster(cluster);
+          target.device?.getEndpoint(targetEndpoint || 0)?.supportsInputCluster(cluster);
         if (clusters && clusters.includes(cluster)) {
-          if (source.endpoint.supportsOutputCluster(cluster) && targetValid) {
+          const se = source.device.getEndpoint(sourceEndpoint || 0);
+          if (se.supportsOutputCluster(cluster) && targetValid) {
             const sourceName = source.device.ieeeAddr;
             const targetName = target.device?.ieeeAddr;
             this.log.debug(
@@ -555,13 +562,13 @@ export class ZigBeeClient {
               let bindTarget;
               if (target.type === 'group') bindTarget = target.group;
               else if (target.type === 'group_number') bindTarget = target.ID;
-              else bindTarget = target.endpoint;
+              else bindTarget = target.device.getEndpoint(sourceEndpoint || 0);
 
               if (operation === 'bind') {
-                await source.endpoint.bind(cluster, bindTarget);
+                await se.bind(cluster, bindTarget);
               } else {
                 this.log.info(`Unbinding ${cluster} from ${bindTarget}`);
-                await source.endpoint.unbind(cluster, bindTarget);
+                await se.unbind(cluster, bindTarget);
                 this.log.info(`Done unbinding ${cluster} from ${bindTarget}`);
               }
 
@@ -584,17 +591,35 @@ export class ZigBeeClient {
         }
       })
     );
-    return {
+    return <BindingResult>{
       successfulClusters,
       failedClusters,
     };
   }
 
-  async bind(sourceId: string, targetId: string, clusters: string[]) {
-    return this.bindOrUnbind('bind', sourceId, targetId, clusters);
+  async bind(sourceId: IEEEAddress | GroupName, targetId: IEEEAddress | GroupName, clusters: ClusterName[], sourceEndpoint?: number, targetEndpoint?: number): Promise<BindingResult> {
+    return this.bindOrUnbind('bind', sourceId, targetId, clusters, sourceEndpoint, targetEndpoint);
   }
 
-  async unbind(sourceId: string, targetId: string, clusters: string[]) {
-    return this.bindOrUnbind('unbind', sourceId, targetId, clusters);
+  async unbind(sourceId: IEEEAddress | GroupName, targetId: IEEEAddress | GroupName, clusters: ClusterName[], sourceEndpoint?: number, targetEndpoint?: number): Promise<BindingResult> {
+    return this.bindOrUnbind('unbind', sourceId, targetId, clusters, sourceEndpoint, targetEndpoint);
+  }
+
+  async addToGroup(deviceId: IEEEAddress, groupName: GroupName, endpoint = 0): Promise<void> {
+    const defaultBindGroup = {
+      type: 'group_number',
+      ID: 901,
+      settings: { friendlyName: 'Default Group' },
+    } as ZigBeeEntity;
+    const device = this.resolveEntity(this.zigBee.device(deviceId));
+    const target =
+      groupName === 'default_bind_group'
+        ? defaultBindGroup
+        : this.resolveEntity(groupName);
+    if(target.type !== 'group') {
+      throw new Error('Adding to non group device');
+    }
+    target.group.addMember(device.endpoints[endpoint]);
+
   }
 }

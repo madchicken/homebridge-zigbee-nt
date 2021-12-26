@@ -1,6 +1,7 @@
 import { MessagePayload } from 'zigbee-herdsman/dist/controller/events';
 import Device from 'zigbee-herdsman/dist/controller/model/device';
 import Endpoint from 'zigbee-herdsman/dist/controller/model/endpoint';
+import Group from 'zigbee-herdsman/dist/controller/model/group';
 import { Zcl } from 'zigbee-herdsman';
 import { Logger } from 'homebridge';
 
@@ -12,7 +13,7 @@ export interface ZigBeeControllerConfig {
   panId?: number;
   channels: number[];
   databasePath: string;
-  adapter: 'zstack' | 'deconz' | 'zigate';
+  adapter: 'zstack' | 'deconz' | 'zigate' | 'ezsp' | 'auto';
 }
 
 export type RunningState = 'idle' | 'heat' | 'cool';
@@ -183,7 +184,6 @@ export interface Options {
   transactionSequenceNumber?: number;
   transition?: number; // for bulbs
   friendlyName?: string;
-  ieeeAddr?: string;
   legacy?: boolean;
 }
 
@@ -314,9 +314,9 @@ export interface ZigBeeDefinition {
 export interface ZigBeeEntity {
   type: 'device' | 'group' | 'group_number';
   ID?: number; // used in groups
-  group?: any;
+  group?: Group;
   device?: Device;
-  endpoint?: Endpoint;
+  endpoints?: Endpoint[];
   definition?: ZigBeeDefinition;
   name: string;
   settings: Options;

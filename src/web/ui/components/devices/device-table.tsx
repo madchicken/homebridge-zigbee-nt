@@ -24,7 +24,7 @@ function renderTable(devices: DeviceModel[], history) {
     <React.Fragment>
       {devices.map((device, index) => {
         const qualityPercent = Math.round(
-          device.linkquality ? (device.linkquality / 255) * 100 : 0
+          device.linkquality ? (device.linkquality / 2.55) : 0
         );
         let color: Color = 'green';
         if (qualityPercent < 4) {
@@ -43,6 +43,7 @@ function renderTable(devices: DeviceModel[], history) {
             <Table.TextCell>{device.modelID}</Table.TextCell>
             <Table.TextCell>{device.manufacturerName}</Table.TextCell>
             <Table.TextCell>{device.ieeeAddr}</Table.TextCell>
+            <Table.TextCell>{device.settings.friendlyName}</Table.TextCell>
             <Table.TextCell>{device.powerSource}</Table.TextCell>
             <Table.TextCell>
               <Pill color={color}>{qualityPercent ? `${qualityPercent} %` : 'disconnected'}</Pill>
@@ -83,6 +84,7 @@ export default function DeviceTable(): ReactElement {
           <Table.TextHeaderCell>Model ID</Table.TextHeaderCell>
           <Table.TextHeaderCell>Manufacturer</Table.TextHeaderCell>
           <Table.TextHeaderCell>IEEE Address</Table.TextHeaderCell>
+          <Table.TextHeaderCell>Friendly name</Table.TextHeaderCell>
           <Table.TextHeaderCell>Power source</Table.TextHeaderCell>
           <Table.TextHeaderCell>Link Quality</Table.TextHeaderCell>
           <Table.TextHeaderCell>Last seen</Table.TextHeaderCell>

@@ -130,6 +130,7 @@ export abstract class ZigBeeAccessory {
       this.interval = this.getPollingInterval();
       this.ping().then(() => this.log.debug(`Ping received from ${this.friendlyName}`));
     } else {
+      this.log.info(`Configuring device ${this.friendlyName}`);
       this.configureDevice()
         .then(() => this.log.debug(`${this.friendlyName} successfully configured`))
         .catch((e) => this.log.error(e.message));
@@ -172,9 +173,10 @@ export abstract class ZigBeeAccessory {
     if (this.shouldConfigure()) {
       this.isConfiguring = true;
       const coordinatorEndpoint = this.client.getCoordinator().getEndpoint(1);
+      const definition = this.zigBeeDefinition;
       return await retry<boolean>(
         async (bail: (e: Error) => void, attempt: number) => {
-          await this.zigBeeDefinition.configure(this.zigBeeDeviceDescriptor, coordinatorEndpoint);
+          await definition.configure(this.zigBeeDeviceDescriptor, coordinatorEndpoint);
           this.isConfigured = true;
           this.zigBeeDeviceDescriptor.save();
           this.log.info(
@@ -194,6 +196,7 @@ export abstract class ZigBeeAccessory {
         }
       );
     }
+    this.log.info(`No need to configure device ${this.friendlyName}`);
     return false;
   }
 
@@ -217,12 +220,13 @@ export abstract class ZigBeeAccessory {
   }
 
   private shouldConfigure() {
-    return (
-      !!this.zigBeeDefinition.configure && // it must have the configure function defined
+    this.log.debug(`Device ${this.friendlyName} shouldConfigure:`, this);
+    const b = !!this.zigBeeDefinition.configure && // it must have the configure function defined
       !this.isConfigured &&
       !this.zigBeeDefinition.interviewing &&
-      !this.isConfiguring
-    );
+      !this.isConfiguring;
+    this.log.debug(`Device ${this.friendlyName} needs configuration: ${b}`);
+    return b;
   }
 
   public internalUpdate(state: DeviceState): void {
