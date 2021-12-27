@@ -5,13 +5,13 @@ import { DeviceStateManagement } from './device-state-management';
 import { sizes } from '../constants';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { CoordinatorModel, DeviceModel } from '../../../common/types';
+import { DeviceModel } from '../../../common/types';
 import { useQuery } from 'react-query';
 import { DevicesService } from '../../actions/devices';
+
 dayjs.extend(relativeTime);
 
 const TABS = ['Info', 'Structure', 'State'];
-const COORDINATOR_TABS = ['Info', 'Structure'];
 
 interface Props {
   device: DeviceModel;
@@ -21,10 +21,6 @@ interface Props {
 interface State {
   selectedTab: string;
   isLoadingState: boolean;
-}
-
-function isCoordinator(device: DeviceModel) {
-  return device.type === 'Coordinator';
 }
 
 function renderInfo(device: DeviceModel) {
@@ -76,26 +72,6 @@ function CheckForUpdates(props: { ieeeAddr: string }): JSX.Element | null {
   }
 }
 
-function renderCoordinatorInfo(device: CoordinatorModel) {
-  return (
-    <>
-      <Pane padding={sizes.padding.small}>
-        <Heading size={400}>IEEE Address: {device.ieeeAddr}</Heading>
-      </Pane>
-      <Pane padding={sizes.padding.small}>
-        <Heading size={400}>
-          Version: {device.meta.majorrel}.{device.meta.minorrel} (rev. {device.meta.revision})
-        </Heading>
-      </Pane>
-      <Pane padding={sizes.padding.small}>
-        <Heading size={400}>
-          Transport Version: {device.meta.maintrel} (rev. {device.meta.transportrev})
-        </Heading>
-      </Pane>
-    </>
-  );
-}
-
 function renderDeviceStructure(device: DeviceModel) {
   return (
     <ReactJson src={device} onAdd={false} onDelete={false} onEdit={false} enableClipboard={true} />
@@ -110,9 +86,7 @@ function renderSelectedTab(selectedTab: string, device: DeviceModel) {
   let content = null;
   switch (selectedTab) {
     case 'Info':
-      content = isCoordinator(device)
-        ? renderCoordinatorInfo(device as CoordinatorModel)
-        : renderInfo(device);
+      content = renderInfo(device);
       break;
     case 'Structure':
       content = renderDeviceStructure(device);
@@ -156,7 +130,7 @@ export function DeviceDetailsBody(props: Props) {
         height={`calc(100% - ${sizes.header.medium}px)`}
       >
         <TabNavigation marginBottom={sizes.margin.medium}>
-          {(isCoordinator(device) ? COORDINATOR_TABS : TABS).map(tab => (
+          {TABS.map(tab => (
             <Tab
               key={tab}
               isSelected={state.selectedTab === tab}

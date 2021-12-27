@@ -2,8 +2,9 @@ import { Pane, Spinner } from 'evergreen-ui';
 import React from 'react';
 import { useQuery } from 'react-query';
 import { CoordinatorResponse, CoordinatorService } from './actions/coordinator';
-import { DeviceDetailsBody } from './components/devices/device-details-body';
 import { Error } from './components/error';
+import { CoordinatorDetailsBody } from './components/devices/coordinator-details-body';
+import { CoordinatorModel } from '../common/types';
 
 export function Coordinator() {
   const queryResult = useQuery<CoordinatorResponse>(['coordinator'], () =>
@@ -23,7 +24,7 @@ export function Coordinator() {
 
   return (
     <Pane>
-      <DeviceDetailsBody device={queryResult.data.coordinator} refresh={() => {}} />
+      <CoordinatorDetailsBody device={queryResult.data.coordinator as CoordinatorModel} refresh={() => {}} />
     </Pane>
   );
 }

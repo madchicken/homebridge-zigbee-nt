@@ -16,6 +16,8 @@ export interface StateResponse extends BaseResponse {
   state?: DeviceState;
 }
 
+type PermitJoinResponse = { permitJoin: boolean };
+
 export class DevicesService {
   static async fetchDevices(): Promise<DeviceResponse> {
     const response = await fetch('/api/devices');
@@ -153,6 +155,36 @@ export class DevicesService {
       } else {
         throw new Error(`Failed to determine updates status: ${JSON.stringify(json)}`)
       }
+    } else {
+      throw new Error(await response.text());
+    }
+  }
+
+  static async startPermitJoin(): Promise<PermitJoinResponse> {
+    const response = await fetch(`/api/coordinator/permitJoin`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+    if (response.ok) {
+      const json = await response.json();
+      return json as PermitJoinResponse;
+    } else {
+      throw new Error(await response.text());
+    }
+  }
+
+  static async stopPermitJoin(): Promise<PermitJoinResponse> {
+    const response = await fetch(`/api/coordinator/permitJoin`, {
+      method: 'DELETE',
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+    if (response.ok) {
+      const json = await response.json();
+      return json as PermitJoinResponse;
     } else {
       throw new Error(await response.text());
     }

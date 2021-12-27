@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Heading, Pane, Pill, Spinner, Table } from 'evergreen-ui';
+import { EyeOpenIcon, Heading, IconButton, Pane, Pill, Spinner, Table, TrashIcon } from 'evergreen-ui';
 import { useQuery } from 'react-query';
 import { DeviceResponse, DevicesService } from '../../actions/devices';
 import { Error } from '../error';
@@ -37,19 +37,23 @@ function renderTable(devices: DeviceModel[], history) {
         return (
           <Table.Row
             key={index}
-            isSelectable
-            onSelect={() => history.push(`/devices/${device.ieeeAddr}`)}
           >
             <Table.TextCell>{device.modelID}</Table.TextCell>
             <Table.TextCell>{device.manufacturerName}</Table.TextCell>
             <Table.TextCell>{device.ieeeAddr}</Table.TextCell>
-            <Table.TextCell>{device.settings.friendlyName}</Table.TextCell>
+            <Table.EditableCell isSelectable={true} onChange={(v) => console.log(v)}>
+              {device.settings.friendlyName}
+            </Table.EditableCell>
             <Table.TextCell>{device.powerSource}</Table.TextCell>
             <Table.TextCell>
-              <Pill color={color}>{qualityPercent ? `${qualityPercent} %` : 'disconnected'}</Pill>
+              <Pill color={color}>{qualityPercent ? `${qualityPercent} %` : 'N/A'}</Pill>
             </Table.TextCell>
             <Table.TextCell>
               {dayjs(device.lastSeen).format('MMMM D, YYYY h:mm:ss A')}
+            </Table.TextCell>
+            <Table.TextCell>
+              <IconButton icon={EyeOpenIcon} size="medium" onClick={() => history.push(`/devices/${device.ieeeAddr}`)} marginRight="12"/>
+              <IconButton icon={TrashIcon} size="medium" onClick={() => {}}/>
             </Table.TextCell>
           </Table.Row>
         );
@@ -88,6 +92,7 @@ export default function DeviceTable(): ReactElement {
           <Table.TextHeaderCell>Power source</Table.TextHeaderCell>
           <Table.TextHeaderCell>Link Quality</Table.TextHeaderCell>
           <Table.TextHeaderCell>Last seen</Table.TextHeaderCell>
+          <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
         </Table.Head>
         <Table.Body height="100%">
           {isError ? (

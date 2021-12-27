@@ -28,7 +28,7 @@ export function NavBar() {
   const history = useHistory();
   const location = useLocation();
   return (
-    <Tablist marginBottom={sizes.margin.large} marginRight={sizes.margin.large} flexBasis={240}>
+    <Tablist marginBottom={sizes.margin.large} marginRight={sizes.margin.large} display="flex" flexDirection="column" height={240}>
       {CONFIGURED_PAGES.map(tab => (
         <SidebarTab
           key={tab.label}

@@ -55,4 +55,5 @@ export type DeviceModel = {
 
 export interface CoordinatorModel extends DeviceModel {
   meta: { [s: string]: number | string };
+  permitJoin: boolean;
 }

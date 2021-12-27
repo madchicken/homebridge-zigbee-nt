@@ -7,12 +7,34 @@ import { CoordinatorModel } from '../common/types';
 export function mapCoordinatorRoutes(express: Express, platform: ZigbeeNTHomebridgePlatform) {
   express.get('/api/coordinator', async (_req, res) => {
     const version = await platform.zigBeeClient.getCoordinatorVersion();
+    const permitJoin = await platform.zigBeeClient.getPermitJoin();
     const coordinator: CoordinatorModel = {
       ...version,
       ...normalizeDeviceModel(platform.zigBeeClient.getCoordinator(), platform.config.customDeviceSettings),
+      permitJoin
     };
     res.status(constants.HTTP_STATUS_OK);
     res.contentType('application/json');
     res.end(JSON.stringify({ coordinator }));
+  });
+
+  express.get('/api/coordinator/permitJoin', async (_req, res) => {
+    res.status(constants.HTTP_STATUS_OK);
+    res.contentType('application/json');
+    res.end(JSON.stringify({ permitJoin: await platform.zigBeeClient.getPermitJoin() }));
+  });
+
+  express.post('/api/coordinator/permitJoin', async (_req, res) => {
+    await platform.zigBeeClient.permitJoin(true);
+    res.status(constants.HTTP_STATUS_OK);
+    res.contentType('application/json');
+    res.end(JSON.stringify({ permitJoin: true }));
+  });
+
+  express.delete('/api/coordinator/permitJoin', async (_req, res) => {
+    await platform.zigBeeClient.permitJoin(false);
+    res.status(constants.HTTP_STATUS_OK);
+    res.contentType('application/json');
+    res.end(JSON.stringify({ permitJoin: false }));
   });
 }

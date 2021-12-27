@@ -5,6 +5,8 @@ import { ZigbeeNTHomebridgePlatform } from '../../platform';
 import { normalizeDeviceModel } from '../common/utils';
 import winston from 'winston';
 import WebSocket from 'ws';
+import * as fs from 'fs';
+import { CustomDeviceSetting } from '../../types';
 
 const logger = winston.createLogger({ transports: [new winston.transports.Console()] });
 
@@ -138,6 +140,36 @@ export function mapDevicesRoutes(
         res.status(constants.HTTP_STATUS_OK);
         res.contentType('application/json');
         res.end(JSON.stringify({ device }));
+      } else {
+        res.status(constants.HTTP_STATUS_NOT_FOUND);
+        res.end();
+      }
+    } catch (e) {
+      res.send(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+      res.end(JSON.stringify(e.message));
+    }
+  });
+
+  express.post<string, CustomDeviceSetting>('/api/devices/:ieeeAddr/saveConfig', async (req, res) => {
+    try {
+      const ieeeAddr = req.params.ieeeAddr;
+      const device: Device = platform.zigBeeClient.getDevice(ieeeAddr);
+      if(device) {
+        const file = fs.readFileSync(platform.api.user.configPath());
+        const config = JSON.parse(file.toString());
+        const pluginConfig = config.platforms.find(p => p.name === 'ZigBee');
+        let deviceCustomConfig: CustomDeviceSetting;
+        if(pluginConfig.customDeviceSettings) {
+          deviceCustomConfig = pluginConfig.customDeviceSettings.find(c => c.ieeeAddr === ieeeAddr);
+          if (!deviceCustomConfig) {
+            deviceCustomConfig = { ieeeAddr };
+            pluginConfig.customDeviceSettings.push(deviceCustomConfig)
+          }
+        }
+        deviceCustomConfig.friendlyName = req.params.friendlyName;
+        const file2 = fs.openSync('new-' + platform.api.user.configPath(), 'rw');
+        fs.writeSync(file2, JSON.stringify(config));
+        fs.closeSync(file2);
       } else {
         res.status(constants.HTTP_STATUS_NOT_FOUND);
         res.end();
