@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Heading, Pane, Paragraph, Tab, TabNavigation } from 'evergreen-ui';
+import { Button, Card, Heading, Pane, Paragraph, Tab, TabNavigation, TextInput } from 'evergreen-ui';
 import ReactJson from 'react-json-view';
 import { DeviceStateManagement } from './device-state-management';
 import { sizes } from '../constants';
@@ -21,6 +21,43 @@ interface Props {
 interface State {
   selectedTab: string;
   isLoadingState: boolean;
+}
+
+interface UpdateNameState {
+  isUpdating: boolean;
+  error: null;
+  friendlyName: string;
+}
+
+async function updateFriendlyName(setState: React.Dispatch<UpdateNameState>, state: UpdateNameState, props: Partial<Props>) {
+  setState({ ...state, isUpdating: true });
+  const settings = {
+    ...props.device.settings,
+    friendlyName: state.friendlyName,
+  };
+  DevicesService.updateSettings(props.device.ieeeAddr, settings)
+    .catch(e => setState({ ...state, error: e.message }))
+    .finally(() => setState({ ...state, isUpdating: false }));
+}
+
+function FriendlyNameTextInputExample(props: Partial<Props>) {
+  const [state, setState] = useState({
+    friendlyName: props.device.settings.friendlyName,
+    isUpdating: false,
+    error: null,
+  });
+  return (
+    <Heading size={400}>
+      <Pane display="flex">
+        <Pane width="100%" display="flex"><Pane width="50%">Friendly Name:</Pane><TextInput width="100%" height={32} placeholder="Change friendly name for this device" isInvalid={!!state.error} onChange={e => setState({
+          ...state, friendlyName: e.target.value,
+        })} value={state.friendlyName}/></Pane>
+        <Button size='medium'
+                onClick={() => updateFriendlyName(setState, state, props)}
+                isLoading={state.isUpdating}>Update</Button>
+      </Pane>
+    </Heading>
+  );
 }
 
 function renderInfo(device: DeviceModel) {
@@ -47,6 +84,9 @@ function renderInfo(device: DeviceModel) {
       <Pane padding={sizes.padding.small}>
         <Heading size={400}>Last seen: {dayjs(device.lastSeen).fromNow(false)}</Heading>
       </Pane>
+      <Pane padding={sizes.padding.small}>
+        <FriendlyNameTextInputExample device={device} />
+      </Pane>
     </>
   );
 }
@@ -60,8 +100,8 @@ function CheckForUpdates(props: { ieeeAddr: string }): JSX.Element | null {
   } else if (checkForUpdatesQuery.isFetched) {
     if (checkForUpdatesQuery.data) {
       return <>yes
-        <form method="post" action={`/api/devices/${ieeeAddr}/updateFirmware`} target="_blank">
-          <button type="submit">Update now</button>
+        <form method='post' action={`/api/devices/${ieeeAddr}/updateFirmware`} target='_blank'>
+          <button type='submit'>Update now</button>
         </form>
       </>;
     } else {
@@ -98,12 +138,12 @@ function renderSelectedTab(selectedTab: string, device: DeviceModel) {
 
   return (
     <Card
-      backgroundColor="white"
+      backgroundColor='white'
       elevation={2}
-      display="flex"
-      flexDirection="column"
+      display='flex'
+      flexDirection='column'
       padding={sizes.padding.small}
-      height="100%"
+      height='100%'
     >
       {content}
     </Card>
@@ -114,19 +154,19 @@ export function DeviceDetailsBody(props: Props) {
   const { device } = props;
   const [state, setState] = useState<State>({ selectedTab: TABS[0], isLoadingState: false });
   return (
-    <Pane height="100%">
-      <Pane padding={sizes.padding.large} borderBottom="muted" height={`${sizes.header.medium}px`}>
+    <Pane height='100%'>
+      <Pane padding={sizes.padding.large} borderBottom='muted' height={`${sizes.header.medium}px`}>
         <Heading size={600}>
           {device.manufacturerName} {device.modelID}
         </Heading>
-        <Paragraph size={400} color="muted">
+        <Paragraph size={400} color='muted'>
           Type: {device.type}
         </Paragraph>
       </Pane>
       <Pane
-        display="flex"
+        display='flex'
         padding={sizes.padding.large}
-        flexDirection="column"
+        flexDirection='column'
         height={`calc(100% - ${sizes.header.medium}px)`}
       >
         <TabNavigation marginBottom={sizes.margin.medium}>

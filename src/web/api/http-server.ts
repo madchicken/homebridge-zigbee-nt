@@ -87,7 +87,7 @@ export class HttpServer {
     this.port = port;
     this.host = host;
     this.log = winston.createLogger({
-      transports: [new winston.transports.Console()],
+      transports: [new winston.transports.Console({level: 'debug'})],
       format: winston.format.printf(
         (info) => `[${new Date().toDateString()}] [ZigBee-UI] ${info.message}`
       ),
@@ -102,7 +102,7 @@ export class HttpServer {
     this.express.use(bodyParser.json());
     this.express.use(bodyParser.urlencoded({ extended: false }));
     this.express.use(middleware('/', this.log));
-    mapDevicesRoutes(this.express, zigBee, this.wsServer);
+    mapDevicesRoutes(this.express, zigBee, this.wsServer, this.log);
     mapCoordinatorRoutes(this.express, zigBee);
     mapZigBeeRoutes(this.express, zigBee);
     this.server = http.createServer(this.express);

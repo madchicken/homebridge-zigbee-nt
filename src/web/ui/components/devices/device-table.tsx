@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { EyeOpenIcon, Heading, IconButton, Pane, Pill, Spinner, Table, TrashIcon } from 'evergreen-ui';
+import { Heading, IconButton, Pane, Pill, RefreshIcon, Table, TableRow } from 'evergreen-ui';
 import { useQuery } from 'react-query';
 import { DeviceResponse, DevicesService } from '../../actions/devices';
 import { Error } from '../error';
@@ -7,6 +7,7 @@ import { useHistory } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { sizes } from '../constants';
 import { DeviceModel } from '../../../common/types';
+import { renderSpinner } from '../common';
 
 type Color =
   | 'automatic'
@@ -19,12 +20,14 @@ type Color =
   | 'teal'
   | 'purple';
 
+export const DATE_TIME_TEMPLATE = 'MM/D/YYYY HH:mm:ss A';
+
 function renderTable(devices: DeviceModel[], history) {
   return (
     <React.Fragment>
       {devices.map((device, index) => {
         const qualityPercent = Math.round(
-          device.linkquality ? (device.linkquality / 2.55) : 0
+          device.linkquality ? (device.linkquality / 2.55) : 0,
         );
         let color: Color = 'green';
         if (qualityPercent < 4) {
@@ -37,23 +40,19 @@ function renderTable(devices: DeviceModel[], history) {
         return (
           <Table.Row
             key={index}
+            isSelectable={true}
+            onSelect={() => history.push(`/devices/${device.ieeeAddr}`)}
           >
             <Table.TextCell>{device.modelID}</Table.TextCell>
             <Table.TextCell>{device.manufacturerName}</Table.TextCell>
             <Table.TextCell>{device.ieeeAddr}</Table.TextCell>
-            <Table.EditableCell isSelectable={true} onChange={(v) => console.log(v)}>
-              {device.settings.friendlyName}
-            </Table.EditableCell>
+            <Table.TextCell>{device.settings.friendlyName}</Table.TextCell>
             <Table.TextCell>{device.powerSource}</Table.TextCell>
             <Table.TextCell>
               <Pill color={color}>{qualityPercent ? `${qualityPercent} %` : 'N/A'}</Pill>
             </Table.TextCell>
             <Table.TextCell>
-              {dayjs(device.lastSeen).format('MMMM D, YYYY h:mm:ss A')}
-            </Table.TextCell>
-            <Table.TextCell>
-              <IconButton icon={EyeOpenIcon} size="medium" onClick={() => history.push(`/devices/${device.ieeeAddr}`)} marginRight="12"/>
-              <IconButton icon={TrashIcon} size="medium" onClick={() => {}}/>
+              {dayjs(device.lastSeen).format(DATE_TIME_TEMPLATE)}
             </Table.TextCell>
           </Table.Row>
         );
@@ -62,26 +61,19 @@ function renderTable(devices: DeviceModel[], history) {
   );
 }
 
-function renderSpinner() {
-  return (
-    <Pane display="flex" alignItems="center" justifyContent="center" height="100%">
-      <Spinner />
-    </Pane>
-  );
-}
-
 export const DEVICES_QUERY_KEY = 'devices';
 export default function DeviceTable(): ReactElement {
-  const res = useQuery<DeviceResponse>(DEVICES_QUERY_KEY, DevicesService.fetchDevices);
-  const { isLoading, isError, data } = res;
-  const error: Error = res.error as Error;
+  const query = useQuery<DeviceResponse>(DEVICES_QUERY_KEY, DevicesService.fetchDevices);
+  const { isFetching, isError, data } = query;
+  const error: Error = query.error as Error;
   const history = useHistory();
-
   const size = 600;
   return (
-    <Pane display="flex" flexDirection="column" justifyContent="stretch" width="100%" height="100%">
-      <Pane padding={sizes.padding.large} borderBottom="muted" height={`${sizes.header.medium}px`}>
-        <Heading size={size}>Paired devices</Heading>
+    <Pane display='flex' flexDirection='column' justifyContent='stretch' width='100%' height='100%'>
+      <Pane padding={sizes.padding.large} borderBottom='muted' height={`${sizes.header.medium}px`}>
+        <Heading size={size}>Paired devices <IconButton icon={RefreshIcon} size='medium' onClick={() => {
+          query.refetch();
+        }} /></Heading>
       </Pane>
       <Table height={`calc(100% - ${sizes.header.medium}px)`}>
         <Table.Head>
@@ -92,12 +84,11 @@ export default function DeviceTable(): ReactElement {
           <Table.TextHeaderCell>Power source</Table.TextHeaderCell>
           <Table.TextHeaderCell>Link Quality</Table.TextHeaderCell>
           <Table.TextHeaderCell>Last seen</Table.TextHeaderCell>
-          <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
         </Table.Head>
-        <Table.Body height="100%">
+        <Table.Body height='100%'>
           {isError ? (
-            <Error message={error.message} />
-          ) : isLoading ? (
+            <TableRow><Error message={error.message} /></TableRow>
+          ) : isFetching ? (
             renderSpinner()
           ) : (
             renderTable(data?.devices || [], history)

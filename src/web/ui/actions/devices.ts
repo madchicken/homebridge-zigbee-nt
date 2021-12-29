@@ -1,5 +1,6 @@
 import { DeviceState } from '../../../zigbee/types';
 import { DeviceModel } from '../../common/types';
+import { CustomDeviceSetting } from '../../../types';
 
 export interface BaseResponse {
   result: 'success' | 'error';
@@ -188,5 +189,22 @@ export class DevicesService {
     } else {
       throw new Error(await response.text());
     }
+  }
+
+  static async updateSettings(ieeeAddr: string, settings: CustomDeviceSetting): Promise<CustomDeviceSetting> {
+    const response = await fetch(`/api/devices/${ieeeAddr}/saveConfig`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(settings)
+    });
+    if (response.ok) {
+      const json = await response.json();
+      return json as CustomDeviceSetting;
+    } else {
+      throw new Error(await response.text());
+    }
+
   }
 }
