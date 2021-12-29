@@ -155,7 +155,7 @@ export function DeviceDetailsBody(props: Props) {
   const [state, setState] = useState<State>({ selectedTab: TABS[0], isLoadingState: false });
   return (
     <Pane height='100%'>
-      <Pane padding={sizes.padding.large} borderBottom='muted' height={`${sizes.header.medium}px`}>
+      <Pane padding={sizes.padding.large} borderBottom='muted' height={`${sizes.header.large}px`}>
         <Heading size={600}>
           {device.manufacturerName} {device.modelID}
         </Heading>

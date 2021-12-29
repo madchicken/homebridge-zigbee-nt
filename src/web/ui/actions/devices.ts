@@ -18,6 +18,7 @@ export interface StateResponse extends BaseResponse {
 }
 
 type PermitJoinResponse = { permitJoin: boolean };
+type TouchLinkResponse = { touchLink: boolean };
 
 export class DevicesService {
   static async fetchDevices(): Promise<DeviceResponse> {
@@ -205,6 +206,20 @@ export class DevicesService {
     } else {
       throw new Error(await response.text());
     }
+  }
 
+  static async startTouchLink(): Promise<TouchLinkResponse> {
+    const response = await fetch(`/api/coordinator/touchLink`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+    if (response.ok) {
+      const json = await response.json();
+      return json as TouchLinkResponse;
+    } else {
+      throw new Error(await response.text());
+    }
   }
 }

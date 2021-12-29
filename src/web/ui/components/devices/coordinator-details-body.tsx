@@ -20,6 +20,7 @@ interface State {
   selectedTab: string;
   isLoadingState: boolean;
   permitJoin: boolean;
+  touchLink: boolean;
   error?: string;
 }
 
@@ -27,6 +28,11 @@ function togglePermitJoin(device: CoordinatorModel, state: State, setState: Reac
   const fn = state.permitJoin ? DevicesService.stopPermitJoin : DevicesService.startPermitJoin;
   setState({ ...state, isLoadingState: true })
   fn().then((res) => setState({ ...state, permitJoin: res.permitJoin, isLoadingState: false }));
+}
+
+function toggleTouchLink(device: CoordinatorModel, state: State, setState: React.Dispatch<State>) {
+  setState({ ...state, isLoadingState: true })
+  DevicesService.startTouchLink().then((res) => setState({ ...state, touchLink: res.touchLink, isLoadingState: false }));
 }
 
 function renderCoordinatorInfo(device: CoordinatorModel, state: State, setState: React.Dispatch<State>) {
@@ -47,6 +53,7 @@ function renderCoordinatorInfo(device: CoordinatorModel, state: State, setState:
       </Pane>
       <Pane padding={sizes.padding.small}>
         <Button marginRight={minorScale(3)} isLoading={state.isLoadingState} onClick={() => togglePermitJoin(device, state, setState)}>{state.permitJoin ? 'Stop Joining' : 'Allow Joining'}</Button>
+        <Button marginRight={minorScale(3)} isLoading={state.isLoadingState} onClick={() => toggleTouchLink(device, state, setState)}>Activate TouchLink</Button>
       </Pane>
     </>
   );
@@ -85,10 +92,15 @@ function renderSelectedTab(state: State, device: CoordinatorModel, setState: Rea
 
 export function CoordinatorDetailsBody(props: Props) {
   const { device } = props;
-  const [state, setState] = useState<State>({ selectedTab: COORDINATOR_TABS[0], isLoadingState: false, permitJoin: device.permitJoin });
+  const [state, setState] = useState<State>({
+    selectedTab: COORDINATOR_TABS[0],
+    isLoadingState: false,
+    permitJoin: device.permitJoin,
+    touchLink: false
+  });
   return (
     <Pane height="100%">
-      <Pane padding={sizes.padding.large} borderBottom="muted" height={`${sizes.header.medium}px`}>
+      <Pane padding={sizes.padding.large} borderBottom="muted" height={`${sizes.header.large}px`}>
         <Heading size={600}>
           Main device
         </Heading>

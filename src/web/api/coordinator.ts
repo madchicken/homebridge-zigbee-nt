@@ -37,4 +37,11 @@ export function mapCoordinatorRoutes(express: Express, platform: ZigbeeNTHomebri
     res.contentType('application/json');
     res.end(JSON.stringify({ permitJoin: false }));
   });
+
+  express.post('/api/coordinator/touchLink', async (_req, res) => {
+    const result = await platform.zigBeeClient.touchlinkFactoryReset();
+    res.status(constants.HTTP_STATUS_OK);
+    res.contentType('application/json');
+    res.end(JSON.stringify({ touchLink: result }));
+  });
 }
