@@ -21,6 +21,7 @@ import { PhilipsHueWhiteTemperature } from './accessories/philips/philips-hue-wh
 import { SonoffContactSensor } from './accessories/sonoff/contact-sensor';
 import { TuyaOnoffDoubleSwitch } from './accessories/tuya/tuya-onoff-double-switch';
 import { TuyaThermostatControl } from './accessories/tuya/tuya-thermostat-control';
+import { AqaraCube } from './accessories/xiaomi/aqara-cube';
 import {
   AqaraOppleSwitch2Buttons,
   AqaraOppleSwitch4Buttons,
@@ -173,6 +174,7 @@ export function registerSupportedDevices(): void {
     ],
     XiaomiWirelessSwitch
   );
+  registerAccessoryClass('LUMI', ['lumi.sensor_cube.aqgl01'], AqaraCube);
   registerAccessoryClass('LUMI', ['lumi.remote.b286opcn01'], AqaraOppleSwitch2Buttons);
   registerAccessoryClass('LUMI', ['lumi.remote.b486opcn01'], AqaraOppleSwitch4Buttons);
   registerAccessoryClass('LUMI', ['lumi.remote.b686opcn01'], AqaraOppleSwitch6Buttons);

@@ -86,7 +86,15 @@ export type ButtonAction =
   | 'double_both'
   | 'hold_left'
   | 'hold_right'
-  | 'hold_both';
+  | 'hold_both'
+  | 'shake'
+  | 'fall'
+  | 'tap'
+  | 'slide'
+  | 'flip180'
+  | 'flip90'
+  | 'rotate_left'
+  | 'rotate_right';
 
 export type ClickAction =
   | 'on'
