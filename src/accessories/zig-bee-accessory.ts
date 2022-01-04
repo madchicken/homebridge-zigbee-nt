@@ -324,12 +324,7 @@ export abstract class ZigBeeAccessory {
             service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
           }
           if (this.supports('brightness')) {
-            if (isValidValue(state.brightness_percent)) {
-              service.updateCharacteristic(
-                this.platform.Characteristic.Brightness,
-                state.brightness_percent
-              );
-            } else if (isValidValue(state.brightness)) {
+            if (isValidValue(state.brightness)) {
               service.updateCharacteristic(
                 this.platform.Characteristic.Brightness,
                 Math.round(Number(state.brightness) / 2.55)
