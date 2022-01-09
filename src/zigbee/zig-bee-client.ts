@@ -50,28 +50,7 @@ export class ZigBeeClient {
   }
 
   async start(config: ZigBeeClientConfig): Promise<boolean> {
-    const channels = [config.channel];
-    const secondaryChannel = parseInt(config.secondaryChannel);
-    if (!isNaN(secondaryChannel) && !channels.includes(secondaryChannel)) {
-      channels.push(secondaryChannel);
-    }
-
-    const port = config.port || (await findSerialPort());
-    this.log.info(`Configured port for ZigBee dongle is ${port}`);
-    const initConfig: ZigBeeControllerConfig = {
-      port,
-      databasePath: config.database,
-      panId: config.panId,
-      channels,
-      adapter: config.adapter || 'zstack',
-    };
-
-    this.log.info(
-      `Initializing ZigBee controller on port ${
-        initConfig.port
-      } and channels ${initConfig.channels.join(', ')} (pan ID ${config.panId})`
-    );
-    this.zigBee.init(initConfig);
+    await this.init(config);
 
     const retrier = async () => {
       try {
@@ -96,6 +75,31 @@ export class ZigBeeClient {
       this.log.info('error:', error);
       return false;
     }
+  }
+
+  public async init(config: ZigBeeClientConfig) {
+    const channels = [config.channel];
+    const secondaryChannel = parseInt(config.secondaryChannel);
+    if (!isNaN(secondaryChannel) && !channels.includes(secondaryChannel)) {
+      channels.push(secondaryChannel);
+    }
+
+    const port = config.port || (await findSerialPort());
+    this.log.info(`Configured port for ZigBee dongle is ${port}`);
+    const initConfig: ZigBeeControllerConfig = {
+      port,
+      databasePath: config.database,
+      panId: config.panId,
+      channels,
+      adapter: config.adapter || 'zstack',
+    };
+
+    this.log.info(
+      `Initializing ZigBee controller on port ${
+        initConfig.port
+      } and channels ${initConfig.channels.join(', ')} (pan ID ${config.panId})`,
+    );
+    this.zigBee.init(initConfig);
   }
 
   public resolveEntity(device: string | number | Device): ZigBeeEntity {

@@ -23,7 +23,7 @@ describe('ZigBee Client', () => {
     fs.unlinkSync(dbPath);
   });
 
-  it('should decode a message from IKEA ON/OFF button', () => {
+  it('should decode a message from IKEA ON/OFF button', async () => {
     const device: Device = getDevice('ikeaOnOffButton');
     const message: MessagePayload = {
       type: 'commandOff',
@@ -38,6 +38,7 @@ describe('ZigBee Client', () => {
       },
     };
     const client = new ZigBeeClient(log);
+    await client.init({ port: 'foo', 'channel': 11, database: dbPath, adapter: 'zstack', panId: 1 });
     const callback = jest.fn();
     client.decodeMessage(message, callback);
     expect(callback).toBeCalledTimes(1);

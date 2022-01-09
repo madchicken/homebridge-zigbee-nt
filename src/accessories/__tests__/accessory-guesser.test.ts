@@ -21,6 +21,7 @@ const config: ZigBeeNTPlatformConfig = {
 const zigBeeClient = new ZigBeeClient(log);
 const zigbeeNTHomebridgePlatform = new ZigbeeNTHomebridgePlatform(log, config, API);
 const dbPath = `${__dirname}/test.db`;
+zigBeeClient.init({ port: 'foo', 'channel': 11, database: dbPath, adapter: 'zstack', panId: 1 });
 
 describe('Device Guesser', () => {
   let db: Database;
@@ -79,7 +80,7 @@ describe('Device Guesser', () => {
     const accessory = createAccessoryInstance(
       new ZigbeeNTHomebridgePlatform(log, config, API),
       new API.platformAccessory('test', API.hap.uuid.generate('test')),
-      new ZigBeeClient(log),
+      zigBeeClient,
       device
     );
     expect(accessory).toBeInstanceOf(ConfigurableAccessory);
