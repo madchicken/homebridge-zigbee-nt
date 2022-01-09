@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { Button, Card, Heading, Pane, Paragraph, Tab, TabNavigation, TextInput } from 'evergreen-ui';
+import {
+  Button,
+  Card,
+  Heading,
+  Pane,
+  Paragraph,
+  Tab,
+  TabNavigation,
+  TextInput,
+} from 'evergreen-ui';
 import ReactJson from 'react-json-view';
 import { DeviceStateManagement } from './device-state-management';
 import { sizes } from '../constants';
@@ -12,7 +21,7 @@ import { DeviceBindings } from './device-bindings';
 
 dayjs.extend(relativeTime);
 
-const TABS = ['Info', 'Structure', 'State', 'Bindings'];
+const TABS = [{ value: 'info', label: 'Info' }, { value: 'structure', label: 'Structure' }, { value: 'state', label: 'State' }, { value: 'bindings', label: 'Bindings' }];
 
 interface Props {
   device: DeviceModel;
@@ -143,16 +152,16 @@ function renderDeviceBindings(device: DeviceModel) {
 function renderSelectedTab(selectedTab: string, device: DeviceModel) {
   let content = null;
   switch (selectedTab) {
-    case 'Info':
+    case 'info':
       content = renderInfo(device);
       break;
-    case 'Structure':
+    case 'structure':
       content = renderDeviceStructure(device);
       break;
-    case 'State':
+    case 'state':
       content = renderCustomState(device);
       break;
-    case 'Bindings':
+    case 'bindings':
       content = renderDeviceBindings(device);
       break;
   }
@@ -173,7 +182,8 @@ function renderSelectedTab(selectedTab: string, device: DeviceModel) {
 
 export function DeviceDetailsBody(props: Props) {
   const { device } = props;
-  const [state, setState] = useState<State>({ selectedTab: TABS[0], isLoadingState: false });
+  const options = [ ...TABS ];
+  const [state, setState] = useState<State>({ selectedTab: options[0].value, isLoadingState: false });
   return (
     <Pane height='100%'>
       <Pane padding={sizes.padding.large} borderBottom='muted' height={`${sizes.header.large}px`}>
@@ -191,13 +201,14 @@ export function DeviceDetailsBody(props: Props) {
         height={`calc(100% - ${sizes.header.medium}px)`}
       >
         <TabNavigation marginBottom={sizes.margin.medium}>
-          {TABS.map(tab => (
+          {options.map(tab => (
             <Tab
-              key={tab}
-              isSelected={state.selectedTab === tab}
-              onSelect={() => setState({ ...state, selectedTab: tab })}
+              key={tab.value}
+              isSelected={state.selectedTab === tab.value}
+              onSelect={() => setState({ ...state, selectedTab: tab.value })}
+              appearance="primary"
             >
-              {tab}
+              {tab.label}
             </Tab>
           ))}
         </TabNavigation>

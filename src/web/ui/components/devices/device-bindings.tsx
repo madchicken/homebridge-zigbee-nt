@@ -1,5 +1,5 @@
 import { DeviceModel, GroupModel, IEEEAddress } from '../../../common/types';
-import { Heading, majorScale, Pane, SelectField } from 'evergreen-ui';
+import { Button, Heading, majorScale, Pane, SelectField } from 'evergreen-ui';
 import React from 'react';
 import { useQuery } from 'react-query';
 import { DeviceResponse, DevicesService } from '../../actions/devices';
@@ -9,6 +9,7 @@ import { renderSpinner } from '../common';
 import { CoordinatorResponse, CoordinatorService } from '../../actions/coordinator';
 import { COORDINATOR_QUERY_KEY } from '../../coordinator';
 import { GroupResponse, GroupsServices } from '../../actions/groups';
+import { getCluster } from 'zigbee-herdsman/dist/zcl/utils';
 
 interface Props {
   device: DeviceModel;
@@ -40,7 +41,7 @@ function DestDeviceSelect(props: DeviceSelectProps) {
   const [value, setValue] = React.useState(props.selected)
   return (
     <Pane>
-      <SelectField label={`Cluster: ${props.cluster}, destination device`} width="100%" value={value} onChange={event => setValue(event.target.value)}>
+      <SelectField label={`Cluster: ${props.cluster ? getCluster(props.cluster).name : 'all'}, destination device`} width="100%" value={value} onChange={event => setValue(event.target.value)}>
         <option value="">None</option>
         {props.allDevices.map(d => {
           return (<option key={d.ieeeAddr} value={d.ieeeAddr}>{d.settings.friendlyName || d.ieeeAddr}</option>)
@@ -60,7 +61,7 @@ function DestGroupSelect(props: GroupSelectProps) {
   const [value, setValue] = React.useState(props.selected)
   return (
     <Pane>
-      <SelectField label={`Cluster: ${props.cluster}, destination group`} width="100%" value={value} onChange={event => setValue(parseInt(event.target.value))}>
+      <SelectField label={`Cluster: ${props.cluster ? getCluster(props.cluster).name : 'all'}, destination group`} width="100%" value={value} onChange={event => setValue(parseInt(event.target.value))}>
         <option value="">None</option>
         {props.allGroups.map(g => {
           return (<option key={g.ID} value={g.ID}>{g.ID}</option>)
@@ -94,28 +95,41 @@ function ExistingBindings(props: ExistingProps) {
   const { device, allDevices } = props;
   const error = query.error as Error;
   return (
-    <Pane>
+    <Pane display="flex" flexDirection="column" alignItems="stretch" padding={majorScale(1)}>
       { device.endpoints.map(ep =>
-        <Pane key={ep.ID}>
-          {query.isError ? (
-            <Error message={error.message} />
-          ) : query.isFetching ? (
-            renderSpinner()
-          ) : (
-            <>
-              <Heading size={500} marginBottom={majorScale(1)}>Endpoint {ep.ID}</Heading>
-              {ep.bindings.map(binding => (
-                  <Pane key={binding.cluster}>
-                    {binding.type === 'group' ?
-                      <DestGroupSelect selected={binding.groupID} allGroups={query.data.groups} cluster={binding.cluster}/> :
-                      <DestDeviceSelect selected={binding.deviceIeeeAddress} allDevices={allDevices} cluster={binding.cluster}/>
-                    }
-                  </Pane>
-                ),
+        ep.bindings.length > 0 ? (
+          <>
+            {query.isError ? (
+              <Error message={error.message} />
+            ) : query.isFetching ? (
+              renderSpinner()
+            ) : (
+              <>
+                <Heading size={500} marginBottom={majorScale(1)}>Endpoint {ep.ID} </Heading>
+                {ep.bindings.map(binding => (
+                    <Pane key={binding.cluster}>
+                      {binding.type === 'group' ?
+                        <DestGroupSelect selected={binding.groupID} allGroups={query.data.groups} cluster={binding.cluster}/> :
+                        <DestDeviceSelect selected={binding.deviceIeeeAddress} allDevices={allDevices} cluster={binding.cluster}/>
+                      }
+                    </Pane>
+                  ),
+                )}
+                <Pane display="flex" justifyContent="flex-end">
+                  <Button disabled={true}>Unbind</Button>
+                </Pane>
+              </>
               )}
-            </>
-            )}
-        </Pane>
+          </>
+        ) : (
+          <>
+            <Heading size={500} marginBottom={majorScale(1)}>Endpoint {ep.ID} </Heading>
+            <DestDeviceSelect selected={''} allDevices={allDevices} cluster={null}/>
+            <Pane display="flex" justifyContent="flex-end">
+              <Button disabled={true}>Bind</Button>
+            </Pane>
+          </>
+        )
       )}
     </Pane>
   );
@@ -131,15 +145,13 @@ export function DeviceBindings(props: Props) {
   const coordinator = coordinatorQuery.data?.coordinator;
 
   return (
-    <Pane display="flex">
+    <Pane display="flex" flexDirection="column" alignItems="stretch" id="foo">
       {isError ? (
         <Error message={error.message} />
       ) : isFetching ? (
         renderSpinner()
       ) : (
-        <Pane display="flex">
-          <ExistingBindings device={props.device} allDevices={[...devices, coordinator]}/>
-        </Pane>
+        <ExistingBindings device={props.device} allDevices={[...devices, coordinator]}/>
       )}
     </Pane>
   )

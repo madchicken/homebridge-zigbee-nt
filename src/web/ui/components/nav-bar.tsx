@@ -40,7 +40,7 @@ export function NavBar() {
       elevation={2}
       height="100%"
     >
-      <Tablist margin={sizes.margin.large} display="flex" flexDirection="column" height={240}>
+      <Tablist margin={sizes.margin.large} display="flex" flexDirection="column" height={240} alignItems="flex-start">
         {CONFIGURED_PAGES.map(tab => (
           <Tab
             key={tab.label}
@@ -48,6 +48,7 @@ export function NavBar() {
             onSelect={() => history.push(`${tab.value}`)}
             isSelected={location.pathname.includes(tab.value)}
             aria-controls={`panel-${tab.value}`}
+            appearance="primary"
           >
             {tab.label}
           </Tab>
