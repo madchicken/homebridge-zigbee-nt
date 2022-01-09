@@ -18,6 +18,7 @@ import {
 import { ZigBeeController } from './zigBee-controller';
 import { ClusterName, GroupName, IEEEAddress } from '../web/common/types';
 import { CoordinatorVersion } from 'zigbee-herdsman/dist/adapter/tstype';
+import { Group } from 'zigbee-herdsman/dist/controller/model';
 
 export interface ZigBeeClientConfig {
   channel: number;
@@ -603,6 +604,10 @@ export class ZigBeeClient {
 
   async unbind(sourceId: IEEEAddress | GroupName, targetId: IEEEAddress | GroupName, clusters: ClusterName[], sourceEndpoint?: number, targetEndpoint?: number): Promise<BindingResult> {
     return this.bindOrUnbind('unbind', sourceId, targetId, clusters, sourceEndpoint, targetEndpoint);
+  }
+
+  getGroups(): Group[] {
+    return this.zigBee.getGroups();
   }
 
   async addToGroup(deviceId: IEEEAddress, groupName: GroupName, endpoint = 0): Promise<void> {

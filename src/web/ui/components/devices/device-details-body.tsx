@@ -8,10 +8,11 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { DeviceModel } from '../../../common/types';
 import { useQuery } from 'react-query';
 import { DevicesService } from '../../actions/devices';
+import { DeviceBindings } from './device-bindings';
 
 dayjs.extend(relativeTime);
 
-const TABS = ['Info', 'Structure', 'State'];
+const TABS = ['Info', 'Structure', 'State', 'Bindings'];
 
 interface Props {
   device: DeviceModel;
@@ -27,6 +28,11 @@ interface UpdateNameState {
   isUpdating: boolean;
   error: null;
   friendlyName: string;
+}
+
+interface UpdateFirmwareState {
+  isUpdating: boolean;
+  error: null;
 }
 
 async function updateFriendlyName(setState: React.Dispatch<UpdateNameState>, state: UpdateNameState, props: Partial<Props>) {
@@ -94,18 +100,26 @@ function renderInfo(device: DeviceModel) {
 function CheckForUpdates(props: { ieeeAddr: string }): JSX.Element | null {
   const { ieeeAddr } = props;
   const checkForUpdatesQuery = useQuery(['deviceUpdates', ieeeAddr], () => DevicesService.checkForUpdates(ieeeAddr));
+  const [state, setState] = useState<UpdateFirmwareState>({ isUpdating: false, error: null });
 
   if (checkForUpdatesQuery.isError) {
     return <>{(checkForUpdatesQuery.error as Error).message}</>;
   } else if (checkForUpdatesQuery.isFetched) {
     if (checkForUpdatesQuery.data) {
-      return <>yes
-        <form method='post' action={`/api/devices/${ieeeAddr}/updateFirmware`} target='_blank'>
-          <button type='submit'>Update now</button>
-        </form>
+      return <>
+        Update available <Button isLoading={state.isUpdating} appearance="primary" intent="danger" onClick={async () => {
+          setState({...state, isUpdating: true});
+        try {
+          await DevicesService.updateFirmware(ieeeAddr);
+          setState({...state, isUpdating: false});
+        } catch (e) {
+          setState({...state, isUpdating: false, error: e.message});
+        }
+        setState({...state, isUpdating: false});
+      }}>Update now</Button>
       </>;
     } else {
-      return <>no</>;
+      return <>No update available</>;
     }
   } else {
     return <>{checkForUpdatesQuery.status}</>;
@@ -122,6 +136,10 @@ function renderCustomState(device: DeviceModel) {
   return <DeviceStateManagement device={device} />;
 }
 
+function renderDeviceBindings(device: DeviceModel) {
+  return <DeviceBindings device={device} />;
+}
+
 function renderSelectedTab(selectedTab: string, device: DeviceModel) {
   let content = null;
   switch (selectedTab) {
@@ -133,6 +151,9 @@ function renderSelectedTab(selectedTab: string, device: DeviceModel) {
       break;
     case 'State':
       content = renderCustomState(device);
+      break;
+    case 'Bindings':
+      content = renderDeviceBindings(device);
       break;
   }
 

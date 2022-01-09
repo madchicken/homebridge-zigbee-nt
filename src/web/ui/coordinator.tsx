@@ -4,10 +4,10 @@ import { useQuery } from 'react-query';
 import { CoordinatorResponse, CoordinatorService } from './actions/coordinator';
 import { Error } from './components/error';
 import { CoordinatorDetailsBody } from './components/devices/coordinator-details-body';
-import { CoordinatorModel } from '../common/types';
 
+export const COORDINATOR_QUERY_KEY = 'coordinator';
 export function Coordinator() {
-  const queryResult = useQuery<CoordinatorResponse>(['coordinator'], () =>
+  const queryResult = useQuery<CoordinatorResponse>(COORDINATOR_QUERY_KEY, () =>
     CoordinatorService.fetch()
   );
   if (queryResult.isError || queryResult.data?.error) {
@@ -24,7 +24,7 @@ export function Coordinator() {
 
   return (
     <Pane>
-      <CoordinatorDetailsBody device={queryResult.data.coordinator as CoordinatorModel} refresh={() => {}} />
+      <CoordinatorDetailsBody device={queryResult.data.coordinator} refresh={() => {}} />
     </Pane>
   );
 }

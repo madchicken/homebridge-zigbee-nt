@@ -11,6 +11,7 @@ import serveStatic from 'serve-static';
 import { NextFunction, Request, Response } from 'express-serve-static-core';
 import * as url from 'url';
 import winston from 'winston';
+import { mapGroupsRoutes } from './groups';
 
 const DEFAULT_WEB_PORT = 9000;
 const DEFAULT_WEB_HOST = '0.0.0.0';
@@ -105,6 +106,7 @@ export class HttpServer {
     mapDevicesRoutes(this.express, zigBee, this.wsServer, this.log);
     mapCoordinatorRoutes(this.express, zigBee);
     mapZigBeeRoutes(this.express, zigBee);
+    mapGroupsRoutes(this.express, zigBee, this.log);
     this.server = http.createServer(this.express);
     this.wsServer = this.startWebSocketServer(this.server);
     this.server.listen(this.port, this.host);

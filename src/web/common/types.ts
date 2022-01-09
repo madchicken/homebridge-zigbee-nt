@@ -35,7 +35,7 @@ export type Endpoint = {
 export type IEEEAddress = string;
 export type GroupName = string;
 
-export type DeviceModel = {
+export interface DeviceModel {
   type: string;
   ieeeAddr: IEEEAddress;
   networkAddress: number;
@@ -51,9 +51,14 @@ export type DeviceModel = {
   otaAvailable?: boolean;
   newFirmwareAvailable?: string;
   settings: CustomDeviceSetting
-};
+}
 
 export interface CoordinatorModel extends DeviceModel {
   meta: { [s: string]: number | string };
   permitJoin: boolean;
+}
+
+export interface GroupModel {
+  ID: string;
+  name: GroupName;
 }

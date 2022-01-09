@@ -17,9 +17,6 @@ export interface StateResponse extends BaseResponse {
   state?: DeviceState;
 }
 
-type PermitJoinResponse = { permitJoin: boolean };
-type TouchLinkResponse = { touchLink: boolean };
-
 export class DevicesService {
   static async fetchDevices(): Promise<DeviceResponse> {
     const response = await fetch('/api/devices');
@@ -162,36 +159,6 @@ export class DevicesService {
     }
   }
 
-  static async startPermitJoin(): Promise<PermitJoinResponse> {
-    const response = await fetch(`/api/coordinator/permitJoin`, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-      },
-    });
-    if (response.ok) {
-      const json = await response.json();
-      return json as PermitJoinResponse;
-    } else {
-      throw new Error(await response.text());
-    }
-  }
-
-  static async stopPermitJoin(): Promise<PermitJoinResponse> {
-    const response = await fetch(`/api/coordinator/permitJoin`, {
-      method: 'DELETE',
-      headers: {
-        'content-type': 'application/json',
-      },
-    });
-    if (response.ok) {
-      const json = await response.json();
-      return json as PermitJoinResponse;
-    } else {
-      throw new Error(await response.text());
-    }
-  }
-
   static async updateSettings(ieeeAddr: string, settings: CustomDeviceSetting): Promise<CustomDeviceSetting> {
     const response = await fetch(`/api/devices/${ieeeAddr}/saveConfig`, {
       method: 'POST',
@@ -208,16 +175,15 @@ export class DevicesService {
     }
   }
 
-  static async startTouchLink(): Promise<TouchLinkResponse> {
-    const response = await fetch(`/api/coordinator/touchLink`, {
+  static async updateFirmware(ieeeAddr: string) {
+    const response = await fetch(`/api/devices/${ieeeAddr}/updateFirmware`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-      },
+      }
     });
     if (response.ok) {
-      const json = await response.json();
-      return json as TouchLinkResponse;
+      return  await response.json();
     } else {
       throw new Error(await response.text());
     }

@@ -8,10 +8,15 @@ export function mapCoordinatorRoutes(express: Express, platform: ZigbeeNTHomebri
   express.get('/api/coordinator', async (_req, res) => {
     const version = await platform.zigBeeClient.getCoordinatorVersion();
     const permitJoin = await platform.zigBeeClient.getPermitJoin();
+    const normalizedCoordinator = normalizeDeviceModel(platform.zigBeeClient.getCoordinator(), platform.config.customDeviceSettings);
     const coordinator: CoordinatorModel = {
       ...version,
-      ...normalizeDeviceModel(platform.zigBeeClient.getCoordinator(), platform.config.customDeviceSettings),
-      permitJoin
+      ...normalizedCoordinator,
+      permitJoin,
+      settings: {
+        ieeeAddr: normalizedCoordinator.ieeeAddr,
+        friendlyName: 'Coordinator'
+      }
     };
     res.status(constants.HTTP_STATUS_OK);
     res.contentType('application/json');

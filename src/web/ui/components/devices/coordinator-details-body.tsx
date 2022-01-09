@@ -5,7 +5,7 @@ import { sizes } from '../constants';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { CoordinatorModel, DeviceModel } from '../../../common/types';
-import { DevicesService } from '../../actions/devices';
+import { CoordinatorService } from '../../actions/coordinator';
 
 dayjs.extend(relativeTime);
 
@@ -25,14 +25,14 @@ interface State {
 }
 
 function togglePermitJoin(device: CoordinatorModel, state: State, setState: React.Dispatch<State>) {
-  const fn = state.permitJoin ? DevicesService.stopPermitJoin : DevicesService.startPermitJoin;
+  const fn = state.permitJoin ? CoordinatorService.stopPermitJoin : CoordinatorService.startPermitJoin;
   setState({ ...state, isLoadingState: true })
   fn().then((res) => setState({ ...state, permitJoin: res.permitJoin, isLoadingState: false }));
 }
 
 function toggleTouchLink(device: CoordinatorModel, state: State, setState: React.Dispatch<State>) {
   setState({ ...state, isLoadingState: true })
-  DevicesService.startTouchLink().then((res) => setState({ ...state, touchLink: res.touchLink, isLoadingState: false }));
+  CoordinatorService.startTouchLink().then((res) => setState({ ...state, touchLink: res.touchLink, isLoadingState: false }));
 }
 
 function renderCoordinatorInfo(device: CoordinatorModel, state: State, setState: React.Dispatch<State>) {

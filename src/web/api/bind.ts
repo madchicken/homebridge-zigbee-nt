@@ -23,8 +23,8 @@ interface BindUnbindResponse {
 }
 
 export function mapBindRoutes(express: Express, platform: ZigbeeNTHomebridgePlatform): void {
-  express.post('/api/bind', async (req, res) => {
-    const bindRequest = req.body as BindUnbindRequest;
+  express.post<string, any, BindUnbindResponse, BindUnbindRequest>('/api/bind', async (req, res) => {
+    const bindRequest = req.body;
     const bindingResult = await platform.zigBeeClient.bind(bindRequest.from, bindRequest.to, bindRequest.clusters, bindRequest.sourceEndpoint, bindRequest.targetEndpoint);
     res.status(constants.HTTP_STATUS_OK);
     res.contentType('application/json');
@@ -40,8 +40,8 @@ export function mapBindRoutes(express: Express, platform: ZigbeeNTHomebridgePlat
     res.end(JSON.stringify(result));
   });
 
-  express.post('/api/unbind', async (req, res) => {
-    const bindRequest = req.body as BindUnbindRequest;
+  express.post<string, any, BindUnbindResponse, BindUnbindRequest>('/api/unbind', async (req, res) => {
+    const bindRequest = req.body;
     const bindingResult = await platform.zigBeeClient.unbind(bindRequest.from, bindRequest.to, bindRequest.clusters, bindRequest.sourceEndpoint, bindRequest.targetEndpoint);
     res.status(constants.HTTP_STATUS_OK);
     res.contentType('application/json');
