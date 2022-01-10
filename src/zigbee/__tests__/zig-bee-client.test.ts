@@ -6,7 +6,7 @@ import { getDevice } from '../../utils/tests/device-builder';
 import { log } from '../../utils/tests/null-logger';
 import { ZigBeeClient } from '../zig-bee-client';
 
-const dbPath = `${__dirname}/test.db`;
+const dbPath = `${__dirname}/tmp-test.db`; // must point to a tmp file
 
 describe('ZigBee Client', () => {
   let db: Database;
