@@ -5,12 +5,7 @@ import { isNull, isUndefined } from 'lodash';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { HAP } from '../index';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
-import {
-  DEFAULT_POLL_INTERVAL,
-  isDeviceRouter,
-  MAX_POLL_INTERVAL,
-  MIN_POLL_INTERVAL,
-} from '../utils/device';
+import { DEFAULT_POLL_INTERVAL, isDeviceRouter, MAX_POLL_INTERVAL, MIN_POLL_INTERVAL } from '../utils/device';
 import { HSBType } from '../utils/hsb-type';
 import { ButtonAction, DeviceState, ZigBeeDefinition, ZigBeeEntity } from '../zigbee/types';
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
@@ -220,13 +215,10 @@ export abstract class ZigBeeAccessory {
   }
 
   private shouldConfigure() {
-    this.log.debug(`Device ${this.friendlyName} shouldConfigure:`, this);
-    const b = !!this.zigBeeDefinition.configure && // it must have the configure function defined
+    return !!this.zigBeeDefinition.configure && // it must have the configure function defined
       !this.isConfigured &&
       !this.zigBeeDefinition.interviewing &&
       !this.isConfiguring;
-    this.log.debug(`Device ${this.friendlyName} needs configuration: ${b}`);
-    return b;
   }
 
   public internalUpdate(state: DeviceState): void {
