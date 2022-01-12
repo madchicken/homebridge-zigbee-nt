@@ -28,7 +28,8 @@ export type ZigBeeAccessoryFactory = (
   device: Device
 ) => ConfigurableAccessory;
 
-const MAX_PING_ATTEMPTS = 1;
+const MAX_PING_ATTEMPTS = 60;
+const MAX_CONFIGURE_ATTEMPTS = 1;
 
 const MAX_NAME_LENGTH = 64;
 
@@ -180,9 +181,9 @@ export abstract class ZigBeeAccessory {
           return true;
         },
         {
-          retries: MAX_PING_ATTEMPTS,
+          retries: MAX_CONFIGURE_ATTEMPTS,
           onRetry: (e: Error, attempt: number) => {
-            if (attempt === MAX_PING_ATTEMPTS) {
+            if (attempt === MAX_CONFIGURE_ATTEMPTS) {
               this.isConfiguring = false;
               this.isConfigured = false;
               this.zigBeeDeviceDescriptor.save();
