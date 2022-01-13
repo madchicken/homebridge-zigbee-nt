@@ -3,22 +3,20 @@ import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { ServiceConfig } from '../types';
 import { Capability, Feature, ZigBeeDefinition } from '../zigbee/types';
 import { featureToButtonsMapping, getMetaFromFeatures } from './utils';
+import { isEmpty } from 'lodash';
 
 function serviceFromFeatureName(feature: Feature) {
   const serviceConfig: ServiceConfig = { type: 'unknown', meta: {} };
   switch (feature.name) {
-    case 'action':
-      if (feature.type === 'enum') {
-        if (feature.values.includes('vibration')) {
-          serviceConfig.type = 'contact-sensor';
-          serviceConfig.meta.vibration = true;
-        } else {
-          // switch
-          serviceConfig.type = 'programmable-switch';
-          serviceConfig.meta.buttonsMapping = featureToButtonsMapping(feature);
-        }
+    case 'action': {
+      const buttonsMapping = featureToButtonsMapping(feature);
+      if (!isEmpty(buttonsMapping)) {
+        // switch
+        serviceConfig.type = 'programmable-switch';
+        serviceConfig.meta.buttonsMapping = buttonsMapping;
       }
       break;
+    }
     case 'battery_low':
       serviceConfig.meta.batteryLow = true;
       break;

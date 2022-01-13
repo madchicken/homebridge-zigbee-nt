@@ -1,10 +1,13 @@
 import { BaseResponse } from './devices';
 import { handleError } from './utils';
-import { DeviceModel } from '../../common/types';
+import { CoordinatorModel } from '../../common/types';
 
 export interface CoordinatorResponse extends BaseResponse {
-  coordinator?: DeviceModel;
+  coordinator?: CoordinatorModel;
 }
+
+type PermitJoinResponse = { permitJoin: boolean };
+type TouchLinkResponse = { touchLink: boolean };
 
 export class CoordinatorService {
   static async fetch(): Promise<CoordinatorResponse> {
@@ -23,4 +26,50 @@ export class CoordinatorService {
       return handleError(e.message);
     }
   }
+
+  static async startPermitJoin(): Promise<PermitJoinResponse> {
+    const response = await fetch(`/api/coordinator/permitJoin`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+    if (response.ok) {
+      const json = await response.json();
+      return json as PermitJoinResponse;
+    } else {
+      throw new Error(await response.text());
+    }
+  }
+
+  static async stopPermitJoin(): Promise<PermitJoinResponse> {
+    const response = await fetch(`/api/coordinator/permitJoin`, {
+      method: 'DELETE',
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+    if (response.ok) {
+      const json = await response.json();
+      return json as PermitJoinResponse;
+    } else {
+      throw new Error(await response.text());
+    }
+  }
+
+  static async startTouchLink(): Promise<TouchLinkResponse> {
+    const response = await fetch(`/api/coordinator/touchLink`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+    if (response.ok) {
+      const json = await response.json();
+      return json as TouchLinkResponse;
+    } else {
+      throw new Error(await response.text());
+    }
+  }
+
 }

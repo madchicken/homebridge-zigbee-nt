@@ -1,4 +1,5 @@
 import { DeviceModel, Endpoint } from './types';
+import { CustomDeviceSetting } from '../../types';
 
 function normalizeEndpoint(e): Endpoint {
   return {
@@ -10,13 +11,13 @@ function normalizeEndpoint(e): Endpoint {
     deviceNetworkAddress: e.deviceNetworkAddress,
     deviceIeeeAddress: e.deviceIeeeAddress,
     clusters: e.clusters,
-    binds: e._binds,
-    configuredReportings: e._configuredReportings,
+    bindings: e._binds,
+    configuredReportingList: e._configuredReportings,
     meta: e.meta,
   };
 }
 
-export function normalizeDeviceModel(d): DeviceModel {
+export function normalizeDeviceModel(d: any, customDeviceSettings: CustomDeviceSetting[]): DeviceModel {
   return {
     type: d._type,
     ieeeAddr: d._ieeeAddr,
@@ -30,5 +31,8 @@ export function normalizeDeviceModel(d): DeviceModel {
     lastSeen: d._lastSeen,
     endpoints: d._endpoints.map(e => normalizeEndpoint(e)),
     linkquality: d._linkquality,
+    settings: customDeviceSettings?.find(s => s.ieeeAddr === d._ieeeAddr) || {
+      ieeeAddr: d._ieeeAddr
+    }
   };
 }

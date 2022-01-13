@@ -3,27 +3,29 @@ import { constants } from 'http2';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { ZigbeeNTHomebridgePlatform } from '../../platform';
 import { normalizeDeviceModel } from '../common/utils';
-import winston from 'winston';
 import WebSocket from 'ws';
+import * as fs from 'fs';
+import { CustomDeviceSetting } from '../../types';
+import winston from 'winston';
 
-const logger = winston.createLogger({ transports: [new winston.transports.Console()] });
 
 export function mapDevicesRoutes(
   express: Express,
   platform: ZigbeeNTHomebridgePlatform,
-  _webSocket: WebSocket.Server
+  _webSocket: WebSocket.Server,
+  logger: winston.Logger
 ) {
   express.get('/api/devices', (_req, res) => {
     const devices: Device[] = platform.zigBeeClient.getAllPairedDevices();
     res.status(constants.HTTP_STATUS_OK);
     res.contentType('application/json');
-    res.end(JSON.stringify({ devices: devices.map(device => normalizeDeviceModel(device)) }));
+    res.end(JSON.stringify({ devices: devices.map(device => normalizeDeviceModel(device, platform.config.customDeviceSettings)) }));
   });
 
   express.get('/api/devices/:ieeeAddr', async (req, res) => {
     const device: Device = platform.zigBeeClient.getDevice(req.params.ieeeAddr);
     if (device) {
-      const deviceModel = normalizeDeviceModel(device);
+      const deviceModel = normalizeDeviceModel(device, platform.config.customDeviceSettings);
       deviceModel.otaAvailable = platform.zigBeeClient.hasOTA(device);
       res.status(constants.HTTP_STATUS_OK);
       res.contentType('application/json');
@@ -36,6 +38,7 @@ export function mapDevicesRoutes(
 
   express.get('/api/devices/:ieeeAddr/checkForUpdates', async (req, res) => {
     const device: Device = platform.zigBeeClient.getDevice(req.params.ieeeAddr);
+    res.contentType('application/json');
     if (device) {
       let newFirmwareAvailable = 'NO';
       if (platform.zigBeeClient.hasOTA(device)) {
@@ -49,7 +52,6 @@ export function mapDevicesRoutes(
         }
       }
       res.status(constants.HTTP_STATUS_OK);
-      res.contentType('application/json');
       res.end(JSON.stringify({ newFirmwareAvailable }));
     } else {
       res.status(constants.HTTP_STATUS_NOT_FOUND);
@@ -82,14 +84,19 @@ export function mapDevicesRoutes(
 
   express.delete('/api/devices/:ieeeAddr', async (req, res) => {
     const device: Device = platform.zigBeeClient.getDevice(req.params.ieeeAddr);
-    if (device) {
-      await platform.unpairDevice(req.params.ieeeAddr);
-      res.status(constants.HTTP_STATUS_OK);
-      res.contentType('application/json');
-      res.end(JSON.stringify({ device: normalizeDeviceModel(device) }));
-    } else {
-      res.status(constants.HTTP_STATUS_NOT_FOUND);
-      res.end();
+    res.contentType('application/json');
+    try {
+      if (device) {
+        await platform.unpairDevice(req.params.ieeeAddr);
+        res.status(constants.HTTP_STATUS_OK);
+        res.end(JSON.stringify({ device: normalizeDeviceModel(device, platform.config.customDeviceSettings) }));
+      } else {
+        res.status(constants.HTTP_STATUS_NOT_FOUND);
+        res.end();
+      }
+    } catch (e) {
+      res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+      res.end(e.message);
     }
   });
 
@@ -106,8 +113,8 @@ export function mapDevicesRoutes(
         res.end();
       }
     } catch (e) {
-      res.send(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
-      res.end(JSON.stringify(e.message));
+      res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+      res.end(e.message);
     }
   });
 
@@ -124,8 +131,8 @@ export function mapDevicesRoutes(
         res.end();
       }
     } catch (e) {
-      res.send(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
-      res.end(JSON.stringify(e.message));
+      res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+      res.end(e.message);
     }
   });
 
@@ -143,8 +150,50 @@ export function mapDevicesRoutes(
         res.end();
       }
     } catch (e) {
-      res.send(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
-      res.end(JSON.stringify(e.message));
+      res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+      res.end(e.message);
     }
+  });
+
+  express.post<string, CustomDeviceSetting>('/api/devices/:ieeeAddr/saveConfig', async (req, res) => {
+    try {
+      const customDeviceSetting = req.body;
+      const ieeeAddr = customDeviceSetting.ieeeAddr;
+      const friendlyName = customDeviceSetting.friendlyName;
+      logger.debug(`Updating settings with values ${ieeeAddr} - ${friendlyName}`);
+      const device: Device = platform.zigBeeClient.getDevice(ieeeAddr);
+      if(device) {
+        const file = fs.readFileSync(platform.api.user.configPath());
+        const config = JSON.parse(file.toString());
+        logger.debug(`Read file ${file}`, config);
+        const pluginConfig = config.platforms.find(p => p.name === 'ZigBee');
+        if (pluginConfig) {
+          let deviceCustomConfig: CustomDeviceSetting;
+          if (!pluginConfig.customDeviceSettings) {
+            pluginConfig.customDeviceSettings = [];
+          }
+          deviceCustomConfig = pluginConfig.customDeviceSettings.find(c => c.ieeeAddr === ieeeAddr);
+          if (!deviceCustomConfig) {
+            deviceCustomConfig = { ieeeAddr };
+            pluginConfig.customDeviceSettings.push(deviceCustomConfig)
+          }
+          deviceCustomConfig.friendlyName = friendlyName;
+          logger.debug(`Device custom config is now ${JSON.stringify(deviceCustomConfig)}`);
+          platform.config.customDeviceSettings = pluginConfig.customDeviceSettings.map(x => x);
+          const output = fs.openSync(platform.api.user.configPath(), 'w+');
+          fs.writeSync(output, JSON.stringify(config));
+          fs.closeSync(output);
+          res.status(constants.HTTP_STATUS_OK);
+          res.end(JSON.stringify(deviceCustomConfig));
+          return;
+        }
+      }
+    } catch (e) {
+      res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+      res.end(e.message);
+      return;
+    }
+    res.status(constants.HTTP_STATUS_NOT_FOUND);
+    res.end();
   });
 }
