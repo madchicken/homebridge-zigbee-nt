@@ -44,7 +44,7 @@ export class PermitJoinAccessory {
       this.handleSetSwitchOn(value, callback);
     });
     // Disable permit join on start
-    this.setPermitJoin(false);
+    this.setPermitJoin(false).then(() => platform.log.info('Permit join disabled'));
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -56,7 +56,14 @@ export class PermitJoinAccessory {
     this.inProgress = value;
   }
 
-  private handleGetSwitchOn(callback) {
+  async getPermitJoin() {
+    const value = await this.zigBeeClient.getPermitJoin();
+    this.switchService.getCharacteristic(this.platform.Characteristic.On).updateValue(value);
+    this.inProgress = value;
+  }
+
+  private async handleGetSwitchOn(callback) {
+    await this.getPermitJoin();
     callback(null, this.inProgress);
   }
 

@@ -1,5 +1,6 @@
 import { ButtonActionMapping, ButtonsMapping, ServiceMeta } from '../types';
 import { ButtonAction, Feature } from '../zigbee/types';
+import { isEmpty } from 'lodash';
 
 export const SINGLE_PRESS = 0;
 export const DOUBLE_PRESS = 1;
@@ -136,6 +137,9 @@ export function featureToButtonsMapping(feature: Feature): ButtonsMapping {
           break;
       }
     });
+    if(isEmpty(mapping[name])) {
+      delete mapping[name]; // we could not find any mappings for the button
+    }
     return mapping;
   }, {} as ButtonsMapping);
 }

@@ -6,7 +6,7 @@ import { getDevice } from '../../utils/tests/device-builder';
 import { log } from '../../utils/tests/null-logger';
 import { ZigBeeClient } from '../zig-bee-client';
 
-const dbPath = `${__dirname}/test.db`;
+const dbPath = `${__dirname}/tmp-test.db`; // must point to a tmp file
 
 describe('ZigBee Client', () => {
   let db: Database;
@@ -23,7 +23,7 @@ describe('ZigBee Client', () => {
     fs.unlinkSync(dbPath);
   });
 
-  it('should decode a message from IKEA ON/OFF button', () => {
+  it('should decode a message from IKEA ON/OFF button', async () => {
     const device: Device = getDevice('ikeaOnOffButton');
     const message: MessagePayload = {
       type: 'commandOff',
@@ -38,6 +38,7 @@ describe('ZigBee Client', () => {
       },
     };
     const client = new ZigBeeClient(log);
+    await client.init({ port: 'foo', 'channel': 11, database: dbPath, adapter: 'zstack', panId: 1 });
     const callback = jest.fn();
     client.decodeMessage(message, callback);
     expect(callback).toBeCalledTimes(1);

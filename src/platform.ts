@@ -212,8 +212,6 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
   async handleZigBeeReady(): Promise<void> {
     const info: Device = this.zigBeeClient.getCoordinator();
     this.log.info(`ZigBee platform initialized @ ${info.ieeeAddr}`);
-    // Set led indicator
-    await this.zigBeeClient.toggleLed(!this.config.disableLed);
     // Init permit join accessory
     await this.initPermitJoinAccessory();
     // Init switch to reset devices through Touchlink feature
@@ -260,7 +258,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     return this.homekitAccessories.get(this.generateUUID(ieeeAddr));
   }
 
-  public getHomekitAccessoryByUUID(uuid: string) {
+  public getHomekitAccessoryByUUID(uuid: string): ZigBeeAccessory {
     return this.homekitAccessories.get(uuid);
   }
 
@@ -268,7 +266,7 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     const model = parseModelName(device.modelID);
     const manufacturer = device.manufacturerName;
     const ieeeAddr = device.ieeeAddr;
-    const deviceName: string = `${this.getDeviceFriendlyName(
+    const deviceName = `${this.getDeviceFriendlyName(
       ieeeAddr
     )} - ${model} - ${manufacturer}`;
     this.log.info(`Initializing ZigBee device: ${deviceName}`);
@@ -294,22 +292,6 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
         this.log.error(`Error initializing device ${deviceName}`, e);
       }
       return null;
-    }
-  }
-
-  private async mountDevice(ieeeAddr: string): Promise<void> {
-    try {
-      const UUID = this.generateUUID(ieeeAddr);
-      const zigBeeAccessory = this.getHomekitAccessoryByUUID(UUID);
-      if (zigBeeAccessory) {
-        return await zigBeeAccessory.onDeviceMount();
-      }
-    } catch (error) {
-      this.log.warn(
-        `Unable to initialize device ${this.getDeviceFriendlyName(ieeeAddr)}, ` +
-          'try to remove it and add it again.\n'
-      );
-      this.log.warn('Reason:', error);
     }
   }
 

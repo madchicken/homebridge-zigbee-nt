@@ -66,7 +66,7 @@ export function DeviceStateManagement(props: Props) {
         label="Get or Set custom state"
         placeholder="Insert a valid json state here"
         value={state.deviceState}
-        hint={state.error || 'test'}
+        hint={state.error || ''}
         required
         onChange={e => setState({ ...state, deviceState: e.target.value })}
       />

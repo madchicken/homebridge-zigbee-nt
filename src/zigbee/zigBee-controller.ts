@@ -3,6 +3,8 @@ import { findByDevice } from 'zigbee-herdsman-converters';
 import { Logger } from 'homebridge';
 import Device from 'zigbee-herdsman/dist/controller/model/device';
 import { ZigBeeControllerConfig, ZigBeeDefinition, ZigBeeEntity } from './types';
+import Group from 'zigbee-herdsman/dist/controller/model/group';
+import { CoordinatorVersion, StartResult } from 'zigbee-herdsman/dist/adapter/tstype';
 
 export const endpointNames = [
   'left',
@@ -57,12 +59,14 @@ export const endpointNames = [
   'button_19',
   'button_20',
 ];
-const keyEndpointByNumber = new RegExp(`.*/([0-9]*)$`);
+// const keyEndpointByNumber = new RegExp(`.*/([0-9]*)$`);
 
 /* eslint-disable no-underscore-dangle */
 export class ZigBeeController {
   private herdsman: Controller;
   private readonly log: Logger;
+  private groupLookup: {[s: number]: Group} = {};
+  private deviceLookup: {[s: string]: Device} = {};
 
   constructor(log: Logger) {
     this.herdsman = null;
@@ -93,30 +97,29 @@ export class ZigBeeController {
     return Promise.resolve(true);
   }
 
-  async start() {
-    await this.herdsman.start();
+  async start(): Promise<StartResult> {
+    return await this.herdsman.start();
   }
 
-  on(message: string, listener: (...args: any[]) => void) {
+  on(message: string, listener: (...args: any[]) => void): void {
     this.herdsman.on(message, listener);
   }
 
-  off(message: string, listener: (...args: any[]) => void) {
+  off(message: string, listener: (...args: any[]) => void): void {
     this.herdsman.off(message, listener);
   }
 
-  async stop() {
-    await this.toggleLed(false);
+  async stop(): Promise<void> {
     await this.permitJoin(false);
-    await this.herdsman.stop();
+    return await this.herdsman.stop();
   }
 
-  async getCoordinatorVersion() {
+  async getCoordinatorVersion(): Promise<CoordinatorVersion> {
     return this.herdsman.getCoordinatorVersion();
   }
 
-  async reset(type) {
-    await this.herdsman.reset(type);
+  async reset(type: 'hard' | 'soft'): Promise<void> {
+    return await this.herdsman.reset(type);
   }
 
   async permitJoin(permit: boolean): Promise<void> {
@@ -176,88 +179,86 @@ export class ZigBeeController {
     return Promise.reject(`Device ${ieeeAddr} not found`);
   }
 
-  async toggleLed(on: boolean) {
-    if (this.herdsman) {
-      const supported = await this.herdsman.supportsLED();
-      if (supported) {
-        return this.herdsman.setLED(on);
+  private resolveDevice(ieeeAddr: string): Device {
+    if (!this.deviceLookup[ieeeAddr]) {
+      const device = this.herdsman.getDeviceByIeeeAddr(ieeeAddr);
+      if (device) {
+        this.deviceLookup[ieeeAddr] = device;
       }
     }
-    return Promise.resolve();
+
+    const device = this.deviceLookup[ieeeAddr];
+    if (device && !device.isDeleted) {
+      return device;
+    }
   }
 
-  /**
-   * @param {string} key
-   * @return {object} {
-   *      type: device | coordinator
-   *      device|group: zigbee-herdsman entity
-   *      endpoint: selected endpoint (only if type === device)
-   *      settings: from configuration.yaml
-   *      name: name of the entity
-   *      definition: zigbee-herdsman-converters definition (only if type === device)
-   * }
-   */
-  resolveEntity(key: any): ZigBeeEntity {
-    if (typeof key === 'string') {
-      if (key.toLowerCase() === 'coordinator') {
-        const coordinator = this.coordinator();
-        return {
-          type: 'device',
-          device: coordinator,
-          endpoint: coordinator.getEndpoint(1),
-          name: 'Coordinator',
-          settings: { friendlyName: 'Coordinator' },
-        };
-      }
+  private resolveGroup(groupID: number): Group {
+    const group = this.herdsman.getGroupByID(Number(groupID));
+    if (group && !this.groupLookup[groupID]) {
+      this.groupLookup[groupID] = group;
+    }
 
-      let endpointKey = endpointNames.find((p) => key.endsWith(`/${p}`));
-      const endpointByNumber = key.match(keyEndpointByNumber);
-      if (!endpointKey && endpointByNumber) {
-        endpointKey = Number(endpointByNumber[1]).toString();
-      }
-      if (endpointKey) {
-        key = key.replace(`/${endpointKey}`, '');
-      }
+    return this.groupLookup[groupID];
+  }
 
-      // FIXME: handle groups
-      return null;
-    } else if (key.constructor.name === 'Device') {
+  resolveEntity(key: string | number | Device): ZigBeeEntity {
+    if (typeof key === 'object') {
+      const resolvedDevice = this.resolveDevice(key.ieeeAddr);
       const definition: ZigBeeDefinition = findByDevice(key);
-      if (!definition) {
-        return null;
-      }
       return {
         type: 'device',
-        device: key,
-        endpoint: key.endpoints[0],
-        name: key.type === 'Coordinator' ? 'Coordinator' : key.ieeeAddr,
+        device: resolvedDevice,
+        endpoints: resolvedDevice.endpoints,
+        name: resolvedDevice.ieeeAddr,
         definition,
-        settings: { friendlyName: key.ieeeAddr },
+        settings: {},
       };
-    } else {
-      // Group
+    } else if (typeof key === 'string' && key.toLowerCase() === 'coordinator') {
+      const coordinator = this.resolveDevice(this.herdsman.getDevicesByType('Coordinator')[0].ieeeAddr);
+      return {
+        type: 'device',
+        device: coordinator,
+        endpoints: coordinator.endpoints,
+        name: 'Coordinator',
+        settings: { friendlyName: 'Coordinator' },
+      };
+    } else if (typeof key === 'string') {
+      const resolvedDevice = this.resolveDevice(key);
+      const definition: ZigBeeDefinition = findByDevice(resolvedDevice);
+      return {
+        type: 'device',
+        device: resolvedDevice,
+        endpoints: resolvedDevice.endpoints,
+        name: resolvedDevice.ieeeAddr,
+        definition,
+        settings: {},
+      };
+    } else if (typeof key === 'number') {
+      const group = this.resolveGroup(key as number) || this.createGroup(key as number);
       return {
         type: 'group',
-        group: key,
-        name: 'Group',
+        group: group,
+        name: `${group.groupID}`,
         settings: {},
       };
     }
+    return null
   }
 
-  getGroupByID(ID) {
-    return this.herdsman.getGroupByID(ID);
+  getGroupByID(id: number): Group {
+    return this.herdsman.getGroupByID(id);
   }
 
-  getGroups() {
+  getGroups(): Group[] {
     return this.herdsman.getGroups();
   }
 
-  createGroup(groupID: number) {
+  createGroup(groupID: number): Group {
     return this.herdsman.createGroup(groupID);
   }
 
-  async touchlinkFactoryReset() {
+  async touchlinkFactoryReset(): Promise<boolean> {
     return this.herdsman.touchlinkFactoryResetFirst();
   }
 

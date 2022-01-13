@@ -1,59 +1,21 @@
-import { Dialog, IconButton, Pane, Paragraph, SideSheet, Spinner, TrashIcon } from 'evergreen-ui';
+import { IconButton, Pane, SideSheet, Spinner, TrashIcon } from 'evergreen-ui';
 import React, { ReactElement, useState } from 'react';
 import { DeviceResponse, DevicesService } from '../../actions/devices';
-import { useQuery, useQueryClient } from 'react-query';
+import { useQuery } from 'react-query';
 import { Error } from '../error';
 import { useHistory } from 'react-router-dom';
-import * as H from 'history';
 import { DeviceDetailsBody } from './device-details-body';
-import { DEVICES_QUERY_KEY } from './device-table';
 import { sizes } from '../constants';
-import { DeviceModel } from '../../../common/types';
+import { DeleteDeviceModal } from './delete-device-modal';
 
 interface State {
-  isDeleteConfirmationShown: boolean;
-  isDeletingDevice?: boolean;
   selectedTab: string;
-}
-
-function renderConfirmDialog(
-  selectedDevice: DeviceModel,
-  state: State,
-  setState,
-  history: H.History
-) {
-  const queryClient = useQueryClient();
-  return (
-    <Dialog
-      isShown={state.isDeleteConfirmationShown}
-      title="Unpair confirmation"
-      onConfirm={async () => {
-        setState({ ...state, isDeletingDevice: true });
-        const response = await DevicesService.deleteDevice(selectedDevice.ieeeAddr);
-        if (response.result === 'success') {
-          setState({ ...state, isDialogShown: false, isDeletingDevice: false });
-          await queryClient.invalidateQueries(DEVICES_QUERY_KEY);
-          history.push('/devices');
-        }
-      }}
-      isConfirmLoading={state.isDeletingDevice}
-      onCancel={() => setState({ ...state, isDeleteConfirmationShown: false })}
-      cancelLabel="Cancel"
-      confirmLabel={state.isDeletingDevice ? 'Unpairing...' : 'Unpair'}
-    >
-      {selectedDevice && (
-        <Paragraph size={300}>
-          Are you sure you want to unpair device {selectedDevice.modelID} ({selectedDevice.ieeeAddr}
-          )?
-        </Paragraph>
-      )}
-    </Dialog>
-  );
+  isDeleteConfirmationShown: boolean;
 }
 
 function renderSpinner() {
   return (
-    <Pane display="flex" alignItems="center" justifyContent="center" height="100%">
+    <Pane display='flex' alignItems='center' justifyContent='center' height='100%'>
       <Spinner />
     </Pane>
   );
@@ -93,19 +55,27 @@ export function DeviceDetails(props: Props): ReactElement {
           <Pane
             display="flex"
             padding={sizes.padding.small}
-            background="tint2"
+            background="blueTint"
             borderRadius={3}
-            width="100%"
+            width='100%'
             height={`${sizes.header.small}px`}
-            flexDirection="row-reverse"
+            flexDirection='row-reverse'
           >
-            {queryResult.isLoading
-              ? null
-              : renderConfirmDialog(queryResult.data.device, state, setState, history)}
+            {!queryResult.isLoading && queryResult?.data && (
+              <DeleteDeviceModal selectedDevice={queryResult.data.device}
+                                 isDeleteConfirmationShown={state.isDeleteConfirmationShown}
+                                 onCancel={() => {
+                                   setState({ ...state, isDeleteConfirmationShown: false });
+                                 }}
+                                 onSuccess={() => {
+                                   setState({ ...state, isDeleteConfirmationShown: false });
+                                   history.push('/devices');
+                                 }} />
+            )}
             <IconButton
               icon={TrashIcon}
               marginRight={sizes.margin.medium}
-              intent="danger"
+              intent='danger'
               onClick={() => setState({ ...state, isDeleteConfirmationShown: true })}
               disabled={queryResult.isLoading || queryResult.isError}
             />
@@ -114,7 +84,7 @@ export function DeviceDetails(props: Props): ReactElement {
             zIndex={1}
             flexShrink={0}
             elevation={0}
-            backgroundColor="white"
+            backgroundColor='white'
             height={`calc(100% - ${sizes.header.small}px)`}
           >
             {queryResult.isLoading ? (

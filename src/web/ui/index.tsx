@@ -18,7 +18,9 @@ function App() {
     <Pane display="flex" height="100%">
       <QueryClientProvider client={queryClient}>
         <Router>
-          <NavBar />
+          <Pane padding={sizes.padding.large}>
+            <NavBar />
+          </Pane>
           <Pane padding={sizes.padding.large} flex="1">
             <Switch>
               <Route path="/devices/:ieeAddr?">
