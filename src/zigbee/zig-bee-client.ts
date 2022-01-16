@@ -125,7 +125,7 @@ export class ZigBeeClient {
     const resolvedEntity = this.resolveEntity(message.device);
     const state = {} as DeviceState;
     if (resolvedEntity) {
-      const meta: Meta = { device: message.device };
+      const meta: Meta = { device: message.device, logger: this.log };
       const converters = resolvedEntity.definition.fromZigbee.filter((c) => {
         const type = Array.isArray(c.type)
           ? c.type.includes(message.type)
@@ -168,7 +168,7 @@ export class ZigBeeClient {
       this.log.debug(`Reading KEY '${key}' from '${resolvedEntity.settings.friendlyName}'`);
 
       try {
-        Object.assign(deviceState, await converter.convertGet(target, key, { device, message }));
+        Object.assign(deviceState, await converter.convertGet(target, key, { device, message, logger: this.log }));
       } catch (error) {
         this.log.error(
           `Reading '${key}' for '${resolvedEntity.settings.friendlyName}' failed: '${error}'`
