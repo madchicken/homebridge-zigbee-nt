@@ -5,12 +5,7 @@ import { isNull, isUndefined } from 'lodash';
 import { Device } from 'zigbee-herdsman/dist/controller/model';
 import { HAP } from '../index';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
-import {
-  DEFAULT_POLL_INTERVAL,
-  isDeviceRouter,
-  MAX_POLL_INTERVAL,
-  MIN_POLL_INTERVAL,
-} from '../utils/device';
+import { DEFAULT_POLL_INTERVAL, isDeviceRouter, MAX_POLL_INTERVAL, MIN_POLL_INTERVAL } from '../utils/device';
 import { HSBType } from '../utils/hsb-type';
 import { ButtonAction, DeviceState, ZigBeeDefinition, ZigBeeEntity } from '../zigbee/types';
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
@@ -33,7 +28,8 @@ export type ZigBeeAccessoryFactory = (
   device: Device
 ) => ConfigurableAccessory;
 
-const MAX_PING_ATTEMPTS = 1;
+const MAX_PING_ATTEMPTS = 60;
+const MAX_CONFIGURE_ATTEMPTS = 1;
 
 const MAX_NAME_LENGTH = 64;
 
@@ -130,6 +126,7 @@ export abstract class ZigBeeAccessory {
       this.interval = this.getPollingInterval();
       this.ping().then(() => this.log.debug(`Ping received from ${this.friendlyName}`));
     } else {
+      this.log.info(`Configuring device ${this.friendlyName}`);
       this.configureDevice()
         .then(() => this.log.debug(`${this.friendlyName} successfully configured`))
         .catch((e) => this.log.error(e.message));
@@ -172,9 +169,10 @@ export abstract class ZigBeeAccessory {
     if (this.shouldConfigure()) {
       this.isConfiguring = true;
       const coordinatorEndpoint = this.client.getCoordinator().getEndpoint(1);
+      const definition = this.zigBeeDefinition;
       return await retry<boolean>(
         async (bail: (e: Error) => void, attempt: number) => {
-          await this.zigBeeDefinition.configure(this.zigBeeDeviceDescriptor, coordinatorEndpoint);
+          await definition.configure(this.zigBeeDeviceDescriptor, coordinatorEndpoint);
           this.isConfigured = true;
           this.zigBeeDeviceDescriptor.save();
           this.log.info(
@@ -183,9 +181,9 @@ export abstract class ZigBeeAccessory {
           return true;
         },
         {
-          retries: MAX_PING_ATTEMPTS,
+          retries: MAX_CONFIGURE_ATTEMPTS,
           onRetry: (e: Error, attempt: number) => {
-            if (attempt === MAX_PING_ATTEMPTS) {
+            if (attempt === MAX_CONFIGURE_ATTEMPTS) {
               this.isConfiguring = false;
               this.isConfigured = false;
               this.zigBeeDeviceDescriptor.save();
@@ -194,6 +192,7 @@ export abstract class ZigBeeAccessory {
         }
       );
     }
+    this.log.info(`No need to configure device ${this.friendlyName}`);
     return false;
   }
 
@@ -217,12 +216,10 @@ export abstract class ZigBeeAccessory {
   }
 
   private shouldConfigure() {
-    return (
-      !!this.zigBeeDefinition.configure && // it must have the configure function defined
+    return !!this.zigBeeDefinition.configure && // it must have the configure function defined
       !this.isConfigured &&
       !this.zigBeeDefinition.interviewing &&
-      !this.isConfiguring
-    );
+      !this.isConfiguring;
   }
 
   public internalUpdate(state: DeviceState): void {
@@ -324,12 +321,7 @@ export abstract class ZigBeeAccessory {
             service.updateCharacteristic(this.platform.Characteristic.On, state.state === 'ON');
           }
           if (this.supports('brightness')) {
-            if (isValidValue(state.brightness_percent)) {
-              service.updateCharacteristic(
-                this.platform.Characteristic.Brightness,
-                state.brightness_percent
-              );
-            } else if (isValidValue(state.brightness)) {
+            if (isValidValue(state.brightness)) {
               service.updateCharacteristic(
                 this.platform.Characteristic.Brightness,
                 Math.round(Number(state.brightness) / 2.55)

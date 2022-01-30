@@ -1,3 +1,5 @@
+import { CustomDeviceSetting } from '../../types';
+
 export interface Binding {
   cluster: number;
   type: 'group' | 'endpoint';
@@ -14,6 +16,8 @@ export interface ConfiguredReporting {
   repChange: number;
 }
 
+export type ClusterName = 'closuresWindowCovering' | "genLevelCtrl" | 'lightingColorCtrl' | 'genOnOff' | 'genScenes';
+
 export type Endpoint = {
   ID: number;
   profileID: number;
@@ -22,19 +26,18 @@ export type Endpoint = {
   outputClusters: number[];
   deviceNetworkAddress: number;
   deviceIeeeAddress: string;
-  clusters: {
-    [k: string]: {
-      attributes: any;
-    };
-  };
-  binds: Binding[];
-  configuredReportings: ConfiguredReporting[];
+  clusters: Record<ClusterName, any>;
+  bindings: Binding[];
+  configuredReportingList: ConfiguredReporting[];
   meta: any;
 };
 
-export type DeviceModel = {
+export type IEEEAddress = string;
+export type GroupName = string;
+
+export interface DeviceModel {
   type: string;
-  ieeeAddr: string;
+  ieeeAddr: IEEEAddress;
   networkAddress: number;
   manufacturerID: string;
   manufacturerName: string;
@@ -47,8 +50,15 @@ export type DeviceModel = {
   endpoints?: Endpoint[];
   otaAvailable?: boolean;
   newFirmwareAvailable?: string;
-};
+  settings: CustomDeviceSetting
+}
 
 export interface CoordinatorModel extends DeviceModel {
   meta: { [s: string]: number | string };
+  permitJoin: boolean;
+}
+
+export interface GroupModel {
+  ID: string;
+  name: GroupName;
 }

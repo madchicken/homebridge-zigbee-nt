@@ -29,15 +29,18 @@ const config: ZigBeeNTPlatformConfig = {
   name: 'TEST',
   platform: 'TEST',
 };
-const db: Database = Database.open(`${__dirname}/test.db`);
+const dbPath = `${__dirname}/test.db`;
+const db: Database = Database.open(dbPath);
 Device.injectDatabase(db);
+const zigBeeClient = new ZigBeeClient(log);
+zigBeeClient.init({ port: 'foo', 'channel': 11, database: dbPath, adapter: 'zstack', panId: 1 });
 
 function getAccessoryInstance(ieeeAddr: string) {
   const device = Device.byIeeeAddr(ieeeAddr);
   return createAccessoryInstance(
     new ZigbeeNTHomebridgePlatform(log, config, API),
     new API.platformAccessory('test', API.hap.uuid.generate('test')),
-    new ZigBeeClient(log),
+    zigBeeClient,
     device
   );
 }
