@@ -421,9 +421,6 @@ export abstract class ZigBeeAccessory {
 
   private searchFeatures(feature, featuresArray) {
     for (let i = 0; i < featuresArray.length; i++) {
-      //      this.log.debug(
-      //        `Supports: ${feature} checking feature name:${featuresArray[i].name}, type: ${featuresArray[i].type}`
-      //      );
       if (featuresArray[i].name === feature) {
         return true;
       } else if (Array.isArray(featuresArray[i].features)) {
@@ -435,9 +432,6 @@ export abstract class ZigBeeAccessory {
 
   public supports(property: string): boolean {
     for (let i = 0; i < this.entity.definition.exposes.length; i++) {
-      //      this.log.debug(
-      //        `Supports: ${property} checking capability name:${this.entity.definition.exposes[i].name}, type: ${this.entity.definition.exposes[i].type}`
-      //      );
       if (this.entity.definition.exposes[i].name === property) return true;
       if (Array.isArray(this.entity.definition.exposes[i].features)) {
         if (this.searchFeatures(property, this.entity.definition.exposes[i].features)) return true;
