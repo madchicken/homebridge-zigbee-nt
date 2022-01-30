@@ -419,9 +419,24 @@ export abstract class ZigBeeAccessory {
     });
   }
 
+  private searchFeatures(feature, featuresArray) {
+    for (let i = 0; i < featuresArray.length; i++) {
+      if (featuresArray[i].name === feature) {
+        return true;
+      } else if (Array.isArray(featuresArray[i].features)) {
+        if (this.searchFeatures(feature, featuresArray[i].features)) return true;
+      }
+    }
+    return false;
+  }
+
   public supports(property: string): boolean {
-    return (
-      this.entity.definition.exposes?.find((capability) => capability.name === property) !== null
-    );
+    for (let i = 0; i < this.entity.definition.exposes.length; i++) {
+      if (this.entity.definition.exposes[i].name === property) return true;
+      if (Array.isArray(this.entity.definition.exposes[i].features)) {
+        if (this.searchFeatures(property, this.entity.definition.exposes[i].features)) return true;
+      }
+    }
+    return false;
   }
 }
