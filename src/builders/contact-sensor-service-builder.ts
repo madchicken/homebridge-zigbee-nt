@@ -1,5 +1,5 @@
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
-import { Callback, CharacteristicEventTypes, PlatformAccessory } from 'homebridge';
+import { CharacteristicGetCallback, CharacteristicEventTypes, PlatformAccessory } from 'homebridge';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { DeviceState } from '../zigbee/types';
 import { SensorServiceBuilder } from './sensor-service-builder';
@@ -21,7 +21,7 @@ export class ContactSensorServiceBuilder extends SensorServiceBuilder {
 
     this.service
       .getCharacteristic(Characteristic.ContactSensorState)
-      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
+      .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         callback(
           null,
           this.state.contact
@@ -38,7 +38,7 @@ export class ContactSensorServiceBuilder extends SensorServiceBuilder {
 
     this.service
       .getCharacteristic(Characteristic.ContactSensorState)
-      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
+      .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         const vibrationDetected = this.state.strength || this.state.action;
         callback(
           null,

@@ -1,5 +1,4 @@
 import {
-  Callback,
   CharacteristicEventTypes,
   CharacteristicGetCallback,
   CharacteristicSetCallback,
@@ -135,7 +134,7 @@ export class ThermostatServiceBuilder extends ServiceBuilder {
     const Characteristic = this.platform.Characteristic;
     this.service
       .getCharacteristic(Characteristic.CurrentTemperature)
-      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
+      .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         callback(null, this.state.local_temperature);
       });
     return this;
@@ -163,7 +162,7 @@ export class ThermostatServiceBuilder extends ServiceBuilder {
       );
     this.service
       .getCharacteristic(Characteristic.TargetTemperature)
-      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
+      .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         callback(null, temperatureFixer(this.state.current_heating_setpoint));
       });
     return this;

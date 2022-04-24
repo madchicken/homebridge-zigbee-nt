@@ -1,5 +1,5 @@
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
-import { Callback, CharacteristicEventTypes, PlatformAccessory } from 'homebridge';
+import { CharacteristicGetCallback, CharacteristicEventTypes, PlatformAccessory } from 'homebridge';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { DeviceState } from '../zigbee/types';
 import { SensorServiceBuilder } from './sensor-service-builder';
@@ -20,7 +20,7 @@ export class TemperatureSensorServiceBuilder extends SensorServiceBuilder {
 
     this.service
       .getCharacteristic(Characteristic.CurrentTemperature)
-      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
+      .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         callback(null, this.state.temperature);
       });
 
