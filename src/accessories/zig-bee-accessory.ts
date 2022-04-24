@@ -192,7 +192,6 @@ export abstract class ZigBeeAccessory {
         }
       );
     }
-    this.log.info(`No need to configure device ${this.friendlyName}`);
     return false;
   }
 

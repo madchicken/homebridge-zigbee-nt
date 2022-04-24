@@ -1,5 +1,5 @@
 import { ZigBeeAccessory } from '../zig-bee-accessory';
-import { Callback, CharacteristicEventTypes, Service } from 'homebridge';
+import { CharacteristicGetCallback, CharacteristicEventTypes, Service } from 'homebridge';
 import { DeviceState } from '../../zigbee/types';
 import { BatteryServiceBuilder } from '../../builders/battery-service-builder';
 
@@ -16,7 +16,7 @@ export class XiaomiVibrationSensor extends ZigBeeAccessory {
 
     this.contactService
       .getCharacteristic(Characteristic.ContactSensorState)
-      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
+      .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         this.log.debug(
           `XiaomiVibrationSensor get Vibration Sensor State for ${this.accessory.displayName}`,
           this.state
