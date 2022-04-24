@@ -1,5 +1,5 @@
 import { ZigBeeAccessory } from '../zig-bee-accessory';
-import { Callback, CharacteristicEventTypes, Service } from 'homebridge';
+import { CharacteristicGetCallback, CharacteristicEventTypes, Service } from 'homebridge';
 
 export class IkeaMotionSensor extends ZigBeeAccessory {
   private sensorService: Service;
@@ -15,7 +15,7 @@ export class IkeaMotionSensor extends ZigBeeAccessory {
     this.sensorService.setCharacteristic(Characteristic.Name, this.friendlyName);
     this.sensorService
       .getCharacteristic(Characteristic.MotionDetected)
-      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
+      .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         if (this.state.occupancy) {
           this.log.debug(`Motion detected for sensor ${this.friendlyName}`);
         }
@@ -24,7 +24,7 @@ export class IkeaMotionSensor extends ZigBeeAccessory {
 
     this.sensorService
       .getCharacteristic(Characteristic.StatusLowBattery)
-      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
+      .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         callback(
           null,
           this.state.battery && this.state.battery <= 10

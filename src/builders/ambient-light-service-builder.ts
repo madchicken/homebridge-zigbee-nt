@@ -1,6 +1,6 @@
 import { ServiceBuilder } from './service-builder';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
-import { Callback, CharacteristicEventTypes, PlatformAccessory } from 'homebridge';
+import { CharacteristicGetCallback, CharacteristicEventTypes, PlatformAccessory } from 'homebridge';
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import { DeviceState } from '../zigbee/types';
 import { get } from 'lodash';
@@ -23,7 +23,7 @@ export class AmbientLightServiceBuilder extends ServiceBuilder {
 
     this.service
       .getCharacteristic(Characteristic.CurrentAmbientLightLevel)
-      .on(CharacteristicEventTypes.GET, async (callback: Callback) => {
+      .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
         const lux: number = get(this.state, 'illuminance_lux', 0.0001);
         this.log.debug(`Getting state for ambient light sensor ${this.friendlyName}: ${lux}`);
         callback(null, lux);
