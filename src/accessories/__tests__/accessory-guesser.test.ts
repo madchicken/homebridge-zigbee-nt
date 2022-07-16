@@ -51,11 +51,10 @@ describe('Device Guesser', () => {
     );
     expect(accessory).toBeInstanceOf(ConfigurableAccessory);
     const availableServices = accessory.getAvailableServices();
-    expect(availableServices.length).toBe(4);
+    expect(availableServices.length).toBe(3);
     expect(availableServices.map(s => s.UUID)).toContain(API.hap.Service.BatteryService.UUID);
     expect(availableServices.map(s => s.UUID)).toContain(API.hap.Service.MotionSensor.UUID);
     expect(availableServices.map(s => s.UUID)).toContain(API.hap.Service.LightSensor.UUID);
-    expect(availableServices.map(s => s.UUID)).toContain(API.hap.Service.TemperatureSensor.UUID);
   });
 
   it('should recognize Philips light bulb given the device descriptor', () => {
@@ -120,10 +119,9 @@ describe('Device Guesser', () => {
     );
     expect(accessory).toBeInstanceOf(ConfigurableAccessory);
     const availableServices = accessory.getAvailableServices();
-    expect(availableServices.length).toBe(3);
+    expect(availableServices.length).toBe(2);
     expect(availableServices.map(s => s.UUID)).toContain(API.hap.Service.ContactSensor.UUID);
     expect(availableServices.map(s => s.UUID)).toContain(API.hap.Service.BatteryService.UUID);
-    expect(availableServices.map(s => s.UUID)).toContain(API.hap.Service.TemperatureSensor.UUID);
   });
 
   it('should recognize vibration sensors given the device descriptor', () => {
