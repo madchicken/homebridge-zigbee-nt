@@ -285,7 +285,7 @@ export interface ZigBeeDefinition {
     timeout?: number;
     configured?: number;
   };
-  configure?: (device: Device, coordinatorEndpoint: Endpoint) => Promise<void>;
+  configure?: (device: Device, coordinatorEndpoint: Endpoint, logger: Logger) => Promise<void>;
   fromZigbee: FromConverter[];
   toZigbee: ToConverter[];
   exposes: Capability[];

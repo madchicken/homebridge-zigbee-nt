@@ -172,7 +172,7 @@ export abstract class ZigBeeAccessory {
       const definition = this.zigBeeDefinition;
       return await retry<boolean>(
         async (bail: (e: Error) => void, attempt: number) => {
-          await definition.configure(this.zigBeeDeviceDescriptor, coordinatorEndpoint);
+          await definition.configure(this.zigBeeDeviceDescriptor, coordinatorEndpoint, this.log);
           this.isConfigured = true;
           this.zigBeeDeviceDescriptor.save();
           this.log.info(
