@@ -80,7 +80,7 @@ export abstract class ZigBeeAccessory {
   }
 
   /**
-   * Perform initialization of the accessory. By default is creates services exposed by the
+   * Perform initialization of the accessory. By default, it creates services exposed by the
    * accessory by invoking {@link ZigBeeAccessory.getAvailableServices}
    */
   public async initialize(): Promise<void> {
