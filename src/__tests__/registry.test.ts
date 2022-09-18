@@ -153,4 +153,11 @@ describe('Device Registry', () => {
     const ctor = getAccessoryInstance('0x84fd27fffe6fab53');
     expect(ctor).toBeInstanceOf(IkeaSignalRepeater);
   });
+
+  it('should recognize SONOFF ZBMINI-L', function () {
+    registerSupportedDevices();
+    const ctor = getAccessoryInstance('0x00124b0026b753c7');
+    expect(ctor).toBeInstanceOf(ConfigurableAccessory);
+  });
+
 });

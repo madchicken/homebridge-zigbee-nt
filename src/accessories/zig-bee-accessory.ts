@@ -70,8 +70,8 @@ export abstract class ZigBeeAccessory {
     const Characteristic = platform.Characteristic;
     this.accessory
       .getService(this.platform.Service.AccessoryInformation)
-      .setCharacteristic(Characteristic.Manufacturer, device.manufacturerName)
-      .setCharacteristic(Characteristic.Model, device.modelID)
+      .setCharacteristic(Characteristic.Manufacturer, `${device.manufacturerName}`)
+      .setCharacteristic(Characteristic.Model, `${device.modelID}`)
       .setCharacteristic(Characteristic.SerialNumber, device.ieeeAddr)
       .setCharacteristic(Characteristic.SoftwareRevision, `${device.softwareBuildID}`)
       .setCharacteristic(Characteristic.HardwareRevision, `${device.hardwareVersion}`)
