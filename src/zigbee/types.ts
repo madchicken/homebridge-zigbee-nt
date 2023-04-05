@@ -166,6 +166,7 @@ export interface DeviceState {
   hue_power_on_color?: string;
   // Tuya specific
   position?: number;
+  presence?: boolean;
 }
 
 export interface ColorCapabilities {

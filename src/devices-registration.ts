@@ -21,6 +21,7 @@ import { PhilipsHueWhiteTemperature } from './accessories/philips/philips-hue-wh
 import { SonoffContactSensor } from './accessories/sonoff/contact-sensor';
 import { TuyaOnoffDoubleSwitch } from './accessories/tuya/tuya-onoff-double-switch';
 import { TuyaThermostatControl } from './accessories/tuya/tuya-thermostat-control';
+import { TuyaHumanPresenceSensor} from './accessories/tuya/tuya-human-presence-sensor';
 import { AqaraCube } from './accessories/xiaomi/aqara-cube';
 import {
   AqaraOppleSwitch2Buttons,
@@ -197,6 +198,7 @@ export function registerSupportedDevices(): void {
   );
   registerAccessoryClass('eWeLink', ['DS01'], SonoffContactSensor);
   registerAccessoryClass('Nanoleaf', ['NL08-0800'], NanoleafIvy);
+  registerAccessoryClass(['_TZE204_ztc6ggyl'], ['TS0601'], TuyaHumanPresenceSensor);
 
   // Register devices defined in local database
   DATABASE_ACCESSORIES.forEach((deviceConfig) =>

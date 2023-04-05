@@ -75,8 +75,8 @@
     "uri-js": "4.4.1",
     "winston": "3.3.3",
     "ws": "^7.5.0",
-    "zigbee-herdsman": "0.14.45",
-    "zigbee-herdsman-converters": "14.0.569"
+    "zigbee-herdsman": "0.14.104",
+    "zigbee-herdsman-converters": "15.0.82"
   },
   "devDependencies": {
     "@emotion/eslint-plugin": "^11.2.0",
