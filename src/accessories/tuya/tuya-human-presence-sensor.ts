@@ -1,6 +1,10 @@
+
 import { ZigBeeAccessory } from '../zig-bee-accessory';
 import { CharacteristicGetCallback, CharacteristicEventTypes, Service } from 'homebridge';
 import { AmbientLightServiceBuilder } from '../../builders/ambient-light-service-builder';
+import { DeviceState } from '../../zigbee/types';
+import { isNull, isUndefined, get } from 'lodash';
+import { HAP } from '../../index';
 
 export class TuyaHumanPresenceSensor extends ZigBeeAccessory {
   private sensorService: Service;
@@ -17,9 +21,6 @@ export class TuyaHumanPresenceSensor extends ZigBeeAccessory {
     this.sensorService
       .getCharacteristic(Characteristic.OccupancyDetected)
       .on(CharacteristicEventTypes.GET, async (callback: CharacteristicGetCallback) => {
-        if (this.state.contact) {
-          this.log.debug(`Motion detected for sensor ${this.friendlyName}`);
-        }
         callback(
           null,
           this.state.presence
@@ -40,4 +41,28 @@ export class TuyaHumanPresenceSensor extends ZigBeeAccessory {
 
     return [this.sensorService, this.ambientLightService];
   }
+
+  update(state: DeviceState) {
+    super.update(state);
+    const Characteristic = this.platform.api.hap.Characteristic;
+
+
+    if (this.supports('presence') && !isNull(state.presence) && !isUndefined(state.presence) ) {
+      this.log.info(`[TuyaHumanPresenceSensor] ${this.friendlyName} presence: ${state.presence}`);
+      this.sensorService.updateCharacteristic(
+        this.platform.Characteristic.OccupancyDetected,
+        state.presence
+            ? Characteristic.OccupancyDetected.OCCUPANCY_DETECTED
+            : Characteristic.OccupancyDetected.OCCUPANCY_NOT_DETECTED);
+    }
+
+    if (this.supports('illuminance_lux') && !isNull(state.illuminance_lux) && !isUndefined(state.illuminance_lux)) 
+	{
+        this.log.info(`[TuyaHumanPresenceSensor] ${this.friendlyName} illuminance_lux: ${state.illuminance_lux}`);
+        this.ambientLightService.updateCharacteristic(
+          this.platform.Characteristic.CurrentAmbientLightLevel,
+          state.illuminance_lux );
+    }
+  }
+
 }
