@@ -70,13 +70,13 @@
     "react-query": "3.17.2",
     "react-router": "5.2.0",
     "react-router-dom": "5.2.0",
-    "serialport": "9.0.6",
+    "serialport": "12.0.0",
     "serve-static": "1.14.1",
     "uri-js": "4.4.1",
     "winston": "3.3.3",
     "ws": "^7.5.0",
-    "zigbee-herdsman": "0.14.45",
-    "zigbee-herdsman-converters": "14.0.569"
+    "zigbee-herdsman": "0.14.117",
+    "zigbee-herdsman-converters": "14.0.694"
   },
   "devDependencies": {
     "@emotion/eslint-plugin": "^11.2.0",
@@ -93,7 +93,7 @@
     "@types/react-dom": "17.0.0",
     "@types/react-router": "^5.1.8",
     "@types/react-router-dom": "^5.1.6",
-    "@types/serialport": "^8.0.1",
+    "@types/serialport": "^8.0.5",
     "@types/serve-static": "^1.13.9",
     "@types/ws": "^7.4.0",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
