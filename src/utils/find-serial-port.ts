@@ -1,8 +1,8 @@
-import serialport from 'serialport';
+import SerialPort from 'serialport';
 
 export async function findSerialPort(): Promise<string> {
   try {
-    const ports = await serialport.list();
+    const ports = await SerialPort.SerialPort.list();
     const port = ports.find(item => item.manufacturer === 'Texas Instruments');
     if (port) {
       return port.path;
