@@ -4,8 +4,6 @@ import Device from 'zigbee-herdsman/dist/controller/model/device';
 import { ZigbeeNTHomebridgePlatform } from '../platform';
 import { ZigBeeNTPlatformConfig } from '../types';
 import { log } from '../utils/tests/null-logger';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import { findByDevice } from 'zigbee-herdsman-converters';
 
 // Mocks
