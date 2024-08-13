@@ -1788,7 +1788,7 @@
     "@serialport/bindings-interface" "^1.2.1"
     debug "^4.3.3"
 
-"@serialport/bindings-cpp@12.0.1":
+"@serialport/bindings-cpp@12.0.1", "@serialport/bindings-cpp@^12.0.1":
   version "12.0.1"
   resolved "https://registry.yarnpkg.com/@serialport/bindings-cpp/-/bindings-cpp-12.0.1.tgz#b7588a8b3e124e7679622ce980a7d8528e9f36a3"
   integrity sha512-r2XOwY2dDvbW7dKqSPIk2gzsr6M6Qpe9+/Ngs94fNaNlcTRCV02PfaoDmRgcubpNVVcLATlxSxPTIDw12dbKOg==
@@ -1830,7 +1830,7 @@
   resolved "https://registry.yarnpkg.com/@serialport/parser-delimiter/-/parser-delimiter-11.0.0.tgz#e830c6bb49723d4446131277dc3243b502d09388"
   integrity sha512-aZLJhlRTjSmEwllLG7S4J8s8ctRAS0cbvCpO87smLvl3e4BgzbVgF6Z6zaJd3Aji2uSiYgfedCdNc4L6W+1E2g==
 
-"@serialport/parser-delimiter@12.0.0":
+"@serialport/parser-delimiter@12.0.0", "@serialport/parser-delimiter@^12.0.0":
   version "12.0.0"
   resolved "https://registry.yarnpkg.com/@serialport/parser-delimiter/-/parser-delimiter-12.0.0.tgz#43d3687f982829cc9b48ee0b21f2de80d0f19778"
   integrity sha512-gu26tVt5lQoybhorLTPsH2j2LnX3AOP2x/34+DUSTNaUTzu2fBXw+isVjQJpUBFWu6aeQRZw5bJol5X9Gxjblw==
@@ -1884,7 +1884,7 @@
   resolved "https://registry.yarnpkg.com/@serialport/parser-spacepacket/-/parser-spacepacket-12.0.0.tgz#347e34b0221f29eb252ebd341a0acfff920ad814"
   integrity sha512-dozONxhPC/78pntuxpz/NOtVps8qIc/UZzdc/LuPvVsqCoJXiRxOg6ZtCP/W58iibJDKPZPAWPGYeZt9DJxI+Q==
 
-"@serialport/stream@12.0.0":
+"@serialport/stream@12.0.0", "@serialport/stream@^12.0.0":
   version "12.0.0"
   resolved "https://registry.yarnpkg.com/@serialport/stream/-/stream-12.0.0.tgz#047f97f780d92ddfc04303cb625e0f7e5a01a2bf"
   integrity sha512-9On64rhzuqKdOQyiYLYv2lQOh3TZU/D3+IWCR5gk0alPel2nwpp4YwDEGiUBfrQZEdQ6xww0PWkzqth4wqwX3Q==
@@ -2391,6 +2391,13 @@ agent-base@6, agent-base@^6.0.2:
   dependencies:
     debug "4"
 
+agent-base@^7.0.2:
+  version "7.1.1"
+  resolved "https://registry.yarnpkg.com/agent-base/-/agent-base-7.1.1.tgz#bdbded7dfb096b751a2a087eeeb9664725b2e317"
+  integrity sha512-H0TSyFNDMomMNJQBn8wFV5YC/2eJ+VXECwOadZJT554xP6cODZHPX3H9QMQECxvrgiSOP1pHjy1sMWQVYJOUOA==
+  dependencies:
+    debug "^4.3.4"
+
 agentkeepalive@^4.1.3:
   version "4.1.4"
   resolved "https://registry.yarnpkg.com/agentkeepalive/-/agentkeepalive-4.1.4.tgz#d928028a4862cb11718e55227872e842a44c945b"
@@ -2671,10 +2678,10 @@ axios@0.21.1:
   dependencies:
     follow-redirects "^1.10.0"
 
-axios@^1.2.1:
-  version "1.7.2"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.2.tgz#b625db8a7051fbea61c35a3cbb3a1daa7b9c7621"
-  integrity sha512-2A8QhOMrbomlDuiLeK9XibIBzuHeRcqqNOHp0Cyp5EoJ1IFDh+XZH3A6BkXtv0K4gFGCI0Y4BM7B1wOEi0Rmgw==
+axios@^1.6.2:
+  version "1.7.3"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.3.tgz#a1125f2faf702bc8e8f2104ec3a76fab40257d85"
+  integrity sha512-Ar7ND9pU99eJ9GpoGQKhKf58GpUOgnzuaB7ueNQ5BMi0p+LZ5oaEnfF999fAArcTIBwXTCHAmGcHOZJaWPq9Nw==
   dependencies:
     follow-redirects "^1.15.6"
     form-data "^4.0.0"
@@ -3574,6 +3581,11 @@ debounce@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/debounce/-/debounce-1.2.1.tgz#38881d8f4166a5c5848020c11827b834bcb3e0a5"
   integrity sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug==
+
+debounce@^2.0.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/debounce/-/debounce-2.1.0.tgz#eab25eaf254b848fcfccffbde75bdaa44842caa3"
+  integrity sha512-OkL3+0pPWCqoBc/nhO9u6TIQNTK44fnBnzuVtJAbp13Naxw9R6u21x+8tVTka87AhDZ3htqZ2pSSsZl9fqL2Wg==
 
 debug@2.6.9, debug@^2.2.0:
   version "2.6.9"
@@ -5190,12 +5202,12 @@ https-proxy-agent@^5.0.0:
     agent-base "6"
     debug "4"
 
-https-proxy-agent@^5.0.1:
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/https-proxy-agent/-/https-proxy-agent-5.0.1.tgz#c59ef224a04fe8b754f3db0063a25ea30d0005d6"
-  integrity sha512-dFcAjpTQFgoLMzC2VwU+C/CbS7uRL0lWmxDITmqm7C+7F0Odmj6s9l6alZc6AELXhrnggM2CeWSXHGOdX2YtwA==
+https-proxy-agent@^7.0.2:
+  version "7.0.5"
+  resolved "https://registry.yarnpkg.com/https-proxy-agent/-/https-proxy-agent-7.0.5.tgz#9e8b5013873299e11fab6fd548405da2d6c602b2"
+  integrity sha512-1e4Wqeblerz+tMKPIq2EMGiiWW1dIjZOksyHWSUm1rmuvw/how9hBHZ38lAGj5ID4Ik6EdkOw7NmWPy6LAwalw==
   dependencies:
-    agent-base "6"
+    agent-base "^7.0.2"
     debug "4"
 
 human-signals@^1.1.1:
@@ -9164,7 +9176,7 @@ table@^6.0.9:
     string-width "^4.2.3"
     strip-ansi "^6.0.1"
 
-tar-stream@^3.0.0:
+tar-stream@^3.1.6:
   version "3.1.7"
   resolved "https://registry.yarnpkg.com/tar-stream/-/tar-stream-3.1.7.tgz#24b3fb5eabada19fe7338ed6d26e5f7c482e792b"
   integrity sha512-qJj60CXt7IU1Ffyc3NJMjh6EkuCFej46zUqJ4J7pqYlThyd9bO0XBTmcOIhSzZJVWfsLks0+nle/j538YAW9RQ==
@@ -10026,27 +10038,43 @@ yocto-queue@^0.1.0:
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz#0294eb3dee05028d31ee1a5fa2c556a6aaf10a1b"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
 
-zigbee-herdsman-converters@14.0.694:
-  version "14.0.694"
-  resolved "https://registry.yarnpkg.com/zigbee-herdsman-converters/-/zigbee-herdsman-converters-14.0.694.tgz#df0f6c91df7fcf8f01110d94f5d9a1ccbb69df39"
-  integrity sha512-gjeOUrtMaeMPOq8524LB61gyGXeuPOcg6Q3fqapAS3/8uSWOJEQpDPDEamXKcq1W0WykUuu0BKlUxMH/ZiSqxQ==
+zigbee-herdsman-converters@15.132.0:
+  version "15.132.0"
+  resolved "https://registry.yarnpkg.com/zigbee-herdsman-converters/-/zigbee-herdsman-converters-15.132.0.tgz#3cf7bb3c9bc0acbfa2c4c6779b358d64c6649c78"
+  integrity sha512-DMHwypSEJ8hv3POWAMMqx0YHkU7QS88GuU7AkPsu49eHtLYro/utTpgxb5ugasbaUYXY4LHNCmHzAW4GFIwPGA==
   dependencies:
-    axios "^1.2.1"
+    axios "^1.6.2"
     buffer-crc32 "^0.2.13"
-    https-proxy-agent "^5.0.1"
-    tar-stream "^3.0.0"
-    zigbee-herdsman "^0.14.81"
+    https-proxy-agent "^7.0.2"
+    tar-stream "^3.1.6"
+    zigbee-herdsman "^0.25.1"
 
-zigbee-herdsman@0.14.117, zigbee-herdsman@^0.14.81:
-  version "0.14.117"
-  resolved "https://registry.yarnpkg.com/zigbee-herdsman/-/zigbee-herdsman-0.14.117.tgz#2d5df15ef6ebe6009d9505efa48eca532dfcb622"
-  integrity sha512-xydcDKu/hbgxiuOFR138+jVDAEWE4X1YgbYRRz/IGPA4xknXCBB6Wmh1vr8VEqmLkSE9o+0Vqt45aG3Hof9lew==
+zigbee-herdsman@0.15.3:
+  version "0.15.3"
+  resolved "https://registry.yarnpkg.com/zigbee-herdsman/-/zigbee-herdsman-0.15.3.tgz#cdb00e27a19a929fa8fb93ef8f6bdfe4d17e7062"
+  integrity sha512-1sfGMW0tBe/5LLbx0pgIzNT0r8vIDho0XLxAs1jthQa2uCoCLRDJLX4r6e1MH//5o/M/GozSXcR0APV9rH1vkA==
   dependencies:
     "@serialport/bindings-cpp" "^11.0.1"
     "@serialport/parser-delimiter" "^11.0.0"
     "@serialport/stream" "^11.0.0"
     bonjour-service "^1.1.1"
     debounce "^1.2.1"
+    debug "^4.3.4"
+    fast-deep-equal "^3.1.3"
+    mixin-deep "^2.0.1"
+    mz "^2.7.0"
+    slip "^1.0.2"
+
+zigbee-herdsman@^0.25.1:
+  version "0.25.3"
+  resolved "https://registry.yarnpkg.com/zigbee-herdsman/-/zigbee-herdsman-0.25.3.tgz#08be49c000fafca01e0635fe0a05c352920696cd"
+  integrity sha512-FGi/XjqAbWP38URhoXZlsXr8IJ/a1RlHOmETyESjoI3umEPaMYNTN2EEfc6Btq4k05xHJd06KAPG0Yyn7OtiUw==
+  dependencies:
+    "@serialport/bindings-cpp" "^12.0.1"
+    "@serialport/parser-delimiter" "^12.0.0"
+    "@serialport/stream" "^12.0.0"
+    bonjour-service "^1.1.1"
+    debounce "^2.0.0"
     debug "^4.3.4"
     fast-deep-equal "^3.1.3"
     mixin-deep "^2.0.1"
