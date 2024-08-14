@@ -10015,10 +10015,10 @@ zigbee-herdsman-converters@15.132.0:
     tar-stream "^3.1.6"
     zigbee-herdsman "^0.25.1"
 
-zigbee-herdsman@0.25.1:
-  version "0.25.1"
-  resolved "https://registry.yarnpkg.com/zigbee-herdsman/-/zigbee-herdsman-0.25.1.tgz#f3cce91592b0655c2f004556414d401d896969ff"
-  integrity sha512-RkCusQRwtlh9YiwhJRTd44DsoEj2jYdwM2b4sBc+tj3hvCg7JJTc+yA1M7AVTyrWlIslZBJRNY6l2HsRWOj7zw==
+zigbee-herdsman@0.26.1:
+  version "0.26.1"
+  resolved "https://registry.yarnpkg.com/zigbee-herdsman/-/zigbee-herdsman-0.26.1.tgz#3b719d15f1f58f2bc2e8eb5ed8afb34b9098d3ad"
+  integrity sha512-OPkI8t6d4BRa64UPvYVHW1fie1cDZ8f+N6iCHaTJSrCxLngkkVvzbJCmS5OsoBr1CnGxk5n7n+ALoYPR+DAY+w==
   dependencies:
     "@serialport/bindings-cpp" "^12.0.1"
     "@serialport/parser-delimiter" "^12.0.0"
