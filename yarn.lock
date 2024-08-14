@@ -2856,7 +2856,7 @@ bonjour-hap@~3.6.3:
     multicast-dns "^7.2.3"
     multicast-dns-service-types "^1.1.0"
 
-bonjour-service@^1.1.1:
+bonjour-service@^1.1.1, bonjour-service@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/bonjour-service/-/bonjour-service-1.2.1.tgz#eb41b3085183df3321da1264719fbada12478d02"
   integrity sha512-oSzCS2zV14bh2kji6vNe7vrpJYCHGvcZnlffFQ1MEoX/WOeQ/teD8SYWKR942OI3INjq8OMNJlbPK5LLLUxFDw==
@@ -3553,7 +3553,7 @@ dayjs@1.10.5:
   resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.10.5.tgz#5600df4548fc2453b3f163ebb2abbe965ccfb986"
   integrity sha512-BUFis41ikLz+65iH6LHQCDm4YPMj5r1YFLdupPIyM4SGcXMmtiLQ7U37i+hGS8urIuqe7I/ou3IS1jVc4nbN4g==
 
-debounce@^2.0.0:
+debounce@^2.0.0, debounce@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/debounce/-/debounce-2.1.0.tgz#eab25eaf254b848fcfccffbde75bdaa44842caa3"
   integrity sha512-OkL3+0pPWCqoBc/nhO9u6TIQNTK44fnBnzuVtJAbp13Naxw9R6u21x+8tVTka87AhDZ3htqZ2pSSsZl9fqL2Wg==
@@ -10004,10 +10004,10 @@ yocto-queue@^0.1.0:
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz#0294eb3dee05028d31ee1a5fa2c556a6aaf10a1b"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
 
-zigbee-herdsman-converters@15.132.0:
-  version "15.132.0"
-  resolved "https://registry.yarnpkg.com/zigbee-herdsman-converters/-/zigbee-herdsman-converters-15.132.0.tgz#3cf7bb3c9bc0acbfa2c4c6779b358d64c6649c78"
-  integrity sha512-DMHwypSEJ8hv3POWAMMqx0YHkU7QS88GuU7AkPsu49eHtLYro/utTpgxb5ugasbaUYXY4LHNCmHzAW4GFIwPGA==
+zigbee-herdsman-converters@16.0.0:
+  version "16.0.0"
+  resolved "https://registry.yarnpkg.com/zigbee-herdsman-converters/-/zigbee-herdsman-converters-16.0.0.tgz#b7e38508f75e65d960997edac1cca629d3aeef8a"
+  integrity sha512-V/zSd6W6kaZ/SC2cqONJzOKluQkdkZAgltVga01+OrkkHw1RxyTaJyK7f+ZSV5OTWrTmsO8N1ll+Cj26ziyp8Q==
   dependencies:
     axios "^1.6.2"
     buffer-crc32 "^0.2.13"
@@ -10015,17 +10015,16 @@ zigbee-herdsman-converters@15.132.0:
     tar-stream "^3.1.6"
     zigbee-herdsman "^0.25.1"
 
-zigbee-herdsman@0.26.1:
-  version "0.26.1"
-  resolved "https://registry.yarnpkg.com/zigbee-herdsman/-/zigbee-herdsman-0.26.1.tgz#3b719d15f1f58f2bc2e8eb5ed8afb34b9098d3ad"
-  integrity sha512-OPkI8t6d4BRa64UPvYVHW1fie1cDZ8f+N6iCHaTJSrCxLngkkVvzbJCmS5OsoBr1CnGxk5n7n+ALoYPR+DAY+w==
+zigbee-herdsman@0.55.5:
+  version "0.55.5"
+  resolved "https://registry.yarnpkg.com/zigbee-herdsman/-/zigbee-herdsman-0.55.5.tgz#343b22a4c947d47164b2aa766e8c00cf6c7b955d"
+  integrity sha512-8UG2UhPgSOd5vGO2cpFobMR3ruumqFcJkT1Dhl7KrYLSVayVQTffJN+z3mVbIPokuQcepbZrMerCOEr1WrHF9w==
   dependencies:
     "@serialport/bindings-cpp" "^12.0.1"
     "@serialport/parser-delimiter" "^12.0.0"
     "@serialport/stream" "^12.0.0"
-    bonjour-service "^1.1.1"
-    debounce "^2.0.0"
-    debug "^4.3.4"
+    bonjour-service "^1.2.1"
+    debounce "^2.1.0"
     fast-deep-equal "^3.1.3"
     mixin-deep "^2.0.1"
     mz "^2.7.0"
