@@ -1,6 +1,6 @@
 {
   "name": "homebridge-zigbee-nt",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "description": "ZigBee New Technology Platform plugin for HomeBridge",
   "main": "dist/index.js",
   "targets": {
@@ -75,8 +75,8 @@
     "uri-js": "4.4.1",
     "winston": "3.3.3",
     "ws": "^7.5.0",
-    "zigbee-herdsman": "0.14.117",
-    "zigbee-herdsman-converters": "14.0.694"
+    "zigbee-herdsman": "0.55.5",
+    "zigbee-herdsman-converters": "16.0.0"
   },
   "devDependencies": {
     "@emotion/eslint-plugin": "^11.2.0",
@@ -108,6 +108,7 @@
     "http-proxy-middleware": "^1.0.6",
     "husky": "^7.0.4",
     "jest": "^27.4.4",
+    "jest-junit": "^16.0.0",
     "nock": "^12.0.2",
     "node-forge": "^1.0.0",
     "parcel": "2.6.2",

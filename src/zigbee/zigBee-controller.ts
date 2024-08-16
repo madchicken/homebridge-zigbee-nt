@@ -81,7 +81,7 @@ export class ZigBeeController {
       },
       databasePath: config.databasePath,
       databaseBackupPath: `${config.databasePath}.${Date.now()}`,
-      acceptJoiningDeviceHandler: (ieeeAddr) => this.acceptJoiningDeviceHandler(ieeeAddr),
+      acceptJoiningDeviceHandler: (ieeeAddr: string) => this.acceptJoiningDeviceHandler(ieeeAddr),
       backupPath: null,
       adapter: { disableLED: false },
       network: {
