@@ -3,15 +3,14 @@ orbs:
   node: circleci/node@5.0.2
 jobs:
   build-and-test:
-    executor:
-      name: node/default
+    docker:
+      - image: cimg/base:stable
     steps:
-      - checkout
-      - node/with-cache:
-          steps:
-            - run: yarn install
-            - run: yarn test
+      - node/install
 workflows:
     build-and-test:
       jobs:
         - build-and-test
+        - node/test:
+            pkg-manager: yarn
+            test-results-for: jest 
