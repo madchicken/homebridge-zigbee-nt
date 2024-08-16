@@ -70,8 +70,8 @@ export abstract class ZigBeeAccessory {
     const Characteristic = platform.Characteristic;
     this.accessory
       .getService(this.platform.Service.AccessoryInformation)
-      .setCharacteristic(Characteristic.Manufacturer, device.manufacturerName)
-      .setCharacteristic(Characteristic.Model, device.modelID)
+      .setCharacteristic(Characteristic.Manufacturer, `${device.manufacturerName}`)
+      .setCharacteristic(Characteristic.Model, `${device.modelID}`)
       .setCharacteristic(Characteristic.SerialNumber, device.ieeeAddr)
       .setCharacteristic(Characteristic.SoftwareRevision, `${device.softwareBuildID}`)
       .setCharacteristic(Characteristic.HardwareRevision, `${device.hardwareVersion}`)
@@ -80,7 +80,7 @@ export abstract class ZigBeeAccessory {
   }
 
   /**
-   * Perform initialization of the accessory. By default is creates services exposed by the
+   * Perform initialization of the accessory. By default, it creates services exposed by the
    * accessory by invoking {@link ZigBeeAccessory.getAvailableServices}
    */
   public async initialize(): Promise<void> {
