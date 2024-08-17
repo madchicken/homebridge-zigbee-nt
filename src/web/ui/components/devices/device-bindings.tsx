@@ -9,7 +9,7 @@ import { renderSpinner } from '../common';
 import { CoordinatorResponse, CoordinatorService } from '../../actions/coordinator';
 import { COORDINATOR_QUERY_KEY } from '../../coordinator';
 import { GroupResponse, GroupsServices } from '../../actions/groups';
-import { getCluster } from 'zigbee-herdsman/dist/zcl/utils';
+import { getCluster } from 'zigbee-herdsman/dist/zspec/zcl/utils';
 
 interface Props {
   device: DeviceModel;
@@ -41,7 +41,7 @@ function DestDeviceSelect(props: DeviceSelectProps) {
   const [value, setValue] = React.useState(props.selected)
   return (
     <Pane>
-      <SelectField label={`Cluster: ${props.cluster ? getCluster(props.cluster).name : 'all'}, destination device`} width="100%" value={value} onChange={event => setValue(event.target.value)}>
+      <SelectField label={`Cluster: ${props.cluster ? getCluster(props.cluster, null, null).name : 'all'}, destination device`} width="100%" value={value} onChange={event => setValue(event.target.value)}>
         <option value="">None</option>
         {props.allDevices.map(d => {
           return (<option key={d.ieeeAddr} value={d.ieeeAddr}>{d.settings.friendlyName || d.ieeeAddr}</option>)
@@ -61,7 +61,7 @@ function DestGroupSelect(props: GroupSelectProps) {
   const [value, setValue] = React.useState(props.selected)
   return (
     <Pane>
-      <SelectField label={`Cluster: ${props.cluster ? getCluster(props.cluster).name : 'all'}, destination group`} width="100%" value={value} onChange={event => setValue(parseInt(event.target.value))}>
+      <SelectField label={`Cluster: ${props.cluster ? getCluster(props.cluster, null, null).name : 'all'}, destination group`} width="100%" value={value} onChange={event => setValue(parseInt(event.target.value))}>
         <option value="">None</option>
         {props.allGroups.map(g => {
           return (<option key={g.ID} value={g.ID}>{g.ID}</option>)
