@@ -26,7 +26,7 @@ export interface ZigBeeClientConfig {
   database: string;
   panId: number;
   secondaryChannel?: string;
-  adapter?: 'zstack' | 'deconz' | 'zigate';
+  adapter?: 'zstack' | 'deconz' | 'zigate' | 'ezsp';
 }
 
 type StatePublisher = (ieeeAddr: string, state: DeviceState) => void;
