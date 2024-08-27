@@ -120,7 +120,7 @@ export interface ZigBeeNTPlatformConfig extends PlatformConfig {
   channel?: number;
   secondaryChannel?: string;
   database?: string;
-  adapter?: 'zstack' | 'deconz' | 'zigate';
+  adapter?: 'zstack' | 'deconz' | 'zigate' | 'ezsp';
   httpPort?: number;
   disableRoutingPolling?: boolean;
   disableHttpServer?: boolean;

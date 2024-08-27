@@ -76,7 +76,7 @@
         "description": "Type of adapter to use. Default to zstack",
         "type": "string",
         "default": "zstack",
-        "enum": ["zstack", "deconz", "zigate"],
+        "enum": ["zstack", "deconz", "zigate", "ezsp"],
         "required": false
       },
       "database": {
