@@ -225,3 +225,11 @@ All notable changes to this project will be documented in this file. This projec
 
 - Add support for low battery level for battery service
 - Downgrade serial port dependency because of this issue https://github.com/Koenkk/zigbee2mqtt/issues/8282
+
+## 2.6.2 (2024-8-31)
+
+## [Version 2.6.2](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.6.1...v2.6.2)
+
+#### Changes
+
+- Add support for ezsp protocol and Ikea TRETAKT plug (@jdhuntington)
