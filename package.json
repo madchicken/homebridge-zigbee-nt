@@ -58,7 +58,7 @@
     "dayjs": "1.10.5",
     "emotion": "11.0.0",
     "evergreen-ui": "6.13.3",
-    "express": "4.19.2",
+    "express": "4.20.0",
     "fakegato-history": "0.6.1",
     "http2": "3.3.7",
     "js-big-decimal": "1.2.4",
