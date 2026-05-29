@@ -16,8 +16,8 @@ export class BatteryServiceBuilder extends ServiceBuilder {
   ) {
     super(platform, accessory, client, state);
     this.service =
-      this.accessory.getService(platform.Service.BatteryService) ||
-      this.accessory.addService(platform.Service.BatteryService);
+      this.accessory.getService(platform.Service.Battery) ||
+      this.accessory.addService(platform.Service.Battery);
   }
 
   /**
