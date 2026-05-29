@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. This project uses [Semantic Versioning](https://semver.org/).
 
+## [2.7.0](https://github.com/madchicken/homebridge-zigbee-nt/compare/v2.6.2...v2.7.0) (2026-05-29)
+
+#### Changes
+
+- Fix: aggiornato il nome del servizio batteria da `BatteryService` a `Battery` per compatibilità con le versioni recenti di Homebridge
+- Bump express from 4.19.2 to 4.20.0 (security update)
+
 ## 2.0.0 (2021-1-19)
 
 ## [Version 2.0.0](https://github.com/madchicken/homebridge-zigbee-nt/compare/v1.1.2...v2.0.0)
