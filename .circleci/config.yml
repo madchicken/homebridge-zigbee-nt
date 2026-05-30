@@ -7,6 +7,9 @@ jobs:
       - image: cimg/node:20.19
     steps:
       - checkout
+      - run:
+          command: node --version && yarn --version
+          name: Node/Yarn versions
       - node/install-packages:
           pkg-manager: yarn
       - run:
