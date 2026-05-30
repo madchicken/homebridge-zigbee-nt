@@ -16,7 +16,11 @@
     "resolveJsonModule": true,
     "rootDir": "./src",
     "lib": ["ES2022", "DOM", "ESNext.Disposable"],
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "homebridge/lib/api": ["node_modules/homebridge/dist/api"]
+    }
   },
   "exclude": ["**/__tests__/*"],
   "include": ["src/"]
