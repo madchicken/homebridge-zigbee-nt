@@ -31,6 +31,8 @@ jobs:
     name: Publish to npm
     needs: build-and-test
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # richiesto da npm Trusted Publishers (OIDC)
     steps:
       - uses: actions/checkout@v4
 
@@ -48,6 +50,4 @@ jobs:
         run: yarn build
 
       - name: Publish
-        run: yarn publish --access public --non-interactive
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --provenance --access public
