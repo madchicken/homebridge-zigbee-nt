@@ -23,8 +23,8 @@
     "watch:node": "ts-nodemon --exec \"yarn serve\""
   },
   "engines": {
-    "homebridge": ">=1.1.0",
-    "node": ">=12.13.0"
+    "homebridge": ">=2.0.0",
+    "node": "^22 || ^24"
   },
   "repository": {
     "type": "git",
