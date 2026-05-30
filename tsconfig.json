@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "ES2022",
     "module": "commonjs",
     "moduleResolution": "node",
     "allowJs": false,
@@ -14,9 +14,10 @@
     "declarationMap": true,
     "jsx": "react",
     "resolveJsonModule": true,
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "lib": ["ES2022", "DOM", "ESNext.Disposable"],
+    "skipLibCheck": true
   },
   "exclude": ["**/__tests__/*"],
-  "include": ["src/"],
-  "lib": ["esnext", "dom", "nodejs"]
+  "include": ["src/"]
 }
