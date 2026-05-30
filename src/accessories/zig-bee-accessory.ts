@@ -273,7 +273,6 @@ export abstract class ZigBeeAccessory {
 
       switch (service.UUID) {
         case Service.Battery.UUID:
-        case Service.BatteryService.UUID:
           if (isValidValue(state.battery)) {
             service.updateCharacteristic(Characteristic.BatteryLevel, state.battery || 0);
             service.updateCharacteristic(

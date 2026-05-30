@@ -34,8 +34,8 @@ export class IkeaMotionSensor extends ZigBeeAccessory {
       });
 
     this.batteryService =
-      this.accessory.getService(Service.BatteryService) ||
-      this.accessory.addService(Service.BatteryService);
+      this.accessory.getService(Service.Battery) ||
+      this.accessory.addService(Service.Battery);
 
     return [this.sensorService, this.batteryService];
   }

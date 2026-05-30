@@ -3,9 +3,13 @@ orbs:
   node: circleci/node@5.0.2
 jobs:
   build-and-test:
-    executor: node/default
+    docker:
+      - image: cimg/node:22.16
     steps:
       - checkout
+      - run:
+          command: node --version && yarn --version
+          name: Node/Yarn versions
       - node/install-packages:
           pkg-manager: yarn
       - run:

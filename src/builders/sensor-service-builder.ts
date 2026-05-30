@@ -8,7 +8,7 @@ import {
 } from 'homebridge';
 import { ZigBeeClient } from '../zigbee/zig-bee-client';
 import { DeviceState } from '../zigbee/types';
-import { WithUUID } from 'hap-nodejs';
+import { WithUUID } from '@homebridge/hap-nodejs';
 
 export abstract class SensorServiceBuilder extends ServiceBuilder {
   constructor(
@@ -19,7 +19,8 @@ export abstract class SensorServiceBuilder extends ServiceBuilder {
     state: DeviceState
   ) {
     super(platform, accessory, client, state);
-    this.service = this.accessory.getService(service) || this.accessory.addService(service);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.service = this.accessory.getService(service) || this.accessory.addService(service as any);
   }
 
   withBatteryLow() {

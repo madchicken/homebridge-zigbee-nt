@@ -41,8 +41,8 @@ const TOUCH_LINK_ACCESSORY_NAME = 'zigbee:touchlink';
 const DEFAULT_PAN_ID = 0x1a62;
 
 export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
-  public readonly Service: typeof Service = this.api.hap.Service;
-  public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
+  public readonly Service: typeof Service;
+  public readonly Characteristic: typeof Characteristic;
 
   private readonly accessories: Map<string, PlatformAccessory>;
   private readonly homekitAccessories: Map<string, ZigBeeAccessory>;
@@ -57,6 +57,8 @@ export class ZigbeeNTHomebridgePlatform implements DynamicPlatformPlugin {
     public readonly config: ZigBeeNTPlatformConfig,
     public readonly api: API
   ) {
+    this.Service = api.hap.Service;
+    this.Characteristic = api.hap.Characteristic;
     const packageJson = JSON.parse(
       fs.readFileSync(`${path.resolve(__dirname, '../package.json')}`, 'utf-8')
     );

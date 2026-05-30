@@ -1,4 +1,4 @@
-import { Logging, LogLevel } from 'homebridge/lib/logger';
+import { Logging, LogLevel } from 'homebridge';
 
 export const log: Logging = (() => {
   const l = (_message: string, ..._parameters: any[]): void => {};
