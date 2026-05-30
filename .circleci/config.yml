@@ -3,7 +3,8 @@ orbs:
   node: circleci/node@5.0.2
 jobs:
   build-and-test:
-    executor: node/default
+    docker:
+      - image: cimg/node:20.19
     steps:
       - checkout
       - node/install-packages:
